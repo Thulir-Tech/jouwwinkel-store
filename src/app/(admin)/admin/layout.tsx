@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarInset,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Package, Settings, Home } from 'lucide-react';
@@ -21,17 +22,22 @@ export default function AdminDashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { setOpenMobile } = useSidebar();
 
   const isActive = (path: string) => {
     return pathname === path || pathname.startsWith(`${path}/`);
   };
+  
+  const handleLinkClick = () => {
+    setOpenMobile(false);
+  }
 
   return (
     <div className="flex">
       <Sidebar collapsible="icon">
         <SidebarHeader>
           <Button variant="ghost" className="h-10 w-full justify-start px-2 text-lg font-bold" asChild>
-            <Link href="/admin">Jouwwinkel</Link>
+            <Link href="/admin" onClick={handleLinkClick}>Jouwwinkel</Link>
           </Button>
         </SidebarHeader>
         <SidebarContent>
@@ -42,7 +48,7 @@ export default function AdminDashboardLayout({
                 isActive={isActive('/admin/products')}
                 asChild
               >
-                <Link href="/admin/products">
+                <Link href="/admin/products" onClick={handleLinkClick}>
                   <Package />
                   <span>Products</span>
                 </Link>
@@ -54,7 +60,7 @@ export default function AdminDashboardLayout({
                 isActive={isActive('/admin/settings')}
                 asChild
               >
-                <Link href="/admin/settings">
+                <Link href="/admin/settings" onClick={handleLinkClick}>
                   <Settings />
                   <span>Settings</span>
                 </Link>
