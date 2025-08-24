@@ -92,7 +92,7 @@ export default function ProductRecommendations({ product }: ProductRecommendatio
                   <CardTitle className="font-headline text-lg mb-2">{rec.title}</CardTitle>
                   <p className="text-sm text-muted-foreground flex-grow">{rec.reason}</p>
                    <Button asChild className="mt-4 w-full">
-                      <Link href={`/products?search=${rec.title}`}>View Product</Link>
+                      <Link href={`/products/${rec.slug}`}>View Product</Link>
                    </Button>
                 </CardContent>
               </Card>

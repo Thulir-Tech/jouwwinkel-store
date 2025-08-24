@@ -25,6 +25,7 @@ const ProductRecommendationsOutputSchema = z.array(
     id: z.string().describe('The ID of the recommended product.'),
     title: z.string().describe('The title of the recommended product.'),
     reason: z.string().describe('The AI reason for recommending this product.'),
+    slug: z.string().describe('A URL-friendly slug for the product title.'),
   })
 );
 export type ProductRecommendationsOutput = z.infer<typeof ProductRecommendationsOutputSchema>;
@@ -39,7 +40,7 @@ const prompt = ai.definePrompt({
   output: {schema: ProductRecommendationsOutputSchema},
   prompt: `You are a helpful shopping assistant whose job is to recommend related products to the user.
 
-  Based on the details of the current product, recommend {{limit}} other products that the user might be interested in.
+  Based on the details of the current product, recommend {{limit}} other trendy Korean stationary products that the user might be interested in.
 
   Product ID: {{productId}}
   Product Title: {{productTitle}}
@@ -50,6 +51,7 @@ const prompt = ai.definePrompt({
   - id: The ID of the recommended product.
   - title: The title of the recommended product.
   - reason: A short explanation of why this product is being recommended. Be specific about what the relationship is between the current product and the recommended product.
+  - slug: A URL-friendly slug for the product title.
   `,
 });
 
