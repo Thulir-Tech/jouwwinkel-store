@@ -1,5 +1,5 @@
 import { db } from './firebase.client';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
 
 function slugify(text: string) {
   return text
@@ -32,10 +32,13 @@ export async function addProduct(product: {
 
 export async function addCategory(category: { name: string }) {
     const categoriesRef = collection(db, 'categories');
+    const categoriesSnapshot = await getDocs(categoriesRef);
+    const sort = categoriesSnapshot.size;
+
     await addDoc(categoriesRef, {
         name: category.name,
         slug: slugify(category.name),
         active: true,
-        sort: 0, // You might want to calculate the next sort order
+        sort: sort, 
     });
 }

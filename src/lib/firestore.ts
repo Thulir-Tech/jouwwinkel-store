@@ -50,7 +50,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 
 
 export async function getCategories(options: { activeOnly?: boolean } = {}): Promise<Category[]> {
-  const { activeOnly = true } = options;
+  const { activeOnly = false } = options;
   const categoriesRef = collection(db, 'categories');
   const q = activeOnly
     ? query(categoriesRef, where('active', '==', true), orderBy('sort', 'asc'))
