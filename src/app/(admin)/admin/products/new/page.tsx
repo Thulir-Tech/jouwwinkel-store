@@ -2,7 +2,7 @@ import { getCategories } from '@/lib/firestore';
 import { ProductForm } from '../../product-form';
 
 export default async function NewProductPage() {
-  const categories = await getCategories();
+  const categories = await getCategories({ activeOnly: true });
 
   return (
     <div>

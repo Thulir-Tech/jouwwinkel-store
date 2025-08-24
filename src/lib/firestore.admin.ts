@@ -29,3 +29,13 @@ export async function addProduct(product: {
         createdAt: Date.now(),
     });
 }
+
+export async function addCategory(category: { name: string }) {
+    const categoriesRef = collection(db, 'categories');
+    await addDoc(categoriesRef, {
+        name: category.name,
+        slug: slugify(category.name),
+        active: true,
+        sort: 0, // You might want to calculate the next sort order
+    });
+}

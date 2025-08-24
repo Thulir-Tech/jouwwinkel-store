@@ -49,9 +49,12 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 }
 
 
-export async function getCategories(): Promise<Category[]> {
+export async function getCategories(options: { activeOnly?: boolean } = {}): Promise<Category[]> {
+  const { activeOnly = true } = options;
   const categoriesRef = collection(db, 'categories');
-  const q = query(categoriesRef, where('active', '==', true), orderBy('sort', 'asc'));
+  const q = activeOnly
+    ? query(categoriesRef, where('active', '==', true), orderBy('sort', 'asc'))
+    : query(categoriesRef, orderBy('sort', 'asc'));
   const snapshot = await getDocs(q);
   return getData<Category>(snapshot);
 }
