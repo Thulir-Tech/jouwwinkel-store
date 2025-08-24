@@ -1,7 +1,7 @@
 import Hero from '@/components/hero';
 import ProductGrid from '@/components/product-grid';
 import ProductRecommendations from '@/components/product-recommendations';
-import { getProducts } from '@/lib/firestore';
+import { getActiveProducts } from '@/lib/firestore';
 import type { Product } from '@/lib/types';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -49,12 +49,12 @@ export default function HomePage() {
 }
 
 async function ProductGridLoader() {
-  const products = await getProducts(8);
+  const products = await getActiveProducts(8);
   return <ProductGrid products={products} />;
 }
 
 async function ProductRecommendationsLoader() {
-  const products = await getProducts(1);
+  const products = await getActiveProducts(1);
   if (products.length === 0) {
     return null;
   }

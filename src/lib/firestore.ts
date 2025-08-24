@@ -10,11 +10,32 @@ function getData<T>(snapshot: any): T[] {
 export async function getProducts(limit?: number): Promise<Product[]> {
   const productsRef = collection(db, 'products');
   const q = limit 
-    ? query(productsRef, where('active', '==', true), orderBy('createdAt', 'desc'), firestoreLimit(limit))
-    : query(productsRef, where('active', '==', true), orderBy('createdAt', 'desc'));
+    ? query(productsRef, orderBy('createdAt', 'desc'), firestoreLimit(limit))
+    : query(productsRef, orderBy('createdAt', 'desc'));
   
   const snapshot = await getDocs(q);
   return getData<Product>(snapshot);
+}
+
+export async function getActiveProducts(limit?: number): Promise<Product[]> {
+    const productsRef = collection(db, 'products');
+    const q = limit 
+      ? query(productsRef, where('active', '==', true), orderBy('createdAt', 'desc'), firestoreLimit(limit))
+      : query(productsRef, where('active', '==', true), orderBy('createdAt', 'desc'));
+    
+    const snapshot = await getDocs(q);
+    return getData<Product>(snapshot);
+}
+
+export async function getProduct(id: string): Promise<Product | null> {
+    const docRef = doc(db, "products", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as Product;
+    } else {
+        return null;
+    }
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {

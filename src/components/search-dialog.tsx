@@ -7,7 +7,7 @@ import { Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getProducts } from '@/lib/firestore';
+import { getActiveProducts } from '@/lib/firestore';
 import type { Product } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { ScrollArea } from './ui/scroll-area';
@@ -20,7 +20,7 @@ export function SearchDialog() {
 
   useEffect(() => {
     async function fetchAllProducts() {
-      const products = await getProducts();
+      const products = await getActiveProducts();
       setAllProducts(products);
     }
     fetchAllProducts();

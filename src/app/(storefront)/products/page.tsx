@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { getProducts, getCategories } from '@/lib/firestore';
+import { getActiveProducts, getCategories } from '@/lib/firestore';
 import type { Product, Category } from '@/lib/types';
 import ProductCard from '@/components/product-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -36,7 +36,7 @@ export default function ProductsPage() {
     async function fetchData() {
       try {
         const [productsData, categoriesData] = await Promise.all([
-          getProducts(),
+          getActiveProducts(),
           getCategories(),
         ]);
         setProducts(productsData);
