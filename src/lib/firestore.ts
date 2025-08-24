@@ -1,5 +1,5 @@
 import { db } from './firebase.client';
-import { collection, getDocs, query, limit as firestoreLimit, orderBy, where } from 'firebase/firestore';
+import { collection, getDocs, query, limit as firestoreLimit, orderBy, where, getDoc, doc } from 'firebase/firestore';
 import type { Product, Category } from './types';
 
 // A helper function to safely get data from a snapshot
@@ -16,6 +16,17 @@ export async function getProducts(limit?: number): Promise<Product[]> {
   const snapshot = await getDocs(q);
   return getData<Product>(snapshot);
 }
+
+export async function getProductBySlug(slug: string): Promise<Product | null> {
+  const q = query(collection(db, "products"), where("slug", "==", slug), where('active', '==', true), firestoreLimit(1));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) {
+    return null;
+  }
+  const doc = snapshot.docs[0];
+  return { id: doc.id, ...doc.data() } as Product;
+}
+
 
 export async function getCategories(): Promise<Category[]> {
   const categoriesRef = collection(db, 'categories');
