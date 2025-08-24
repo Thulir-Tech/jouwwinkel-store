@@ -1,5 +1,5 @@
 import { db } from './firebase.client';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs } from 'firebase/firestore';
 
 function slugify(text: string) {
   return text
