@@ -22,8 +22,18 @@ export async function addProduct(product: {
     active: boolean;
 }) {
     const productsRef = collection(db, 'products');
+    
+    // Firestore doesn't accept `undefined` values.
+    // We need to clean the object before sending it.
+    const productData: { [key: string]: any } = { ...product };
+    Object.keys(productData).forEach(key => {
+        if (productData[key] === undefined) {
+            delete productData[key];
+        }
+    });
+
     await addDoc(productsRef, {
-        ...product,
+        ...productData,
         slug: slugify(product.title),
         images: [], // Placeholder for images
         createdAt: Date.now(),
