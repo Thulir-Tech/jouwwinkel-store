@@ -27,7 +27,7 @@ export default function HomePage() {
   return (
     <div>
       <div className="bg-primary text-primary-foreground text-center text-sm p-2 font-headline">
-        Pan India shipping available
+        Pan India Free Shipping
       </div>
       <Hero />
       <section className="container mx-auto px-4 py-12">
