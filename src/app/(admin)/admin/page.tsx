@@ -18,7 +18,7 @@ export default function AdminPage() {
             <span className="text-muted-foreground">₹</span>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(45231.89)}</div>
+            <div className="text-2xl font-bold">₹{formatCurrency(45231.89)}</div>
             <p className="text-xs text-muted-foreground">
               +20.1% from last month
             </p>
@@ -30,7 +30,7 @@ export default function AdminPage() {
             <span className="text-muted-foreground">₹</span>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(12234)}</div>
+            <div className="text-2xl font-bold">₹{formatCurrency(12234)}</div>
             <p className="text-xs text-muted-foreground">
               +19% from last month
             </p>

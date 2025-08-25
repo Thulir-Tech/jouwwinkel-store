@@ -68,10 +68,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
         <div className="flex items-baseline gap-2">
-          <p className="text-xl font-bold text-primary">{formatCurrency(product.price)}</p>
+          <p className="text-xl font-bold text-primary">₹{formatCurrency(product.price)}</p>
           {isSale && (
             <p className="text-sm text-muted-foreground line-through">
-              {formatCurrency(product.compareAtPrice!)}
+              ₹{formatCurrency(product.compareAtPrice!)}
             </p>
           )}
         </div>

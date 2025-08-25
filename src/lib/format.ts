@@ -4,5 +4,5 @@ export function formatCurrency(amount: number) {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
-  return `₹${formattedAmount}`;
+  return `${formattedAmount}`;
 }
