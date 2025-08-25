@@ -1,4 +1,6 @@
 import type { ProductRecommendationsOutput } from "@/ai/flows/product-recommendations";
+import type { User } from "firebase/auth";
+
 
 export type Product = {
   id: string;
@@ -36,3 +38,5 @@ export type CartItem = {
 };
 
 export type ProductRecommendation = ProductRecommendationsOutput[0];
+
+export type { User };

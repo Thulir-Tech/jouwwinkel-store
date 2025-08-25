@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 // import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
@@ -13,8 +14,9 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 // Guard for browser environment
 // const analytics = isSupported().then(yes => yes ? getAnalytics(app) : null);
 
-export { app, db };
+export { app, db, auth };

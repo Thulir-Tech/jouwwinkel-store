@@ -17,6 +17,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Package, Shapes, Home, ShoppingCart, Users, LineChart, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { AuthGuard } from './auth-guard';
+import { useAuth } from '@/hooks/use-auth';
+
 
 export default function AdminDashboardLayout({
   children,
@@ -25,6 +28,8 @@ export default function AdminDashboardLayout({
 }) {
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
+  const { user, signOut } = useAuth();
+
 
   const isActive = (path: string) => {
     return pathname === path || pathname.startsWith(`${path}/`);
@@ -35,110 +40,115 @@ export default function AdminDashboardLayout({
   }
 
   return (
-    <div className="flex">
-      <Sidebar collapsible="icon">
-        <SidebarHeader>
-          <Button variant="ghost" className="h-10 w-full justify-start px-2 text-lg font-bold" asChild>
-            <Link href="/admin" onClick={handleLinkClick}>Jouwwinkel</Link>
-          </Button>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/admin/products"
-                isActive={isActive('/admin/products')}
-                asChild
-              >
-                <Link href="/admin/products" onClick={handleLinkClick}>
-                  <Package />
-                  <span>Products</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/admin/categories"
-                isActive={isActive('/admin/categories')}
-                asChild
-              >
-                <Link href="/admin/categories" onClick={handleLinkClick}>
-                  <Shapes />
-                  <span>Categories</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/admin/orders"
-                isActive={isActive('/admin/orders')}
-                asChild
-              >
-                <Link href="/admin/orders" onClick={handleLinkClick}>
-                  <ShoppingCart />
-                  <span>Orders</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/admin/customers"
-                isActive={isActive('/admin/customers')}
-                asChild
-              >
-                <Link href="/admin/customers" onClick={handleLinkClick}>
-                  <Users />
-                  <span>Customers</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-              <SidebarMenuButton
-                href="/admin/analytics"
-                isActive={isActive('/admin/analytics')}
-                asChild
-              >
-                <Link href="/admin/analytics" onClick={handleLinkClick}>
-                  <LineChart />
-                  <span>Analytics</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-            <SidebarSeparator />
-             <SidebarMenu>
+    <AuthGuard>
+        <div className="flex">
+        <Sidebar collapsible="icon">
+            <SidebarHeader>
+            <Button variant="ghost" className="h-10 w-full justify-start px-2 text-lg font-bold" asChild>
+                <Link href="/admin" onClick={handleLinkClick}>Jouwwinkel</Link>
+            </Button>
+            </SidebarHeader>
+            <SidebarContent>
+            <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton
-                        href="/admin/settings"
-                        isActive={isActive('/admin/settings')}
-                        asChild
-                    >
-                        <Link href="/admin/settings" onClick={handleLinkClick}>
-                            <Settings />
-                            <span>Settings</span>
-                        </Link>
-                    </SidebarMenuButton>
+                <SidebarMenuButton
+                    href="/admin/products"
+                    isActive={isActive('/admin/products')}
+                    asChild
+                >
+                    <Link href="/admin/products" onClick={handleLinkClick}>
+                    <Package />
+                    <span>Products</span>
+                    </Link>
+                </SidebarMenuButton>
                 </SidebarMenuItem>
-             </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <header className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
-          <SidebarTrigger />
-          <div className="w-full flex-1">
-            {/* Can add search here */}
-          </div>
-          <Button asChild variant="outline">
-            <Link href="/">
-              <Home className="mr-2" />
-              Go to Storefront
-            </Link>
-          </Button>
-        </header>
-        <main className="flex-1 p-4 sm:p-6">{children}</main>
-      </SidebarInset>
-    </div>
+                <SidebarMenuItem>
+                <SidebarMenuButton
+                    href="/admin/categories"
+                    isActive={isActive('/admin/categories')}
+                    asChild
+                >
+                    <Link href="/admin/categories" onClick={handleLinkClick}>
+                    <Shapes />
+                    <span>Categories</span>
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                <SidebarMenuButton
+                    href="/admin/orders"
+                    isActive={isActive('/admin/orders')}
+                    asChild
+                >
+                    <Link href="/admin/orders" onClick={handleLinkClick}>
+                    <ShoppingCart />
+                    <span>Orders</span>
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                <SidebarMenuButton
+                    href="/admin/customers"
+                    isActive={isActive('/admin/customers')}
+                    asChild
+                >
+                    <Link href="/admin/customers" onClick={handleLinkClick}>
+                    <Users />
+                    <span>Customers</span>
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                <SidebarMenuButton
+                    href="/admin/analytics"
+                    isActive={isActive('/admin/analytics')}
+                    asChild
+                >
+                    <Link href="/admin/analytics" onClick={handleLinkClick}>
+                    <LineChart />
+                    <span>Analytics</span>
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+            </SidebarContent>
+            <SidebarFooter>
+                <SidebarSeparator />
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton
+                            href="/admin/settings"
+                            isActive={isActive('/admin/settings')}
+                            asChild
+                        >
+                            <Link href="/admin/settings" onClick={handleLinkClick}>
+                                <Settings />
+                                <span>Settings</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
+        </Sidebar>
+        <SidebarInset>
+            <header className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
+            <SidebarTrigger />
+            <div className="w-full flex-1">
+                {/* Can add search here */}
+            </div>
+            {user && (
+                <Button variant="outline" size="sm" onClick={signOut}>Logout</Button>
+            )}
+            <Button asChild variant="outline">
+                <Link href="/">
+                <Home className="mr-2" />
+                Go to Storefront
+                </Link>
+            </Button>
+            </header>
+            <main className="flex-1 p-4 sm:p-6">{children}</main>
+        </SidebarInset>
+        </div>
+    </AuthGuard>
   );
 }
