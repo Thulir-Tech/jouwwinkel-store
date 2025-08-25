@@ -83,6 +83,6 @@
     @apply bg-background text-foreground;
   }
   .font-sans {
-    font-family: "PT Sans", sans-serif;
+    font-family: "Inter", sans-serif;
   }
 }

@@ -11,9 +11,11 @@ import {
   SidebarInset,
   SidebarTrigger,
   useSidebar,
+  SidebarFooter,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Package, Shapes, Home } from 'lucide-react';
+import { Package, Shapes, Home, ShoppingCart, Users, LineChart, Settings } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 export default function AdminDashboardLayout({
@@ -66,8 +68,61 @@ export default function AdminDashboardLayout({
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
+             <SidebarMenuItem>
+              <SidebarMenuButton
+                href="/admin/orders"
+                isActive={isActive('/admin/orders')}
+                asChild
+              >
+                <Link href="/admin/orders" onClick={handleLinkClick}>
+                  <ShoppingCart />
+                  <span>Orders</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <SidebarMenuButton
+                href="/admin/customers"
+                isActive={isActive('/admin/customers')}
+                asChild
+              >
+                <Link href="/admin/customers" onClick={handleLinkClick}>
+                  <Users />
+                  <span>Customers</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
+              <SidebarMenuButton
+                href="/admin/analytics"
+                isActive={isActive('/admin/analytics')}
+                asChild
+              >
+                <Link href="/admin/analytics" onClick={handleLinkClick}>
+                  <LineChart />
+                  <span>Analytics</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           </SidebarMenu>
         </SidebarContent>
+        <SidebarFooter>
+            <SidebarSeparator />
+             <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/settings"
+                        isActive={isActive('/admin/settings')}
+                        asChild
+                    >
+                        <Link href="/admin/settings" onClick={handleLinkClick}>
+                            <Settings />
+                            <span>Settings</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+             </SidebarMenu>
+        </SidebarFooter>
       </Sidebar>
       <SidebarInset>
         <header className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
