@@ -75,7 +75,7 @@ export default async function ProductsAdminPage() {
                     {product.active ? 'Active' : 'Draft'}
                   </Badge>
                 </TableCell>
-                <TableCell>{formatCurrency(product.price)}</TableCell>
+                <TableCell>₹{formatCurrency(product.price)}</TableCell>
                 <TableCell className="hidden md:table-cell">
                   {new Date(product.createdAt).toLocaleDateString()}
                 </TableCell>

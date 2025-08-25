@@ -41,7 +41,7 @@ export default function CartPage() {
               />
               <div className="flex-grow">
                 <h2 className="font-semibold">{item.title}</h2>
-                <p className="text-sm text-muted-foreground">{formatCurrency(item.price)}</p>
+                <p className="text-sm text-muted-foreground">₹{formatCurrency(item.price)}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
@@ -58,7 +58,7 @@ export default function CartPage() {
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="font-semibold w-24 text-right">{formatCurrency(item.price * item.quantity)}</p>
+              <p className="font-semibold w-24 text-right">₹{formatCurrency(item.price * item.quantity)}</p>
               <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)} aria-label="Remove item">
                 <Trash2 className="h-5 w-5 text-destructive" />
               </Button>
@@ -70,7 +70,7 @@ export default function CartPage() {
             <h2 className="text-xl font-bold mb-4 font-headline">Order Summary</h2>
             <div className="flex justify-between mb-2">
               <span>Subtotal ({count} items)</span>
-              <span>{formatCurrency(total)}</span>
+              <span>₹{formatCurrency(total)}</span>
             </div>
             <div className="flex justify-between mb-2">
               <span>Shipping</span>
@@ -79,7 +79,7 @@ export default function CartPage() {
             <hr className="my-4" />
             <div className="flex justify-between font-bold text-lg mb-4">
               <span>Total</span>
-              <span>{formatCurrency(total)}</span>
+              <span>₹{formatCurrency(total)}</span>
             </div>
             <Button className="w-full" size="lg">
               Proceed to Checkout

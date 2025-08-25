@@ -97,7 +97,7 @@ export function SearchDialog() {
                   />
                   <div className="flex-grow">
                     <p className="font-semibold">{product.title}</p>
-                    <p className="text-sm text-muted-foreground">{formatCurrency(product.price)}</p>
+                    <p className="text-sm text-muted-foreground">₹{formatCurrency(product.price)}</p>
                   </div>
                 </Link>
               ))}
