@@ -18,7 +18,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   if (loading || !user) {
     return (
         <div className="flex h-screen w-screen items-center justify-center">
-            <div className="space-y-4">
+            <div className="space-y-4 flex flex-col items-center">
                 <Skeleton className="h-12 w-12 rounded-full" />
                 <Skeleton className="h-4 w-[250px]" />
                 <Skeleton className="h-4 w-[200px]" />
