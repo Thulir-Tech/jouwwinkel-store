@@ -50,6 +50,7 @@ export default async function ProductsAdminPage() {
               <TableHead>Name</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Price</TableHead>
+              <TableHead>Stock</TableHead>
               <TableHead className="hidden md:table-cell">Created at</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
@@ -75,7 +76,8 @@ export default async function ProductsAdminPage() {
                     {product.active ? 'Active' : 'Draft'}
                   </Badge>
                 </TableCell>
-                <TableCell>₹{formatCurrency(product.price)}</TableCell>
+                <TableCell className="font-sans">₹{formatCurrency(product.price)}</TableCell>
+                <TableCell>{product.stock}</TableCell>
                 <TableCell className="hidden md:table-cell">
                   {new Date(product.createdAt).toLocaleDateString()}
                 </TableCell>

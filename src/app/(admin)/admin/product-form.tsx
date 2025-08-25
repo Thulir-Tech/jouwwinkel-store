@@ -38,6 +38,9 @@ const productFormSchema = z.object({
   compareAtPrice: z.coerce.number().optional(),
   categoryId: z.string().optional(),
   active: z.boolean(),
+  sku: z.string().optional(),
+  stock: z.coerce.number().min(0, { message: 'Stock must be a positive number.'}),
+  tags: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -59,16 +62,24 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       compareAtPrice: product?.compareAtPrice || undefined,
       categoryId: product?.categoryId || '',
       active: product?.active ?? true,
+      sku: product?.sku || '',
+      stock: product?.stock || 0,
+      tags: product?.tags?.join(', ') || '',
     },
   });
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
+      const productData = {
+        ...data,
+        tags: data.tags ? data.tags.split(',').map(tag => tag.trim()) : [],
+      };
+
       if (product) {
         // await updateProduct(product.id, data);
         toast({ title: 'Product updated successfully' });
       } else {
-        await addProduct(data);
+        await addProduct(productData);
         toast({ title: 'Product created successfully' });
       }
       router.push('/admin/products');
@@ -161,13 +172,48 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                 />
               </CardContent>
             </Card>
+
+             <Card>
+              <CardHeader>
+                <CardTitle>Inventory</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="sku"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>SKU (Stock Keeping Unit)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="STICKER-001" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="stock"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stock</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="100" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
           </div>
           <div className="space-y-8">
             <Card>
               <CardHeader>
                 <CardTitle>Organize</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
                   name="categoryId"
@@ -188,6 +234,22 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                           ))}
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tags</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. cute, planner, journal" {...field} />
+                      </FormControl>
+                       <FormDescription>
+                        Comma-separated values.
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

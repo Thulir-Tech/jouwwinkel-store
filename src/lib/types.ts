@@ -14,6 +14,9 @@ export type Product = {
   categoryId?: string;
   active: boolean;
   createdAt: number; // as timestamp
+  sku?: string;
+  stock: number;
+  tags?: string[];
 };
 
 export type Category = {

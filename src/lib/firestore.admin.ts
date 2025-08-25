@@ -20,6 +20,9 @@ export async function addProduct(product: {
     compareAtPrice?: number;
     categoryId?: string;
     active: boolean;
+    sku?: string;
+    stock: number;
+    tags?: string[];
 }) {
     const productsRef = collection(db, 'products');
     
