@@ -67,7 +67,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             ({product.reviewsCount || 0})
           </div>
         )}
-        <div className="flex items-baseline gap-2 font-body">
+        <div className="flex items-baseline gap-2 font-sans">
           <p className="text-xl font-bold text-primary">₹{formatCurrency(product.price)}</p>
           {isSale && (
             <p className="text-sm text-muted-foreground line-through">
