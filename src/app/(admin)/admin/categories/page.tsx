@@ -17,17 +17,17 @@ import {
   import { getCategories } from '@/lib/firestore';
   import { CategoryForm } from './category-form';
   
-  export default async function SettingsPage() {
+  export default async function CategoriesPage() {
     const categories = await getCategories({ activeOnly: false });
   
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-4">Settings</h1>
+        <h1 className="text-2xl font-bold mb-4">Categories</h1>
         <div className="grid gap-8">
           <Card>
             <CardHeader>
-              <CardTitle>Categories</CardTitle>
-              <CardDescription>Manage your product categories.</CardDescription>
+              <CardTitle>Manage Categories</CardTitle>
+              <CardDescription>Add, edit, and organize your product categories.</CardDescription>
             </CardHeader>
             <CardContent className="grid md:grid-cols-2 gap-8">
               <div>

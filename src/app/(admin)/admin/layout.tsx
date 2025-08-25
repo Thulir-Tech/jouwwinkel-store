@@ -13,7 +13,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Package, Settings, Home } from 'lucide-react';
+import { Package, Shapes, Home } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 export default function AdminDashboardLayout({
@@ -56,13 +56,13 @@ export default function AdminDashboardLayout({
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton
-                href="/admin/settings"
-                isActive={isActive('/admin/settings')}
+                href="/admin/categories"
+                isActive={isActive('/admin/categories')}
                 asChild
               >
-                <Link href="/admin/settings" onClick={handleLinkClick}>
-                  <Settings />
-                  <span>Settings</span>
+                <Link href="/admin/categories" onClick={handleLinkClick}>
+                  <Shapes />
+                  <span>Categories</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
