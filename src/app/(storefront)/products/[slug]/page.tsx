@@ -61,7 +61,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="flex flex-col">
             <h1 className="text-3xl lg:text-4xl font-bold font-headline mb-4">{product.title}</h1>
             
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-4 mb-4 font-body">
                 <p className="text-3xl font-bold text-primary">₹{formatCurrency(product.price)}</p>
                 {isSale && (
                 <p className="text-xl text-muted-foreground line-through">

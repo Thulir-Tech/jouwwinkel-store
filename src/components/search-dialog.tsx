@@ -96,8 +96,8 @@ export function SearchDialog() {
                     data-ai-hint="product image"
                   />
                   <div className="flex-grow">
-                    <p className="font-semibold">{product.title}</p>
-                    <p className="text-sm text-muted-foreground">₹{formatCurrency(product.price)}</p>
+                    <p className="font-semibold font-headline">{product.title}</p>
+                    <p className="text-sm text-muted-foreground font-body">₹{formatCurrency(product.price)}</p>
                   </div>
                 </Link>
               ))}
