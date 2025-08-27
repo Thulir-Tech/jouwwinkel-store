@@ -1,5 +1,5 @@
 import { db } from './firebase.client';
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
 
 function slugify(text: string) {
   return text
@@ -42,6 +42,33 @@ export async function addProduct(product: {
         createdAt: Date.now(),
     });
 }
+
+export async function updateProduct(id: string, product: Partial<{
+    title: string;
+    description?: string;
+    price: number;
+    compareAtPrice?: number;
+    categoryId?: string;
+    active: boolean;
+    sku?: string;
+    stock: number;
+    tags?: string[];
+}>) {
+    const productRef = doc(db, 'products', id);
+
+    const productData: { [key: string]: any } = { ...product };
+    if (product.title) {
+        productData.slug = slugify(product.title);
+    }
+    Object.keys(productData).forEach(key => {
+        if (productData[key] === undefined) {
+            delete productData[key];
+        }
+    });
+
+    await updateDoc(productRef, productData);
+}
+
 
 export async function addCategory(category: { name: string }) {
     const categoriesRef = collection(db, 'categories');

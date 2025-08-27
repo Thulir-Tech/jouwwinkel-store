@@ -76,7 +76,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       };
 
       if (product) {
-        // await updateProduct(product.id, data);
+        await updateProduct(product.id, productData);
         toast({ title: 'Product updated successfully' });
       } else {
         await addProduct(productData);
