@@ -47,7 +47,7 @@ export default function AdminDashboardLayout({
               <Button variant="ghost" className="h-10 w-full justify-center px-2" asChild>
                   <Link href="/admin" onClick={handleLinkClick}>
                     <Home />
-                    <span className="group-data-[collapsible=icon]:hidden">Home</span>
+                    <span className="group-data-[collapsible=icon]:hidden">Dashboard</span>
                   </Link>
               </Button>
             </SidebarHeader>
