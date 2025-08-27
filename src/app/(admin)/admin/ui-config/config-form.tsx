@@ -30,7 +30,7 @@ import { updateUiConfig } from '@/lib/firestore.admin';
 import { Separator } from '@/components/ui/separator';
 import { Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MediaUploader } from '../products/media-uploader';
+import { MediaUploader } from '../media-uploader';
 
 const configFormSchema = z.object({
   headerCaptionType: z.enum(['static', 'carousel']).optional(),
@@ -310,7 +310,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                                             <MediaUploader 
                                                 value={field.value || []} 
                                                 onChange={field.onChange}
-                                                fileTypes={[heroFileType || 'stable']}
+                                                fileTypes={[heroFileType === 'motion' ? 'video' : 'image']}
                                                 maxFiles={1}
                                             />
                                         </FormControl>
@@ -331,7 +331,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                                             <MediaUploader 
                                                 value={field.value || []} 
                                                 onChange={field.onChange}
-                                                fileTypes={[heroFileType || 'stable']}
+                                                fileTypes={[heroFileType === 'motion' ? 'video' : 'image']}
                                             />
                                         </FormControl>
                                         <FormMessage />

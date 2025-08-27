@@ -31,7 +31,7 @@ import { addProduct, updateProduct } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { MediaUploader } from './products/media-uploader';
+import { MediaUploader } from './media-uploader';
 import { Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
