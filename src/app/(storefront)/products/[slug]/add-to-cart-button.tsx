@@ -5,12 +5,26 @@ import { useToast } from '@/hooks/use-toast';
 import { useCartStore } from '@/lib/store';
 import type { Product } from '@/lib/types';
 import { ShoppingCart } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { useState } from 'react';
+import LoginDialog from '@/components/login-dialog';
+
 
 export default function AddToCartButton({ product }: { product: Product }) {
   const { addToCart } = useCartStore();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
 
   const handleAddToCart = () => {
+    if (!user) {
+        setIsLoginDialogOpen(true);
+    } else {
+        addToCartAction();
+    }
+  };
+
+  const addToCartAction = () => {
     addToCart({
       id: product.id,
       title: product.title,
@@ -25,8 +39,18 @@ export default function AddToCartButton({ product }: { product: Product }) {
   };
 
   return (
-    <Button size="lg" className="w-full" onClick={handleAddToCart}>
-      <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
-    </Button>
+    <>
+      <LoginDialog
+        open={isLoginDialogOpen}
+        onOpenChange={setIsLoginDialogOpen}
+        onContinueAsGuest={() => {
+            setIsLoginDialogOpen(false);
+            addToCartAction();
+        }}
+      />
+      <Button size="lg" className="w-full" onClick={handleAddToCart}>
+        <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
+      </Button>
+    </>
   );
 }

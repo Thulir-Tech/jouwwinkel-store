@@ -1,12 +1,68 @@
 'use client';
 
 import Link from 'next/link';
-import { Search, ShoppingBag } from 'lucide-react';
+import { Search, ShoppingBag, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/lib/store';
 import { useEffect, useState } from 'react';
 import { SidebarSheet } from './sidebar-sheet';
 import { SearchDialog } from './search-dialog';
+import { useAuth } from '@/hooks/use-auth';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+  } from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+
+
+function UserNav() {
+    const { user, signOut } = useAuth();
+  
+    if (user) {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative">
+                <Avatar className="h-8 w-8">
+                    <AvatarImage src={user.photoURL || ''} alt={user.displayName || user.email || 'User'} />
+                    <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
+                </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">
+                  {user.displayName || 'Welcome'}
+                </p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {user.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={signOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    }
+  
+    return (
+      <Button variant="ghost" size="icon" asChild>
+        <Link href="/login">
+          <User className="h-6 w-6" />
+          <span className="sr-only">Login</span>
+        </Link>
+      </Button>
+    );
+  }
 
 export default function Header() {
   const [isClient, setIsClient] = useState(false);
@@ -29,6 +85,7 @@ export default function Header() {
         </div>
         <div className="flex items-center gap-2">
           <SearchDialog />
+          <UserNav />
           <Button variant="ghost" size="icon" className="relative" asChild>
             <Link href="/cart">
               <ShoppingBag className="h-6 w-6" />

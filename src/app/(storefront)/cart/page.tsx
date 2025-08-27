@@ -4,12 +4,15 @@ import { useCartStore } from '@/lib/store';
 import { formatCurrency } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, Info } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function CartPage() {
   const { items, removeFromCart, updateQuantity, total, count } = useCartStore();
+  const { user } = useAuth();
 
   if (count === 0) {
     return (
@@ -27,6 +30,17 @@ export default function CartPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold text-center mb-8 font-headline">Your Cart</h1>
+      
+      {!user && (
+         <Alert className="mb-6 bg-blue-50 border-blue-200">
+            <Info className="h-4 w-4 !text-blue-600" />
+            <AlertTitle className="text-blue-800">Have an account?</AlertTitle>
+            <AlertDescription className="text-blue-700">
+                <Link href="/login" className="font-medium underline">Login</Link> for a better experience.
+            </AlertDescription>
+        </Alert>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {items.map(item => (

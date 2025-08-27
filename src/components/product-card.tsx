@@ -10,6 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
+import { useState } from 'react';
+import LoginDialog from './login-dialog';
 
 interface ProductCardProps {
   product: Product;
@@ -18,23 +21,42 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCartStore();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const isSale = product.compareAtPrice && product.compareAtPrice > product.price;
 
   const handleAddToCart = () => {
-    addToCart({
-      id: product.id,
-      title: product.title,
-      price: product.price,
-      quantity: 1,
-      image: product.images[0],
-    });
-    toast({
-      title: "Added to cart",
-      description: `${product.title} has been added to your cart.`,
-    });
+    if (!user) {
+        setIsLoginDialogOpen(true);
+    } else {
+        addToCartAction();
+    }
   };
 
+  const addToCartAction = () => {
+    addToCart({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        quantity: 1,
+        image: product.images[0],
+      });
+      toast({
+        title: "Added to cart",
+        description: `${product.title} has been added to your cart.`,
+      });
+  }
+
   return (
+    <>
+    <LoginDialog
+        open={isLoginDialogOpen}
+        onOpenChange={setIsLoginDialogOpen}
+        onContinueAsGuest={() => {
+            setIsLoginDialogOpen(false);
+            addToCartAction();
+        }}
+    />
     <Card className="flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl">
       <CardHeader className="p-0 relative">
         <Link href={`/products/${product.slug}`} aria-label={product.title}>
@@ -82,5 +104,6 @@ export default function ProductCard({ product }: ProductCardProps) {
         </Button>
       </CardFooter>
     </Card>
+    </>
   );
 }
