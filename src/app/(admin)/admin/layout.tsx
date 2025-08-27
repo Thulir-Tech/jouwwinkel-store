@@ -13,7 +13,6 @@ import {
   SidebarInset,
   SidebarTrigger,
   useSidebar,
-  SidebarFooter,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
@@ -43,7 +42,8 @@ export default function AdminDashboardLayout({
 
   return (
     <AuthGuard>
-        <div className="flex bg-sidebar">
+        <div className="flex min-h-screen w-full flex-col bg-background">
+        <div className="flex flex-1">
         <Sidebar collapsible="icon">
             <SidebarHeader>
               <Button variant="ghost" className="h-10 w-full justify-center px-2" asChild>
@@ -154,15 +154,13 @@ export default function AdminDashboardLayout({
                 </SidebarMenuItem>
             </SidebarMenu>
             </SidebarContent>
-            <SidebarFooter>
-            </SidebarFooter>
         </Sidebar>
         <SidebarInset>
             <header className="flex h-14 items-center justify-between gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6 admin-theme">
                 <div className="flex items-center gap-4">
                     <SidebarTrigger />
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 ml-auto">
                     {user && (
                         <Button variant="outline" size="sm" onClick={signOut}>Logout</Button>
                     )}
@@ -176,6 +174,7 @@ export default function AdminDashboardLayout({
             </header>
             <main className="flex-1 p-4 sm:p-6 admin-theme">{children}</main>
         </SidebarInset>
+        </div>
         </div>
     </AuthGuard>
   );
