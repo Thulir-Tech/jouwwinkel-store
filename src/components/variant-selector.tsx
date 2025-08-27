@@ -27,7 +27,7 @@ export default function VariantSelector({ product, selectedVariants, onVariantCh
   return (
     <div className="space-y-4">
       {product.variants.map((variant) => (
-        <Card key={variant.variantId}>
+        <Card key={variant.variantId} className="bg-primary/5 border-primary/20">
             <CardHeader className="p-4">
                 <CardTitle className="text-base font-semibold">Select {variant.variantName}</CardTitle>
             </CardHeader>
@@ -42,7 +42,7 @@ export default function VariantSelector({ product, selectedVariants, onVariantCh
                         <RadioGroupItem value={option} id={`${variant.variantName}-${option}`} className="peer sr-only" />
                         <Label
                             htmlFor={`${variant.variantName}-${option}`}
-                            className="cursor-pointer rounded-md border-2 border-muted bg-popover px-4 py-2 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                            className="cursor-pointer rounded-md border-2 border-primary/30 bg-primary/10 px-4 py-2 text-primary hover:bg-primary/20 peer-data-[state=checked]:bg-primary peer-data-[state=checked]:text-primary-foreground peer-data-[state=checked]:border-primary"
                         >
                             {option}
                         </Label>

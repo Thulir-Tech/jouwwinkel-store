@@ -157,7 +157,7 @@ export default function ProductPage() {
   const showCompareAtPrice = product.compareAtPrice && product.compareAtPrice > product.price;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         <div>
           <Image
