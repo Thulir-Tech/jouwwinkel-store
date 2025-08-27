@@ -127,40 +127,38 @@ export default function AdminDashboardLayout({
                     </Link>
                 </SidebarMenuButton>
                 </SidebarMenuItem>
+                <SidebarSeparator />
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/ui-config"
+                        isActive={isActive('/admin/ui-config')}
+                        asChild
+                    >
+                        <Link href="/admin/ui-config" onClick={handleLinkClick}>
+                            <Palette />
+                            <span>UI Configuration</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/settings"
+                        isActive={isActive('/admin/settings')}
+                        asChild
+                    >
+                        <Link href="/admin/settings" onClick={handleLinkClick}>
+                            <Settings />
+                            <span>Settings</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
             </SidebarMenu>
             </SidebarContent>
             <SidebarFooter>
-                <SidebarSeparator />
-                <SidebarMenu className="pl-2">
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            href="/admin/ui-config"
-                            isActive={isActive('/admin/ui-config')}
-                            asChild
-                        >
-                            <Link href="/admin/ui-config" onClick={handleLinkClick}>
-                                <Palette />
-                                <span>UI Configuration</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton
-                            href="/admin/settings"
-                            isActive={isActive('/admin/settings')}
-                            asChild
-                        >
-                            <Link href="/admin/settings" onClick={handleLinkClick}>
-                                <Settings />
-                                <span>Settings</span>
-                            </Link>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
             </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-            <header className="flex h-14 items-center justify-between gap-4 border-b bg-sidebar-background px-4 lg:h-[60px] lg:px-6">
+            <header className="flex h-14 items-center justify-between gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6 admin-theme">
                 <div className="flex items-center gap-4">
                     <SidebarTrigger />
                 </div>
