@@ -94,7 +94,7 @@ function DeliveryInfo() {
     return (
         <div className="border rounded-lg p-4 my-6 space-y-4 text-sm text-muted-foreground">
             <div className="font-semibold text-foreground">
-                <span>🇮🇳</span> Get it by <span className="font-bold">{deliveryDates.delivered}</span>
+                Get it by <span className="font-bold">{deliveryDates.delivered}</span>
             </div>
             <p>
                 Order within the next <span className="text-foreground font-semibold">{String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m {String(timeLeft.seconds).padStart(2, '0')}s</span> for dispatch tomorrow.
@@ -161,10 +161,10 @@ export default function ProductPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         <div>
           <Image
-            src={product.images[0] || 'https://placehold.co/600x600.png'}
+            src={product.images[0] || 'https://placehold.co/400x400.png'}
             alt={product.title}
-            width={600}
-            height={600}
+            width={400}
+            height={400}
             className="w-full rounded-lg object-cover"
             data-ai-hint="product photo"
           />
