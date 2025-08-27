@@ -42,7 +42,7 @@ export default function AdminDashboardLayout({
 
   return (
     <AuthGuard>
-        <div className="flex">
+        <div className="flex bg-sidebar">
         <Sidebar collapsible="icon">
             <SidebarHeader>
               <Button variant="ghost" className="h-10 w-full justify-center px-2" asChild>
@@ -159,7 +159,7 @@ export default function AdminDashboardLayout({
             </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-            <header className="flex h-14 items-center justify-between gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
+            <header className="flex h-14 items-center justify-between gap-4 border-b bg-sidebar-background px-4 lg:h-[60px] lg:px-6">
                 <div className="flex items-center gap-4">
                     <SidebarTrigger />
                 </div>
