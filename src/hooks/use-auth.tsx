@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '@/lib/firebase.client';
+import { onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, sendPasswordResetEmail, User as FirebaseUser } from 'firebase/auth';
+import { auth, db } from '@/lib/firebase.client';
 import type { User } from '@/lib/types';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: User | null;
@@ -17,6 +18,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to create/update user profile in Firestore
+const updateUserProfile = async (firebaseUser: FirebaseUser) => {
+    const userRef = doc(db, 'users', firebaseUser.uid);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+        // New user, create profile
+        await setDoc(userRef, {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+            createdAt: Date.now(),
+            isAdmin: false, // Default to not admin
+        });
+    }
+    const userData = (await getDoc(userRef)).data();
+    return { ...firebaseUser, ...userData } as User;
+}
+
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -24,12 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const tokenResult = await firebaseUser.getIdTokenResult();
-        const userWithAdmin: User = {
-            ...firebaseUser,
-            isAdmin: !!tokenResult.claims.admin,
-        };
-        setUser(userWithAdmin);
+        const userProfile = await updateUserProfile(firebaseUser);
+        setUser(userProfile);
       } else {
         setUser(null);
       }
@@ -47,16 +65,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     if (userCredential.user) {
         await updateProfile(userCredential.user, { displayName: name });
+        // After creating the user, we create their profile in Firestore
+        await updateUserProfile(userCredential.user);
     }
-    // Manually trigger a re-render/state update after profile update
-    const updatedUser = { ...userCredential.user, displayName: name } as User;
-    setUser(updatedUser);
     return userCredential;
   };
   
-  const signInWithGoogle = () => {
+  const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    return signInWithPopup(auth, provider);
+    const result = await signInWithPopup(auth, provider);
+    if (result.user) {
+        // On Google sign-in, we also ensure a user profile exists
+        await updateUserProfile(result.user);
+    }
+    return result;
   }
 
   const signOut = async () => {

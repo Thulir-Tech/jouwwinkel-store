@@ -39,22 +39,55 @@ The application expects the following collections in your Firestore database:
 
 - `products`: Contains product information.
 - `categories`: Contains product categories.
+- `users`: Stores user profile data, including the `isAdmin` flag.
+- `checkouts`: Stores order information.
 
 ### Security Rules
 
-For development, you can use the following security rules. For production, ensure you have stricter rules in place.
+For development, you can use relaxed rules. For a production environment, you must implement stricter rules to protect your data. Here is a secure set of rules to start with:
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
-    match /{document=**} {
+    // Products and Categories are public
+    match /products/{productId} {
       allow read: if true;
-      allow write: if request.auth != null; // or allow write: if true; for easy seeding
+      allow write: if request.auth != null && get(/databases/$(db)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if request.auth != null && get(/databases/$(db)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Users can read their own profile, admins can read any profile
+    // Only admins can change the isAdmin flag
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || get(/databases/$(db)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId && !("isAdmin" in request.resource.data);
+      allow write: if request.auth != null && get(/databases/$(db)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Anyone can create a checkout
+    // Users can only read their own checkouts, admins can read any
+    match /checkouts/{checkoutId} {
+      allow create: if true;
+      allow read: if request.auth != null && (request.auth.uid == resource.data.userId || get(/databases/$(db)/documents/users/$(request.auth.uid)).data.isAdmin == true);
+      allow update, delete: if request.auth != null && get(/databases/$(db)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
   }
 }
 ```
+
+## How to make a user an admin
+1.  After a user has signed up, go to your **Firebase Console**.
+2.  Navigate to the **Firestore Database**.
+3.  Find the `users` collection.
+4.  Locate the document corresponding to the user you want to make an admin (the document ID will be their User UID).
+5.  Edit the `isAdmin` field for that user from `false` to `true`.
+
+The user will need to log out and log back in for the change to take effect.
 
 ## Deployment on Vercel
 

@@ -17,7 +17,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [user, loading, router]);
 
-  if (loading || !user || !user.isAdmin) {
+  if (loading || !user?.isAdmin) {
     return (
         <div className="flex h-screen w-screen items-center justify-center">
             <div className="space-y-4 flex flex-col items-center">

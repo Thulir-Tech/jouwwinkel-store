@@ -62,5 +62,5 @@ export type Checkout = {
 export type ProductRecommendation = ProductRecommendationsOutput[0];
 
 export interface User extends FirebaseUser {
-    isAdmin?: boolean;
+    isAdmin: boolean;
 }
