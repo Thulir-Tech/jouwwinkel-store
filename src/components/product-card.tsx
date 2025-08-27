@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -23,7 +24,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
-  const isSale = product.onSale && product.compareAtPrice && product.compareAtPrice > product.price;
+  
+  const showCompareAtPrice = product.compareAtPrice && product.compareAtPrice > product.price;
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // prevent link navigation when clicking button
@@ -70,7 +72,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   className="h-64 w-full object-cover"
                   data-ai-hint="product photo"
                 />
-              {isSale && (
+              {product.onSale && (
                 <Badge className="absolute top-2 left-2" variant="destructive">
                   Sale
                 </Badge>
@@ -92,7 +94,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               )}
               <div className="flex items-baseline gap-2 font-sans">
                 <p className="text-xl font-bold text-primary">₹{formatCurrency(product.price)}</p>
-                {isSale && (
+                {showCompareAtPrice && (
                   <p className="text-sm text-muted-foreground line-through">
                     ₹{formatCurrency(product.compareAtPrice!)}
                   </p>

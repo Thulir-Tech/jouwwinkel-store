@@ -1,4 +1,5 @@
 
+
 import { getProductBySlug } from '@/lib/firestore';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -44,7 +45,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const isSale = product.onSale && product.compareAtPrice && product.compareAtPrice > product.price;
+  const showCompareAtPrice = product.compareAtPrice && product.compareAtPrice > product.price;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -64,12 +65,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
             
             <div className="flex items-center gap-4 mb-4">
                 <p className="text-3xl font-bold text-primary font-sans">₹{formatCurrency(product.price)}</p>
-                {isSale && (
+                {showCompareAtPrice && (
                 <p className="text-xl text-muted-foreground line-through font-sans">
                     ₹{formatCurrency(product.compareAtPrice!)}
                 </p>
                 )}
-                {isSale && <Badge variant="destructive">Sale</Badge>}
+                {product.onSale && <Badge variant="destructive">Sale</Badge>}
             </div>
 
             <p className="text-muted-foreground mb-6 flex-grow">{product.description}</p>
