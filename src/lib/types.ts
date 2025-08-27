@@ -41,6 +41,7 @@ export type CartItem = {
 export type Checkout = {
     id: string;
     email: string;
+    mobile: string;
     shippingAddress: {
         name: string;
         address: string;

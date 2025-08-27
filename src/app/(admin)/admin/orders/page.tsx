@@ -1,3 +1,4 @@
+
 import {
     Table,
     TableBody,
@@ -42,6 +43,7 @@ import {
                     <TableCell>
                     <div className="font-medium">{checkout.shippingAddress.name}</div>
                     <div className="text-sm text-muted-foreground">{checkout.email}</div>
+                    <div className="text-sm text-muted-foreground">{checkout.mobile}</div>
                     </TableCell>
                     <TableCell>{new Date(checkout.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>

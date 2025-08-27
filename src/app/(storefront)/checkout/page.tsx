@@ -39,6 +39,7 @@ import { Input } from '@/components/ui/input';
 
 const checkoutFormSchema = z.object({
     email: z.string().email(),
+    mobile: z.string().min(10, { message: "Please enter a valid mobile number." }),
     shippingAddress: z.object({
         name: z.string().min(2),
         address: z.string().min(5),
@@ -79,6 +80,7 @@ export default function CheckoutPage() {
         resolver: zodResolver(checkoutFormSchema),
         defaultValues: {
             email: '',
+            mobile: '',
             shippingAddress: {
                 name: '',
                 address: '',
@@ -150,19 +152,34 @@ export default function CheckoutPage() {
                             <Card>
                                 <CardContent className="pt-6">
                                     <h2 className="text-xl font-semibold mb-4 font-headline">Contact Information</h2>
-                                    <FormField
-                                        control={form.control}
-                                        name="email"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Email</FormLabel>
-                                                <FormControl>
-                                                    <Input placeholder="you@example.com" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                    <div className="space-y-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="email"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Email</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="you@example.com" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="mobile"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Mobile Number</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="tel" placeholder="e.g. 9876543210" {...field} />
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
                                 </CardContent>
                             </Card>
 
