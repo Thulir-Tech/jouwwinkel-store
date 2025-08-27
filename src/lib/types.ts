@@ -1,6 +1,11 @@
 
 import type { User as FirebaseUser } from "firebase/auth";
 
+export type ProductVariant = {
+  variantId: string; // e.g., ID of "Color" variant
+  variantName: string; // e.g., "Color"
+  options: string[]; // e.g., ["Red", "Green"]
+};
 
 export type Product = {
   id: string;
@@ -22,6 +27,8 @@ export type Product = {
   stock: number;
   tags?: string[];
   relatedProductIds?: string[];
+  hasVariants: boolean;
+  variants: ProductVariant[];
 };
 
 export type Category = {

@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,13 +25,21 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { Category, Product } from '@/lib/types';
+import type { Category, Product, ProductVariant, Variant } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { addProduct, updateProduct } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { MultiSelect } from '@/components/ui/multi-select';
 import { ImageUploader } from './products/image-uploader';
+import { Trash2 } from 'lucide-react';
+import { useMemo } from 'react';
+
+const productVariantSchema = z.object({
+  variantId: z.string().min(1, 'Variant type is required.'),
+  variantName: z.string(),
+  options: z.array(z.string()).min(1, 'Please select at least one option.'),
+});
 
 const productFormSchema = z.object({
   title: z.string().min(2, {
@@ -49,6 +57,8 @@ const productFormSchema = z.object({
   tags: z.string().optional(),
   relatedProductIds: z.array(z.string()).optional(),
   images: z.array(z.string()).optional(),
+  hasVariants: z.boolean(),
+  variants: z.array(productVariantSchema).optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -57,9 +67,10 @@ interface ProductFormProps {
   product?: Product;
   categories: Category[];
   selectableProducts: Product[];
+  allVariants: Variant[];
 }
 
-export function ProductForm({ product, categories, selectableProducts }: ProductFormProps) {
+export function ProductForm({ product, categories, selectableProducts, allVariants }: ProductFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const form = useForm<ProductFormValues>({
@@ -78,8 +89,17 @@ export function ProductForm({ product, categories, selectableProducts }: Product
       tags: product?.tags?.join(', ') || '',
       relatedProductIds: product?.relatedProductIds || [],
       images: product?.images || [],
+      hasVariants: product?.hasVariants || false,
+      variants: product?.variants || [],
     },
   });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'variants',
+  });
+
+  const hasVariants = form.watch('hasVariants');
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
@@ -109,11 +129,15 @@ export function ProductForm({ product, categories, selectableProducts }: Product
   
   const productOptions = selectableProducts.map(p => ({ value: p.id, label: p.title }));
 
+  const selectedVariantIds = useMemo(() => {
+    return form.watch('variants')?.map(v => v.variantId) || [];
+  }, [form.watch('variants')]);
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="md:col-span-2 space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-2 space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Product Details</CardTitle>
@@ -173,12 +197,130 @@ export function ProductForm({ product, categories, selectableProducts }: Product
                     />
                 </CardContent>
             </Card>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle>Variants</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <FormField
+                      control={form.control}
+                      name="hasVariants"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel>Product has variants</FormLabel>
+                            <FormDescription>
+                              Enable this if your product comes in different options like color or size.
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    {hasVariants && (
+                        <div className="space-y-4 pt-4">
+                            {fields.map((field, index) => {
+                                const selectedVariant = allVariants.find(v => v.id === form.watch(`variants.${index}.variantId`));
+                                const variantOptions = selectedVariant ? selectedVariant.options.map(o => ({ value: o, label: o })) : [];
+
+                                return (
+                                    <div key={field.id} className="p-4 border rounded-md space-y-4 relative">
+                                         <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="absolute top-2 right-2 text-destructive hover:bg-destructive/10"
+                                            onClick={() => remove(index)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <FormField
+                                                control={form.control}
+                                                name={`variants.${index}.variantId`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Variant Type</FormLabel>
+                                                        <Select 
+                                                            onValueChange={(value) => {
+                                                                const variant = allVariants.find(v => v.id === value);
+                                                                field.onChange(value);
+                                                                form.setValue(`variants.${index}.variantName`, variant?.name || '');
+                                                                form.setValue(`variants.${index}.options`, []); // Reset options when type changes
+                                                            }} 
+                                                            defaultValue={field.value}
+                                                        >
+                                                            <FormControl>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Select a variant type" />
+                                                                </SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                                {allVariants.map(v => (
+                                                                    <SelectItem 
+                                                                        key={v.id} 
+                                                                        value={v.id}
+                                                                        disabled={selectedVariantIds.includes(v.id) && v.id !== field.value}
+                                                                    >
+                                                                        {v.name}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                            <FormField
+                                                control={form.control}
+                                                name={`variants.${index}.options`}
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Available Options</FormLabel>
+                                                        <FormControl>
+                                                             <MultiSelect
+                                                                options={variantOptions}
+                                                                selected={field.value || []}
+                                                                onChange={field.onChange}
+                                                                placeholder="Select options..."
+                                                                disabled={!form.watch(`variants.${index}.variantId`)}
+                                                            />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+                                )
+                            })}
+
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => append({ variantId: '', variantName: '', options: [] })}
+                                disabled={fields.length >= allVariants.length}
+                            >
+                                Add Variant Type
+                            </Button>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
 
             <Card>
               <CardHeader>
                 <CardTitle>Pricing</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <FormField
                     control={form.control}
@@ -298,7 +440,7 @@ export function ProductForm({ product, categories, selectableProducts }: Product
             </Card>
 
           </div>
-          <div className="space-y-8">
+          <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Organize</CardTitle>
