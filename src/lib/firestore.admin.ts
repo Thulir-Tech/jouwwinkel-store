@@ -1,7 +1,7 @@
 
 import { db } from './firebase.client';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import type { CartItem, Checkout, ShippingPartner } from './types';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc } from 'firebase/firestore';
+import type { CartItem, Checkout, ShippingPartner, UiConfig } from './types';
 
 function slugify(text: string) {
   return text
@@ -156,4 +156,12 @@ export async function updateShippingPartner(id: string, partner: Partial<Omit<Sh
 
 export async function deleteShippingPartner(id: string) {
     await deleteDoc(doc(db, 'shippingPartners', id));
+}
+
+// UI Configuration
+export async function updateUiConfig(config: Partial<UiConfig>) {
+    const configRef = doc(db, 'uiConfig', 'main');
+    // Use set with merge: true to create the document if it doesn't exist,
+    // or update it if it does.
+    await setDoc(configRef, config, { merge: true });
 }

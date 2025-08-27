@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { FaWhatsapp } from 'react-icons/fa';
+import { getUiConfig } from '@/lib/firestore';
 
 const InstagramIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -9,13 +10,15 @@ const InstagramIcon = () => (
   </svg>
 );
 
-export default function Footer() {
+export default async function Footer() {
+  const config = await getUiConfig();
+
   return (
     <footer className="bg-stone-100 dark:bg-stone-900 border-t">
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-xl font-bold font-headline mb-4">Jouwwinkel</h3>
+            <h3 className="text-xl font-bold font-headline mb-4">{config?.footerHeading || 'Jouwwinkel'}</h3>
             <p className="text-muted-foreground">Elevate your style with our curated collection.</p>
           </div>
           <div>
@@ -35,13 +38,13 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Follow Us</h4>
             <div className="flex space-x-4">
-              <a href="https://www.instagram.com/jouwwinkel.store" rel="noopener noreferrer" aria-label="Instagram" className="text-muted-foreground hover:text-primary"><InstagramIcon /></a>
-              <a href="#" aria-label="WhatsApp" className="text-muted-foreground hover:text-primary"><FaWhatsapp size={24} /></a>
+              <a href={config?.instagramLink || '#'} rel="noopener noreferrer" aria-label="Instagram" className="text-muted-foreground hover:text-primary"><InstagramIcon /></a>
+              <a href={config?.whatsappLink || '#'} aria-label="WhatsApp" className="text-muted-foreground hover:text-primary"><FaWhatsapp size={24} /></a>
             </div>
           </div>
         </div>
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Jouwwinkel. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} {config?.footerHeading || 'Jouwwinkel'}. All rights reserved.</p>
         </div>
       </div>
     </footer>

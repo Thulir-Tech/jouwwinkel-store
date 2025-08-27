@@ -73,3 +73,17 @@ export type ShippingPartner = {
     name: string;
     trackingUrl: string;
 };
+
+export type UiConfig = {
+    headerCaption?: string;
+    heroText1?: string;
+    heroText2?: string;
+    heroText3?: string;
+    instagramLink?: string;
+    whatsappLink?: string;
+    storeAddress?: string;
+    ourStoryContent?: string;
+    footerHeading?: string;
+    heroMediaUrl?: string; // For image or video URL
+    brandLogoUrl?: string;
+};
