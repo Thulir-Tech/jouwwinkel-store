@@ -135,12 +135,12 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-2 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Product Details</CardTitle>
+                <CardTitle className="text-base">Product Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -177,7 +177,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Images</CardTitle>
+                    <CardTitle className="text-base">Images</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <FormField
@@ -200,14 +200,14 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
             
             <Card>
                 <CardHeader>
-                    <CardTitle>Variants</CardTitle>
+                    <CardTitle className="text-base">Variants</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <FormField
                       control={form.control}
                       name="hasVariants"
                       render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                           <div className="space-y-0.5">
                             <FormLabel>Product has variants</FormLabel>
                             <FormDescription>
@@ -318,7 +318,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
 
             <Card>
               <CardHeader>
-                <CardTitle>Pricing</CardTitle>
+                <CardTitle className="text-base">Pricing</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -357,7 +357,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
                   control={form.control}
                   name="onSale"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                       <div className="space-y-0.5">
                         <FormLabel>Show 'Sale' Tag</FormLabel>
                         <FormDescription>
@@ -378,7 +378,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
 
              <Card>
               <CardHeader>
-                <CardTitle>Inventory</CardTitle>
+                <CardTitle className="text-base">Inventory</CardTitle>
               </CardHeader>
               <CardContent className="grid grid-cols-2 gap-4">
                 <FormField
@@ -412,7 +412,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
             
             <Card>
                 <CardHeader>
-                    <CardTitle>Related Products</CardTitle>
+                    <CardTitle className="text-base">Related Products</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <FormField
@@ -440,10 +440,10 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
             </Card>
 
           </div>
-          <div className="space-y-6">
+          <div className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Organize</CardTitle>
+                <CardTitle className="text-base">Organize</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
@@ -491,14 +491,14 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
 
             <Card>
               <CardHeader>
-                <CardTitle>Status</CardTitle>
+                <CardTitle className="text-base">Status</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
                   name="active"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                       <div className="space-y-0.5">
                         <FormLabel>Active</FormLabel>
                         <FormDescription>
@@ -518,7 +518,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
                   control={form.control}
                   name="isFeatured"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                       <div className="space-y-0.5">
                         <FormLabel>Featured Product</FormLabel>
                         <FormDescription>

@@ -37,6 +37,8 @@ export async function addProduct(product: {
     tags?: string[];
     images?: string[];
     relatedProductIds?: string[];
+    hasVariants: boolean;
+    variants?: any[];
 }) {
     const productsRef = collection(db, 'products');
     
@@ -71,6 +73,8 @@ export async function updateProduct(id: string, product: Partial<{
     tags?: string[];
     images?: string[];
     relatedProductIds?: string[];
+    hasVariants: boolean;
+    variants?: any[];
 }>) {
     const productRef = doc(db, 'products', id);
 
