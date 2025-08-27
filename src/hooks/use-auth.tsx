@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from 'firebase/auth';
+import { onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '@/lib/firebase.client';
 import type { User } from '@/lib/types';
 
@@ -12,6 +12,7 @@ interface AuthContextType {
   signUpWithEmail: (name: string, email: string, password: string) => Promise<any>;
   signInWithGoogle: () => Promise<any>;
   signOut: () => Promise<void>;
+  sendPasswordReset: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,6 +55,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const sendPasswordReset = (email: string) => {
+    return sendPasswordResetEmail(auth, email);
+  };
+
   const value = {
     user,
     loading,
@@ -61,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUpWithEmail,
     signInWithGoogle,
     signOut,
+    sendPasswordReset,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

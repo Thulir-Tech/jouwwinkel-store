@@ -118,7 +118,7 @@ export default function CustomerLoginPage() {
                 )}
               />
                <div className="text-right text-sm">
-                <Link href="#" className="font-medium text-primary hover:underline">
+                <Link href="/forgot-password" className="font-medium text-primary hover:underline">
                     Forgot password?
                 </Link>
               </div>
