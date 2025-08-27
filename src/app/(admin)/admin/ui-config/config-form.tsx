@@ -38,7 +38,7 @@ const configFormSchema = z.object({
   headerCaptionCarousel: z.array(z.string().min(1, 'Carousel item cannot be empty')).optional(),
   footerHeading: z.string().optional(),
   instagramLink: z.string().url().or(z.literal('')).optional(),
-  whatsappLink: z.string().url().or(z-literal('')).optional(),
+  whatsappLink: z.string().url().or(z.literal('')).optional(),
   storeAddress: z.string().optional(),
   heroText1: z.string().optional(),
   heroText2: z.string().optional(),
@@ -331,3 +331,5 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     </Form>
   );
 }
+
+    
