@@ -44,7 +44,7 @@ export default function AdminDashboardLayout({
         <div className="flex">
         <Sidebar collapsible="icon">
             <SidebarHeader>
-            <Button variant="ghost" className="h-10 w-full justify-start px-2 text-lg font-bold" asChild>
+            <Button variant="ghost" className="h-10 w-full justify-center px-2 text-lg font-bold" asChild>
                 <Link href="/admin" onClick={handleLinkClick}>Jouwwinkel</Link>
             </Button>
             </SidebarHeader>
