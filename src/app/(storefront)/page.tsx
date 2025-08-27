@@ -1,8 +1,6 @@
 import Hero from '@/components/hero';
 import ProductGrid from '@/components/product-grid';
-import ProductRecommendations from '@/components/product-recommendations';
 import { getActiveProducts } from '@/lib/firestore';
-import type { Product } from '@/lib/types';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -36,14 +34,6 @@ export default function HomePage() {
           <ProductGridLoader />
         </Suspense>
       </section>
-      <section className="bg-background/80 py-12">
-         <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-8 font-headline">You Might Also Like</h2>
-            <Suspense fallback={<ProductGridSkeleton />}>
-              <ProductRecommendationsLoader />
-            </Suspense>
-         </div>
-      </section>
     </div>
   );
 }
@@ -51,12 +41,4 @@ export default function HomePage() {
 async function ProductGridLoader() {
   const products = await getActiveProducts(8);
   return <ProductGrid products={products} />;
-}
-
-async function ProductRecommendationsLoader() {
-  const products = await getActiveProducts(1);
-  if (products.length === 0) {
-    return null;
-  }
-  return <ProductRecommendations product={products[0]} />;
 }
