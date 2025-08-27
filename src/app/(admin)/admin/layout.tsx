@@ -20,6 +20,7 @@ import { Package, Shapes, Home, ShoppingCart, Users, LineChart, Settings, Truck,
 import { usePathname } from 'next/navigation';
 import { AuthGuard } from './auth-guard';
 import { useAuth } from '@/hooks/use-auth';
+import React from 'react';
 
 
 export default function AdminDashboardLayout({
@@ -30,6 +31,14 @@ export default function AdminDashboardLayout({
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
   const { user, signOut } = useAuth();
+  
+  React.useEffect(() => {
+    document.body.classList.add('admin-theme');
+
+    return () => {
+        document.body.classList.remove('admin-theme');
+    }
+  }, []);
 
 
   const isActive = (path: string) => {
@@ -42,7 +51,7 @@ export default function AdminDashboardLayout({
 
   return (
     <AuthGuard>
-        <div className="flex min-h-screen w-full flex-col bg-background admin-theme">
+        <div className="flex min-h-screen w-full flex-col bg-background">
         <div className="flex flex-1">
         <Sidebar collapsible="icon">
             <SidebarHeader>
