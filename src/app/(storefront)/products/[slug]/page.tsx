@@ -51,22 +51,24 @@ function ProductGridSkeleton() {
 
 function DeliveryInfo() {
     const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
-    const [deliveryRange, setDeliveryRange] = useState({ start: '', end: '' });
+    const [deliveryDates, setDeliveryDates] = useState({ ordered: '', shipped: '', delivered: '' });
 
     useEffect(() => {
         const calculateDeliveryDates = () => {
             const now = new Date();
-            const start = new Date(now);
-            start.setDate(now.getDate() + 3);
-
-            const end = new Date(now);
-            end.setDate(now.getDate() + 7);
-
             const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+            
+            const orderedDate = new Date(now);
+            const shippedDate = new Date(now);
+            shippedDate.setDate(now.getDate() + 1);
+            
+            const deliveredDate = new Date(now);
+            deliveredDate.setDate(now.getDate() + 4); // Approx 3-4 days for delivery
 
-            setDeliveryRange({
-                start: start.toLocaleDateString('en-US', options),
-                end: end.toLocaleDateString('en-US', options),
+            setDeliveryDates({
+                ordered: orderedDate.toLocaleDateString('en-US', options),
+                shipped: shippedDate.toLocaleDateString('en-US', options),
+                delivered: deliveredDate.toLocaleDateString('en-US', options),
             })
         }
         
@@ -91,26 +93,29 @@ function DeliveryInfo() {
 
     return (
         <div className="border rounded-lg p-4 my-6 space-y-4 text-sm text-muted-foreground">
-            <div className="font-semibold">
-                <span>🇮🇳</span> Pan-India shipping
+            <div className="font-semibold text-foreground">
+                <span>🇮🇳</span> Get it by <span className="font-bold">{deliveryDates.delivered}</span>
             </div>
             <p>
-                Order within the next <span className="text-foreground font-semibold">{String(timeLeft.hours).padStart(2, '0')}Hours {String(timeLeft.minutes).padStart(2, '0')}Minutes {String(timeLeft.seconds).padStart(2, '0')}Seconds</span> for dispatch today, and you&apos;ll receive your package between <span className="text-foreground font-semibold">{deliveryRange.start} and {deliveryRange.end}</span>
+                Order within the next <span className="text-foreground font-semibold">{String(timeLeft.hours).padStart(2, '0')}h {String(timeLeft.minutes).padStart(2, '0')}m {String(timeLeft.seconds).padStart(2, '0')}s</span> for dispatch tomorrow.
             </p>
-             <div className="flex justify-between items-center text-center border-t pt-4">
-                <div className="flex flex-col items-center">
-                    <ShoppingBag className="h-6 w-6 mb-1"/>
-                    <p className="font-semibold text-xs">Ordered</p>
+             <div className="flex justify-between items-start text-center border-t pt-4">
+                <div className="flex flex-col items-center flex-1">
+                    <ShoppingBag className="h-6 w-6 mb-1 text-primary"/>
+                    <p className="font-semibold text-xs text-foreground">Ordered</p>
+                    <p className="text-xs">{deliveryDates.ordered}</p>
                 </div>
-                <div className="flex-1 border-t border-dashed mx-2"></div>
-                <div className="flex flex-col items-center">
-                    <Truck className="h-6 w-6 mb-1"/>
-                    <p className="font-semibold text-xs">Order Ready</p>
+                <div className="flex-1 border-t border-dashed mt-3 mx-2"></div>
+                <div className="flex flex-col items-center flex-1">
+                    <Truck className="h-6 w-6 mb-1 text-primary"/>
+                    <p className="font-semibold text-xs text-foreground">Shipped</p>
+                    <p className="text-xs">{deliveryDates.shipped}</p>
                 </div>
-                 <div className="flex-1 border-t border-dashed mx-2"></div>
-                <div className="flex flex-col items-center">
-                    <MapPin className="h-6 w-6 mb-1"/>
-                    <p className="font-semibold text-xs">Delivered</p>
+                 <div className="flex-1 border-t border-dashed mt-3 mx-2"></div>
+                <div className="flex flex-col items-center flex-1">
+                    <MapPin className="h-6 w-6 mb-1 text-primary"/>
+                    <p className="font-semibold text-xs text-foreground">Delivered</p>
+                    <p className="text-xs">{deliveryDates.delivered}</p>
                 </div>
             </div>
         </div>
@@ -183,7 +188,7 @@ export default function ProductPage() {
                 <ul className="space-y-2 mb-6 text-muted-foreground">
                     {product.highlights.map((highlight, index) => (
                         <li key={index} className="flex items-center gap-3 text-sm">
-                            <FaCheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                            <FaCheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
                             <span>{highlight}</span>
                         </li>
                     ))}
