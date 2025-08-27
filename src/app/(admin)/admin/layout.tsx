@@ -155,20 +155,21 @@ export default function AdminDashboardLayout({
             </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-            <header className="flex h-14 items-center gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
-            <SidebarTrigger />
-            <div className="w-full flex-1">
-                {/* Can add search here */}
-            </div>
-            {user && (
-                <Button variant="outline" size="sm" onClick={signOut}>Logout</Button>
-            )}
-            <Button asChild variant="outline">
-                <Link href="/">
-                <Home className="mr-2" />
-                Go to Storefront
-                </Link>
-            </Button>
+            <header className="flex h-14 items-center justify-between gap-4 border-b bg-background px-4 lg:h-[60px] lg:px-6">
+                <div className="flex items-center gap-4">
+                    <SidebarTrigger />
+                </div>
+                <div className="flex items-center gap-4">
+                    {user && (
+                        <Button variant="outline" size="sm" onClick={signOut}>Logout</Button>
+                    )}
+                    <Button asChild variant="outline">
+                        <Link href="/">
+                        <Home className="mr-2" />
+                        Go to Storefront
+                        </Link>
+                    </Button>
+                </div>
             </header>
             <main className="flex-1 p-4 sm:p-6">{children}</main>
         </SidebarInset>
