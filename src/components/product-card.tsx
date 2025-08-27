@@ -60,9 +60,8 @@ export default function ProductCard({ product }: ProductCardProps) {
               addToCartAction();
           }}
       />
-      <Link href={`/products/${product.slug}`} passHref legacyBehavior>
-        <a className="block h-full">
-          <Card className="flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl">
+      <Card className="flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl">
+        <Link href={`/products/${product.slug}`} className="block h-full">
             <CardHeader className="p-0 relative">
                 <Image
                   src={product.images[0] || 'https://placehold.co/400x400.png'}
@@ -101,14 +100,13 @@ export default function ProductCard({ product }: ProductCardProps) {
                 )}
               </div>
             </CardContent>
-            <CardFooter className="p-4 pt-0">
-              <Button className="w-full" onClick={handleAddToCart}>
-                <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
-              </Button>
-            </CardFooter>
-          </Card>
-        </a>
-      </Link>
+        </Link>
+        <CardFooter className="p-4 pt-0">
+          <Button className="w-full" onClick={handleAddToCart}>
+            <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
+          </Button>
+        </CardFooter>
+      </Card>
     </>
   );
 }
