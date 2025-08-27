@@ -1,10 +1,10 @@
 import Hero from '@/components/hero';
 import ProductGrid from '@/components/product-grid';
-import { getActiveProducts } from '@/lib/firestore';
+import { getFeaturedProducts } from '@/lib/firestore';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 export const revalidate = 60;
 
 function ProductGridSkeleton() {
@@ -39,6 +39,6 @@ export default function HomePage() {
 }
 
 async function ProductGridLoader() {
-  const products = await getActiveProducts(8);
+  const products = await getFeaturedProducts(8);
   return <ProductGrid products={products} />;
 }

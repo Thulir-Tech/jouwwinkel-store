@@ -28,6 +28,16 @@ export async function getActiveProducts(limit?: number): Promise<Product[]> {
     return getData<Product>(snapshot);
 }
 
+export async function getFeaturedProducts(limit?: number): Promise<Product[]> {
+    const productsRef = collection(db, 'products');
+    const q = limit 
+      ? query(productsRef, where('active', '==', true), where('isFeatured', '==', true), orderBy('createdAt', 'desc'), firestoreLimit(limit))
+      : query(productsRef, where('active', '==', true), where('isFeatured', '==', true), orderBy('createdAt', 'desc'));
+    
+    const snapshot = await getDocs(q);
+    return getData<Product>(snapshot);
+}
+
 export async function getProduct(id: string): Promise<Product | null> {
     const docRef = doc(db, "products", id);
     const docSnap = await getDoc(docRef);

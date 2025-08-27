@@ -41,6 +41,7 @@ const productFormSchema = z.object({
   categoryId: z.string().optional(),
   active: z.boolean(),
   onSale: z.boolean(),
+  isFeatured: z.boolean(),
   sku: z.string().optional(),
   stock: z.coerce.number().min(0, { message: 'Stock must be a positive number.'}),
   tags: z.string().optional(),
@@ -68,6 +69,7 @@ export function ProductForm({ product, categories, selectableProducts }: Product
       categoryId: product?.categoryId || '',
       active: product?.active ?? true,
       onSale: product?.onSale ?? false,
+      isFeatured: product?.isFeatured ?? false,
       sku: product?.sku || '',
       stock: product?.stock || 0,
       tags: product?.tags?.join(', ') || '',
@@ -188,7 +190,7 @@ export function ProductForm({ product, categories, selectableProducts }: Product
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
-                        <FormLabel>Show &apos;Sale&apos; Tag</FormLabel>
+                        <FormLabel>Show 'Sale' Tag</FormLabel>
                         <FormDescription>
                           Display a sale badge on the product.
                         </FormDescription>
@@ -322,7 +324,7 @@ export function ProductForm({ product, categories, selectableProducts }: Product
               <CardHeader>
                 <CardTitle>Status</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
                   name="active"
@@ -332,6 +334,26 @@ export function ProductForm({ product, categories, selectableProducts }: Product
                         <FormLabel>Active</FormLabel>
                         <FormDescription>
                           This product will be visible on your storefront.
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="isFeatured"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>Featured Product</FormLabel>
+                        <FormDescription>
+                          Display this product on the homepage.
                         </FormDescription>
                       </div>
                       <FormControl>
