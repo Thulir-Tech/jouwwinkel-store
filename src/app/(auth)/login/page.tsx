@@ -79,7 +79,7 @@ export default function CustomerLoginPage() {
 
   return (
     <div className="flex min-h-[calc(100vh-128px)] items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md bg-white">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold font-headline">Welcome Back</CardTitle>
           <CardDescription>Sign in to continue to your account.</CardDescription>
@@ -128,7 +128,7 @@ export default function CustomerLoginPage() {
                 <Separator />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                <span className="bg-white px-2 text-muted-foreground">Or continue with</span>
             </div>
           </div>
           <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
