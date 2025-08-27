@@ -100,14 +100,13 @@ export type UiConfig = {
     headerCaptionType?: 'static' | 'carousel';
     headerCaptionStatic?: string;
     headerCaptionCarousel?: string[];
-    heroText1?: string;
-    heroText2?: string;
-    heroText3?: string;
+    footerHeading?: string;
     instagramLink?: string;
     whatsappLink?: string;
     storeAddress?: string;
+    heroText1?: string;
+    heroText2?: string;
+    heroText3?: string;
     ourStoryContent?: string;
-    footerHeading?: string;
-    heroMediaUrl?: string; // For image or video URL
     brandLogoUrl?: string;
 };

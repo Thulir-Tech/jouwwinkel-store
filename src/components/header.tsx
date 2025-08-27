@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -17,6 +18,9 @@ import {
     DropdownMenuTrigger,
   } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { getUiConfig } from '@/lib/firestore';
+import type { UiConfig } from '@/lib/types';
+import Image from 'next/image';
 
 
 function UserNav() {
@@ -72,10 +76,16 @@ function UserNav() {
 
 export default function Header() {
   const [isClient, setIsClient] = useState(false);
+  const [config, setConfig] = useState<UiConfig | null>(null);
   const { count } = useCartStore();
 
   useEffect(() => {
     setIsClient(true);
+    async function fetchConfig() {
+      const uiConfig = await getUiConfig();
+      setConfig(uiConfig);
+    }
+    fetchConfig();
   }, []);
 
   return (
@@ -85,9 +95,15 @@ export default function Header() {
           <SidebarSheet />
         </div>
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <Link href="/" className="text-2xl font-bold font-headline tracking-tight">
-            Jouwwinkel
-          </Link>
+            {config?.brandLogoUrl ? (
+                <Link href="/">
+                    <Image src={config.brandLogoUrl} alt="Brand Logo" width={120} height={60} className="object-contain h-12" />
+                </Link>
+            ) : (
+                <Link href="/" className="text-2xl font-bold font-headline tracking-tight">
+                    Jouwwinkel
+                </Link>
+            )}
         </div>
         <div className="flex items-center gap-1">
           <SearchDialog />

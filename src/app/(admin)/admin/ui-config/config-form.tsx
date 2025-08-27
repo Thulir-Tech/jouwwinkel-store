@@ -29,6 +29,8 @@ import type { UiConfig } from '@/lib/types';
 import { updateUiConfig } from '@/lib/firestore.admin';
 import { Separator } from '@/components/ui/separator';
 import { Trash2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ImageUploader } from '../products/image-uploader';
 
 const configFormSchema = z.object({
   headerCaptionType: z.enum(['static', 'carousel']).optional(),
@@ -36,12 +38,13 @@ const configFormSchema = z.object({
   headerCaptionCarousel: z.array(z.string().min(1, 'Carousel item cannot be empty')).optional(),
   footerHeading: z.string().optional(),
   instagramLink: z.string().url().or(z.literal('')).optional(),
-  whatsappLink: z.string().url().or(z.literal('')).optional(),
+  whatsappLink: z.string().url().or(z-literal('')).optional(),
   storeAddress: z.string().optional(),
   heroText1: z.string().optional(),
   heroText2: z.string().optional(),
   heroText3: z.string().optional(),
   ourStoryContent: z.string().optional(),
+  brandLogoUrl: z.array(z.string()).optional(),
 });
 
 type ConfigFormValues = z.infer<typeof configFormSchema>;
@@ -67,6 +70,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       heroText2: initialData?.heroText2 || '',
       heroText3: initialData?.heroText3 || '',
       ourStoryContent: initialData?.ourStoryContent || '',
+      brandLogoUrl: initialData?.brandLogoUrl ? [initialData.brandLogoUrl] : [],
     },
   });
 
@@ -79,7 +83,11 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
 
   const onSubmit = async (data: ConfigFormValues) => {
     try {
-      await updateUiConfig(data);
+      const finalData = {
+        ...data,
+        brandLogoUrl: data.brandLogoUrl?.[0] || '',
+      }
+      await updateUiConfig(finalData);
       toast({ title: 'Configuration updated successfully' });
       router.refresh();
     } catch (error) {
@@ -95,6 +103,27 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <Card>
+            <CardHeader><CardTitle>Brand Logo</CardTitle></CardHeader>
+            <CardContent>
+                <FormField
+                    control={form.control}
+                    name="brandLogoUrl"
+                    render={({ field }) => (
+                        <FormItem>
+                             <FormDescription>Upload your store logo. Recommended size: 200x100 pixels.</FormDescription>
+                            <FormControl>
+                                <ImageUploader 
+                                    value={field.value || []} 
+                                    onChange={field.onChange}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </CardContent>
+        </Card>
         <div className="space-y-4">
             <h3 className="text-lg font-medium">General</h3>
             <FormField
