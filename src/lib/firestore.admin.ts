@@ -41,8 +41,6 @@ export async function addProduct(product: {
 }) {
     const productsRef = collection(db, 'products');
     
-    // Firestore doesn't accept `undefined` values.
-    // We need to clean the object before sending it.
     const productData: { [key: string]: any } = { ...product };
     Object.keys(productData).forEach(key => {
         if (productData[key] === undefined) {
@@ -104,8 +102,6 @@ export async function updateStock(productId: string, stockData: { stock?: number
         updateData.stock = stockData.stock;
     }
     if (stockData.variantStock !== undefined) {
-        // To update nested objects, we use dot notation
-        // This replaces the entire variantStock map.
         updateData.variantStock = stockData.variantStock;
     }
     
@@ -150,7 +146,7 @@ export async function addCheckout(checkout: {
             delete checkoutData[key];
         }
     });
-
+    
     // Also update the user's profile with their mobile number if available
     if (checkout.userId && checkout.mobile) {
         const userRef = doc(db, 'users', checkout.userId);
@@ -165,12 +161,8 @@ export async function addCheckout(checkout: {
     });
 }
 
-export async function updateOrderStatus(
-    orderId: string, 
-    status: Checkout['status'], 
-    items: CartItem[],
-    details?: { consignmentNumber?: string; shippingPartnerId?: string, shippingPartnerName?: string }
-) {
+
+export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: CartItem[]) {
     await runTransaction(db, async (transaction) => {
         const orderRef = doc(db, 'checkouts', orderId);
         const orderDoc = await transaction.get(orderRef);
@@ -179,21 +171,13 @@ export async function updateOrderStatus(
             throw new Error("Order not found!");
         }
 
-        const updateData: Partial<Checkout> = { status };
-
-        if (details?.consignmentNumber) {
-            updateData.consignmentNumber = details.consignmentNumber;
-        }
-        if (details?.shippingPartnerId) {
-            updateData.shippingPartnerId = details.shippingPartnerId;
-        }
-        if (details?.shippingPartnerName) {
-            updateData.shippingPartnerName = details.shippingPartnerName;
+        if (orderDoc.data().status !== 'pending') {
+            throw new Error("Order has already been processed.");
         }
 
-        // Decrement stock ONLY when status is being set to 'packed'
-        if (status === 'packed' && orderDoc.data().status !== 'packed') {
-            for (const item of items) {
+        // Decrement stock for the checked items
+        if (itemsToUpdate.length > 0) {
+            for (const item of itemsToUpdate) {
                 const productRef = doc(db, 'products', item.id);
                 const productDoc = await transaction.get(productRef);
                 if (!productDoc.exists()) {
@@ -220,9 +204,35 @@ export async function updateOrderStatus(
                 transaction.update(productRef, stockUpdate);
             }
         }
-
-        transaction.update(orderRef, updateData);
+        
+        // Update order status to 'packed'
+        transaction.update(orderRef, { status: 'packed' });
     });
+}
+
+
+export async function updateOrderStatus(
+    orderId: string, 
+    status: 'shipped' | 'delivered', 
+    details?: { consignmentNumber?: string; shippingPartnerId?: string, shippingPartnerName?: string }
+) {
+    const orderRef = doc(db, 'checkouts', orderId);
+    
+    const updateData: Partial<Checkout> = { status };
+
+    if (status === 'shipped') {
+        if (details?.consignmentNumber) {
+            updateData.consignmentNumber = details.consignmentNumber;
+        }
+        if (details?.shippingPartnerId) {
+            updateData.shippingPartnerId = details.shippingPartnerId;
+        }
+        if (details?.shippingPartnerName) {
+            updateData.shippingPartnerName = details.shippingPartnerName;
+        }
+    }
+    
+    await updateDoc(orderRef, updateData);
 }
 
 // Shipping Partners
@@ -241,8 +251,6 @@ export async function deleteShippingPartner(id: string) {
 // UI Configuration
 export async function updateUiConfig(config: Partial<UiConfig>) {
     const configRef = doc(db, 'uiConfig', 'main');
-    // Use set with merge: true to create the document if it doesn't exist,
-    // or update it if it does.
     await setDoc(configRef, config, { merge: true });
 }
 

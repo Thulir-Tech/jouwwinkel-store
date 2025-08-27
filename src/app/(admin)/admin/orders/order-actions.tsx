@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Truck, Eye, CheckSquare, Square } from 'lucide-react';
+import { MoreHorizontal, Truck, Eye, Save } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,23 +29,27 @@ import {
   } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Checkout, ShippingPartner, Product } from '@/lib/types';
-import { updateOrderStatus } from '@/lib/firestore.admin';
+import type { Checkout, ShippingPartner, Product, CartItem } from '@/lib/types';
+import { packOrderAndUpdateStock, updateOrderStatus } from '@/lib/firestore.admin';
 import { getShippingPartners, getProductsByIds } from '@/lib/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { formatCurrency } from '@/lib/format';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 
 interface OrderActionsProps {
   order: Checkout;
 }
 
-function ViewOrderDialog({ order, open, onOpenChange }: { order: Checkout, open: boolean, onOpenChange: (open: boolean) => void }) {
+function PackingSlipDialog({ order, open, onOpenChange }: { order: Checkout, open: boolean, onOpenChange: (open: boolean) => void }) {
+    const { toast } = useToast();
+    const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
-    const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+    const [itemsToUpdate, setItemsToUpdate] = useState<Record<string, boolean>>({});
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         async function fetchProducts() {
@@ -57,37 +61,66 @@ function ViewOrderDialog({ order, open, onOpenChange }: { order: Checkout, open:
         }
         if (open) {
             fetchProducts();
-            setCheckedItems({}); // Reset checks when dialog opens
+            setItemsToUpdate({}); // Reset checks when dialog opens
         }
     }, [order.items, open]);
 
     const getProductById = (id: string) => products.find(p => p.id === id);
 
     const handleToggleCheck = (itemId: string) => {
-        setCheckedItems(prev => ({ ...prev, [itemId]: !prev[itemId] }));
+        setItemsToUpdate(prev => ({ ...prev, [itemId]: !prev[itemId] }));
     }
     
+    const handleSaveAndPack = async () => {
+        setLoading(true);
+        try {
+            const checkedItems: CartItem[] = order.items.filter(item => {
+                const compositeId = item.variantId || item.id;
+                return itemsToUpdate[compositeId];
+            });
+            
+            await packOrderAndUpdateStock(order.id, checkedItems);
+
+            toast({ title: "Order marked as Packed", description: "Stock has been updated for selected items." });
+            router.refresh();
+            onOpenChange(false);
+        } catch (error: any) {
+            console.error(error);
+            toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>Order Details (Packing Slip)</DialogTitle>
+                    <DialogTitle>Pack Order & Update Stock</DialogTitle>
                     <DialogDescription>
                        Order ID: {order.orderId}. Use this list to pack the order.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="max-h-[60vh] overflow-y-auto p-1">
+                    <Alert variant="default" className="mb-4">
+                        <Info className="h-4 w-4" />
+                        <AlertTitle>Instructions</AlertTitle>
+                        <AlertDescription>
+                          Check the box for each item you want to deduct from inventory. This action will also mark the order as 'Packed'.
+                        </AlertDescription>
+                    </Alert>
                     <div className="space-y-4">
                         {order.items.map(item => {
                              const product = getProductById(item.id);
-                             const itemId = item.variantId || item.id;
+                             const compositeId = item.variantId || item.id;
                              return (
-                                <div key={itemId} className="flex items-start gap-4 pr-4">
+                                <div key={compositeId} className="flex items-start gap-4 pr-4">
                                      <div className="flex items-center h-full pt-1">
                                         <Checkbox
-                                            id={`check-${itemId}`}
-                                            checked={!!checkedItems[itemId]}
-                                            onCheckedChange={() => handleToggleCheck(itemId)}
+                                            id={`check-${compositeId}`}
+                                            checked={!!itemsToUpdate[compositeId]}
+                                            onCheckedChange={() => handleToggleCheck(compositeId)}
+                                            aria-label={`Select ${item.title} for stock update`}
                                         />
                                      </div>
                                     <Image 
@@ -110,7 +143,11 @@ function ViewOrderDialog({ order, open, onOpenChange }: { order: Checkout, open:
                     </div>
                 </div>
                  <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <Button onClick={handleSaveAndPack} disabled={loading || order.status !== 'pending'}>
+                        <Save className="mr-2 h-4 w-4" />
+                        {loading ? 'Saving...' : "Update Stock & Mark as Packed"}
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -121,7 +158,7 @@ export function OrderActions({ order }: OrderActionsProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isShipDialogOpen, setIsShipDialogOpen] = useState(false);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isPackingDialogOpen, setIsPackingDialogOpen] = useState(false);
   const [consignmentNumber, setConsignmentNumber] = useState('');
   const [shippingPartners, setShippingPartners] = useState<ShippingPartner[]>([]);
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | undefined>();
@@ -136,9 +173,9 @@ export function OrderActions({ order }: OrderActionsProps) {
     }
   }, [isShipDialogOpen]);
 
-  const handleStatusUpdate = async (status: Checkout['status']) => {
+  const handleStatusUpdate = async (status: 'delivered') => {
     try {
-      await updateOrderStatus(order.id, status, order.items);
+      await updateOrderStatus(order.id, status);
       toast({ title: `Order marked as ${status}` });
       router.refresh();
     } catch (error: any) {
@@ -158,7 +195,7 @@ export function OrderActions({ order }: OrderActionsProps) {
     }
     try {
       const selectedPartner = shippingPartners.find(p => p.id === selectedPartnerId);
-      await updateOrderStatus(order.id, 'shipped', order.items, { 
+      await updateOrderStatus(order.id, 'shipped', { 
         consignmentNumber,
         shippingPartnerId: selectedPartnerId,
         shippingPartnerName: selectedPartner?.name,
@@ -168,15 +205,19 @@ export function OrderActions({ order }: OrderActionsProps) {
       setConsignmentNumber('');
       setSelectedPartnerId(undefined);
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast({ title: 'Error shipping order', variant: 'destructive' });
+      toast({ title: 'Error shipping order', variant: 'destructive', description: error.message });
     }
   };
+  
+  const canBePacked = order.status === 'pending';
+  const canBeShipped = order.status === 'packed';
+  const canBeDelivered = order.status === 'shipped';
 
   return (
     <>
-      <ViewOrderDialog order={order} open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen} />
+      <PackingSlipDialog order={order} open={isPackingDialogOpen} onOpenChange={setIsPackingDialogOpen} />
       <Dialog open={isShipDialogOpen} onOpenChange={setIsShipDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -231,14 +272,18 @@ export function OrderActions({ order }: OrderActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+          <DropdownMenuItem onClick={() => setIsPackingDialogOpen(true)} disabled={!canBePacked}>
              <Eye className="mr-2 h-4 w-4" />
-             View Order / Pack
+             Pack & Update Stock
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => handleStatusUpdate('packed')} disabled={order.status !== 'pending'}>Mark as Packed</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsShipDialogOpen(true)} disabled={order.status === 'shipped' || order.status === 'delivered'}>Mark as Shipped</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleStatusUpdate('delivered')} disabled={order.status === 'delivered'}>Mark as Delivered</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsShipDialogOpen(true)} disabled={!canBeShipped}>
+            <Truck className="mr-2 h-4 w-4" />
+            Mark as Shipped
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleStatusUpdate('delivered')} disabled={!canBeDelivered}>
+            Mark as Delivered
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
