@@ -71,7 +71,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
             </div>
             <div className="text-right">
               <p className="text-sm font-semibold">Order ID</p>
-              <p className="text-xs text-muted-foreground truncate">#{order.id}</p>
+              <p className="text-xs text-muted-foreground truncate font-mono">{order.orderId || order.id}</p>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">

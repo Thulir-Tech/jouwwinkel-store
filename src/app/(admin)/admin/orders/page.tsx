@@ -31,6 +31,7 @@ import {
             <Table>
             <TableHeader>
                 <TableRow>
+                <TableHead>Order ID</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
@@ -40,6 +41,7 @@ import {
             <TableBody>
                 {checkouts.map((checkout) => (
                 <TableRow key={checkout.id}>
+                    <TableCell className="font-mono text-xs">{checkout.orderId || checkout.id}</TableCell>
                     <TableCell>
                     <div className="font-medium">{checkout.shippingAddress.name}</div>
                     <div className="text-sm text-muted-foreground">{checkout.email}</div>

@@ -14,6 +14,13 @@ function slugify(text: string) {
     .replace(/-+$/, ''); // Trim - from end of text
 }
 
+function generateOrderId() {
+    const prefix = 'JW';
+    const timestamp = Date.now().toString().slice(-8); // Last 8 digits of timestamp
+    const randomPart = Math.random().toString(36).substring(2, 5).toUpperCase(); // 3 random alphanumeric chars
+    return `${prefix}-${timestamp}-${randomPart}`;
+}
+
 
 export async function addProduct(product: {
     title: string;
@@ -97,6 +104,7 @@ export async function addCheckout(checkout: {
     const checkoutsRef = collection(db, 'checkouts');
     await addDoc(checkoutsRef, {
         ...checkout,
+        orderId: generateOrderId(),
         createdAt: Date.now(),
         status: 'pending', // Initial status
     });
