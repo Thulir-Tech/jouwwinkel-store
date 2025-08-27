@@ -14,25 +14,26 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Truck, Copy } from 'lucide-react';
-import Link from 'next/link';
+import { Truck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface UserOrdersProps {
   userId: string;
 }
 
-function CopyToClipboard({ text }: { text: string }) {
+function TrackShipmentButton({ consignmentNumber }: { consignmentNumber: string }) {
   const { toast } = useToast();
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
+  const handleTrack = () => {
+    navigator.clipboard.writeText(consignmentNumber);
     toast({ title: 'Copied to clipboard!', description: 'Consignment number has been copied.' });
+    window.open('https://stcourier.com/track/shipment', '_blank');
   };
 
   return (
-    <Button variant="ghost" size="icon" onClick={handleCopy} aria-label="Copy consignment number">
-      <Copy className="h-4 w-4" />
+    <Button variant="outline" size="sm" onClick={handleTrack}>
+        <Truck className="mr-2 h-4 w-4" />
+        Copy Consignment & Track Shipment
     </Button>
   );
 }
@@ -98,18 +99,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
                     Status: <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>{order.status}</Badge>
                 </h3>
                 {order.status === 'shipped' && order.consignmentNumber && (
-                    <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1 rounded-md border bg-background pl-3">
-                           <span className="text-sm font-medium">{order.consignmentNumber}</span>
-                           <CopyToClipboard text={order.consignmentNumber} />
-                        </div>
-                        <Button variant="outline" size="sm" asChild>
-                            <Link href="https://stcourier.com/track/shipment" target="_blank">
-                                <Truck className="mr-2 h-4 w-4" />
-                                Track Shipment
-                            </Link>
-                        </Button>
-                    </div>
+                    <TrackShipmentButton consignmentNumber={order.consignmentNumber} />
                 )}
             </div>
             {order.items.map(item => (
