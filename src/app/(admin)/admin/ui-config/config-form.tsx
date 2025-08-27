@@ -30,7 +30,7 @@ import { updateUiConfig } from '@/lib/firestore.admin';
 import { Separator } from '@/components/ui/separator';
 import { Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { MediaUploader } from '../media-uploader';
+import { MediaUploader } from './media-uploader';
 
 const configFormSchema = z.object({
   headerCaptionType: z.enum(['static', 'carousel']).optional(),
@@ -451,3 +451,5 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     </Form>
   );
 }
+
+    
