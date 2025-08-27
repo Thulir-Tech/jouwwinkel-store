@@ -18,11 +18,6 @@ import { useToast } from '@/hooks/use-toast';
 import { updateStock } from '@/lib/firestore.admin';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronRight, Save } from 'lucide-react';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 
 interface InventoryTableProps {
     products: Product[];
@@ -78,6 +73,13 @@ export function InventoryTable({ products: initialProducts }: InventoryTableProp
             return newLevels;
         });
     };
+    
+    const toggleRow = (productId: string) => {
+        setOpenRows(prev => ({
+            ...prev,
+            [productId]: !prev[productId]
+        }));
+    };
 
     const handleSave = async (product: Product) => {
         setSaving(true);
@@ -123,91 +125,86 @@ export function InventoryTable({ products: initialProducts }: InventoryTableProp
                     const isRowOpen = openRows[product.id] ?? false;
                     
                     return (
-                        <Collapsible asChild key={product.id} open={isRowOpen} onOpenChange={(open) => setOpenRows(prev => ({...prev, [product.id]: open}))} tag="tbody">
-                            <>
-                                <TableRow>
-                                    <TableCell>
-                                        <Image
-                                            src={product.images?.[0] || 'https://placehold.co/64x64.png'}
-                                            alt={product.title}
-                                            width={64}
-                                            height={64}
-                                            className="rounded-md object-cover"
-                                            data-ai-hint="product image"
+                        <Fragment key={product.id}>
+                            <TableRow>
+                                <TableCell>
+                                    <Image
+                                        src={product.images?.[0] || 'https://placehold.co/64x64.png'}
+                                        alt={product.title}
+                                        width={64}
+                                        height={64}
+                                        className="rounded-md object-cover"
+                                        data-ai-hint="product image"
+                                    />
+                                </TableCell>
+                                <TableCell>
+                                    <div className="font-medium">{product.title}</div>
+                                    {product.hasVariants && <Badge variant="outline">{variantCombinations.length} variants</Badge>}
+                                </TableCell>
+                                <TableCell className="font-mono text-xs">{product.sku}</TableCell>
+                                <TableCell>
+                                    {!product.hasVariants ? (
+                                        <Input
+                                            type="number"
+                                            className="w-24"
+                                            value={stockLevels[product.id] as number ?? product.stock ?? 0}
+                                            onChange={(e) => handleStockChange(product.id, parseInt(e.target.value))}
                                         />
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="font-medium">{product.title}</div>
-                                        {product.hasVariants && <Badge variant="outline">{variantCombinations.length} variants</Badge>}
-                                    </TableCell>
-                                    <TableCell className="font-mono text-xs">{product.sku}</TableCell>
-                                    <TableCell>
-                                        {!product.hasVariants ? (
-                                            <Input
-                                                type="number"
-                                                className="w-24"
-                                                value={stockLevels[product.id] as number ?? product.stock ?? 0}
-                                                onChange={(e) => handleStockChange(product.id, parseInt(e.target.value))}
-                                            />
-                                        ) : (
-                                           <CollapsibleTrigger asChild>
-                                                <Button variant="ghost" size="sm" className="w-[130px] justify-start">
-                                                   {isRowOpen ? 'Hide' : 'Show'} Variants
-                                                   {isRowOpen ? <ChevronDown className="h-4 w-4 ml-2" /> : <ChevronRight className="h-4 w-4 ml-2" />}
-                                                </Button>
-                                            </CollapsibleTrigger>
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Button onClick={() => handleSave(product)} disabled={saving} size="sm">
-                                            <Save className="h-4 w-4 mr-2"/>
-                                            {saving ? 'Saving...' : 'Save'}
+                                    ) : (
+                                       <Button variant="ghost" size="sm" className="w-[130px] justify-start" onClick={() => toggleRow(product.id)}>
+                                           {isRowOpen ? 'Hide' : 'Show'} Variants
+                                           {isRowOpen ? <ChevronDown className="h-4 w-4 ml-2" /> : <ChevronRight className="h-4 w-4 ml-2" />}
                                         </Button>
+                                    )}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    <Button onClick={() => handleSave(product)} disabled={saving} size="sm">
+                                        <Save className="h-4 w-4 mr-2"/>
+                                        {saving ? 'Saving...' : 'Save'}
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                            {isRowOpen && product.hasVariants && (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="p-0">
+                                        <div className="p-4 bg-muted/50">
+                                            <h4 className="font-semibold mb-2">Variant Stock</h4>
+                                             <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Variant</TableHead>
+                                                        <TableHead className="w-[150px]">Stock</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {variantCombinations.map(combo => {
+                                                        const variantKey = combo.map(c => c.toLowerCase()).join('-');
+                                                        const currentStock = (stockLevels[product.id] as { [key: string]: number })?.[variantKey] ?? product.variantStock?.[variantKey] ?? 0;
+                                                        return (
+                                                            <TableRow key={variantKey}>
+                                                                <TableCell>{combo.join(' / ')}</TableCell>
+                                                                <TableCell>
+                                                                    <Input
+                                                                        type="number"
+                                                                        className="w-24"
+                                                                        value={currentStock}
+                                                                        onChange={(e) => handleStockChange(product.id, parseInt(e.target.value), variantKey)}
+                                                                    />
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        )
+                                                    })}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
-                                {product.hasVariants && (
-                                     <CollapsibleContent asChild>
-                                        <TableRow>
-                                            <TableCell colSpan={5} className="p-0">
-                                                <div className="p-4 bg-muted/50">
-                                                    <h4 className="font-semibold mb-2">Variant Stock</h4>
-                                                     <Table>
-                                                        <TableHeader>
-                                                            <TableRow>
-                                                                <TableHead>Variant</TableHead>
-                                                                <TableHead className="w-[150px]">Stock</TableHead>
-                                                            </TableRow>
-                                                        </TableHeader>
-                                                        <TableBody>
-                                                            {variantCombinations.map(combo => {
-                                                                const variantKey = combo.map(c => c.toLowerCase()).join('-');
-                                                                const currentStock = (stockLevels[product.id] as { [key: string]: number })?.[variantKey] ?? product.variantStock?.[variantKey] ?? 0;
-                                                                return (
-                                                                    <TableRow key={variantKey}>
-                                                                        <TableCell>{combo.join(' / ')}</TableCell>
-                                                                        <TableCell>
-                                                                            <Input
-                                                                                type="number"
-                                                                                className="w-24"
-                                                                                value={currentStock}
-                                                                                onChange={(e) => handleStockChange(product.id, parseInt(e.target.value), variantKey)}
-                                                                            />
-                                                                        </TableCell>
-                                                                    </TableRow>
-                                                                )
-                                                            })}
-                                                        </TableBody>
-                                                    </Table>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    </CollapsibleContent>
-                                )}
-                           </>
-                        </Collapsible>
+                            )}
+                       </Fragment>
                     )
                 })}
             </TableBody>
         </Table>
     );
 }
+
