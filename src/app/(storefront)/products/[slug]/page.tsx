@@ -13,7 +13,8 @@ import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import AddToCartButton from './add-to-cart-button';
 import { FaWhatsapp } from 'react-icons/fa';
-import { Check } from 'lucide-react';
+import { FaCheckCircle } from 'react-icons/fa';
+import { ShoppingBag, Truck, MapPin } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import VariantSelector from '@/components/variant-selector';
 
@@ -46,6 +47,74 @@ function ProductGridSkeleton() {
       ))}
     </div>
   );
+}
+
+function DeliveryInfo() {
+    const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
+    const [deliveryRange, setDeliveryRange] = useState({ start: '', end: '' });
+
+    useEffect(() => {
+        const calculateDeliveryDates = () => {
+            const now = new Date();
+            const start = new Date(now);
+            start.setDate(now.getDate() + 3);
+
+            const end = new Date(now);
+            end.setDate(now.getDate() + 7);
+
+            const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+
+            setDeliveryRange({
+                start: start.toLocaleDateString('en-US', options),
+                end: end.toLocaleDateString('en-US', options),
+            })
+        }
+        
+        calculateDeliveryDates();
+
+        const timer = setInterval(() => {
+            const now = new Date();
+            const endOfDay = new Date(now);
+            endOfDay.setHours(23, 59, 59, 999);
+            
+            const diff = endOfDay.getTime() - now.getTime();
+            
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / 1000 / 60) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+            
+            setTimeLeft({ hours, minutes, seconds });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, []);
+
+    return (
+        <div className="border rounded-lg p-4 my-6 space-y-4 text-sm text-muted-foreground">
+            <div className="font-semibold">
+                <span>🇮🇳</span> Pan-India shipping
+            </div>
+            <p>
+                Order within the next <span className="text-foreground font-semibold">{String(timeLeft.hours).padStart(2, '0')}Hours {String(timeLeft.minutes).padStart(2, '0')}Minutes {String(timeLeft.seconds).padStart(2, '0')}Seconds</span> for dispatch today, and you&apos;ll receive your package between <span className="text-foreground font-semibold">{deliveryRange.start} and {deliveryRange.end}</span>
+            </p>
+             <div className="flex justify-between items-center text-center border-t pt-4">
+                <div className="flex flex-col items-center">
+                    <ShoppingBag className="h-6 w-6 mb-1"/>
+                    <p className="font-semibold text-xs">Ordered</p>
+                </div>
+                <div className="flex-1 border-t border-dashed mx-2"></div>
+                <div className="flex flex-col items-center">
+                    <Truck className="h-6 w-6 mb-1"/>
+                    <p className="font-semibold text-xs">Order Ready</p>
+                </div>
+                 <div className="flex-1 border-t border-dashed mx-2"></div>
+                <div className="flex flex-col items-center">
+                    <MapPin className="h-6 w-6 mb-1"/>
+                    <p className="font-semibold text-xs">Delivered</p>
+                </div>
+            </div>
+        </div>
+    )
 }
 
 export default function ProductPage() {
@@ -96,30 +165,32 @@ export default function ProductPage() {
           />
         </div>
         <div className="flex flex-col">
-            <h1 className="text-3xl lg:text-4xl font-bold font-headline mb-4">{product.title}</h1>
+            <h1 className="text-2xl lg:text-3xl font-bold font-headline mb-2">{product.title}</h1>
             
             <div className="flex items-center gap-4 mb-4">
-                <p className="text-3xl font-bold text-primary font-sans">₹{formatCurrency(product.price)}</p>
+                <p className="text-2xl font-bold text-primary font-sans">₹{formatCurrency(product.price)}</p>
                 {showCompareAtPrice && (
-                <p className="text-xl text-muted-foreground line-through font-sans">
+                <p className="text-lg text-muted-foreground line-through font-sans">
                     ₹{formatCurrency(product.compareAtPrice!)}
                 </p>
                 )}
                 {product.onSale && <Badge variant="destructive">Sale</Badge>}
             </div>
             
-            <p className="text-muted-foreground mb-6">{product.description}</p>
+            <p className="text-muted-foreground text-sm mb-6">{product.description}</p>
 
             {product.hasHighlights && product.highlights && product.highlights.length > 0 && (
-                <ul className="space-y-3 mb-6 text-muted-foreground">
+                <ul className="space-y-2 mb-6 text-muted-foreground">
                     {product.highlights.map((highlight, index) => (
-                        <li key={index} className="flex items-center gap-2">
-                            <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
+                        <li key={index} className="flex items-center gap-3 text-sm">
+                            <FaCheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                             <span>{highlight}</span>
                         </li>
                     ))}
                 </ul>
             )}
+            
+            <DeliveryInfo />
 
             <VariantSelector 
                 product={product}
@@ -133,7 +204,6 @@ export default function ProductPage() {
                     selectedVariants={selectedVariants}
                     isSelectionComplete={isSelectionComplete}
                 />
-                <Button variant="outline" className="w-full">Size Guide</Button>
             </div>
         </div>
       </div>
