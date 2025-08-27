@@ -24,7 +24,8 @@ export type Product = {
   active: boolean;
   createdAt: number; // as timestamp
   sku?: string;
-  stock: number;
+  stock?: number; // For products without variants
+  variantStock?: { [key: string]: number }; // For products with variants e.g. {"red-small": 10}
   tags?: string[];
   relatedProductIds?: string[];
   hasVariants: boolean;
@@ -51,6 +52,7 @@ export type CartItem = {
   price: number;
   title: string;
   image?: string;
+  variantId?: string; // e.g. "red-small"
 };
 
 export type Checkout = {

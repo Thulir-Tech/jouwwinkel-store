@@ -1,8 +1,8 @@
 
 import { db, storage } from './firebase.client';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import type { CartItem, Checkout, ShippingPartner, UiConfig, User, Variant } from './types';
+import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant } from './types';
 
 function slugify(text: string) {
   return text
@@ -33,7 +33,6 @@ export async function addProduct(product: {
     categoryId?: string;
     active: boolean;
     sku?: string;
-    stock: number;
     tags?: string[];
     images?: string[];
     relatedProductIds?: string[];
@@ -50,6 +49,13 @@ export async function addProduct(product: {
             delete productData[key];
         }
     });
+
+    // Initialize stock
+    if (product.hasVariants) {
+        productData.variantStock = {}; // Will be populated from inventory page
+    } else {
+        productData.stock = 0; // Default stock
+    }
 
     await addDoc(productsRef, {
         ...productData,
@@ -69,7 +75,6 @@ export async function updateProduct(id: string, product: Partial<{
     categoryId?: string;
     active: boolean;
     sku?: string;
-    stock: number;
     tags?: string[];
     images?: string[];
     relatedProductIds?: string[];
@@ -78,7 +83,7 @@ export async function updateProduct(id: string, product: Partial<{
 }>) {
     const productRef = doc(db, 'products', id);
 
-    const productData: { [key: string]: any } = { ...product };
+    const productData: { [key-string]: any } = { ...product };
     if (product.title) {
         productData.slug = slugify(product.title);
     }
@@ -89,6 +94,22 @@ export async function updateProduct(id: string, product: Partial<{
     });
 
     await updateDoc(productRef, productData);
+}
+
+export async function updateStock(productId: string, stockData: { stock?: number, variantStock?: { [key: string]: number }}) {
+    const productRef = doc(db, 'products', productId);
+    const updateData: { [key: string]: any } = {};
+
+    if (stockData.stock !== undefined) {
+        updateData.stock = stockData.stock;
+    }
+    if (stockData.variantStock !== undefined) {
+        // To update nested objects, we use dot notation
+        // This replaces the entire variantStock map.
+        updateData.variantStock = stockData.variantStock;
+    }
+    
+    await updateDoc(productRef, updateData);
 }
 
 
@@ -136,11 +157,45 @@ export async function addCheckout(checkout: {
         await setDoc(userRef, { mobile: checkout.mobile }, { merge: true });
     }
 
-    await addDoc(checkoutsRef, {
-        ...checkoutData,
-        orderId: generateOrderId(),
-        createdAt: Date.now(),
-        status: 'pending', // Initial status
+    // Transaction to add checkout and update stock
+    await runTransaction(db, async (transaction) => {
+        const newCheckoutRef = doc(collection(db, "checkouts"));
+        transaction.set(newCheckoutRef, {
+            ...checkoutData,
+            orderId: generateOrderId(),
+            createdAt: Date.now(),
+            status: 'pending', // Initial status
+        });
+
+        // Decrement stock
+        for (const item of checkout.items) {
+            const productRef = doc(db, 'products', item.id);
+            const productDoc = await transaction.get(productRef);
+            if (!productDoc.exists()) {
+                throw new Error(`Product with ID ${item.id} not found.`);
+            }
+
+            const productData = productDoc.data() as Product;
+            const updateData: { [key: string]: any } = {};
+
+            if (productData.hasVariants) {
+                // Decrement variant stock
+                const variantKey = `variantStock.${item.variantId}`;
+                const currentVariantStock = productData.variantStock?.[item.variantId!] ?? 0;
+                if (currentVariantStock < item.quantity) {
+                    throw new Error(`Not enough stock for variant ${item.variantId} of product ${item.title}`);
+                }
+                updateData[variantKey] = currentVariantStock - item.quantity;
+            } else {
+                // Decrement simple stock
+                const currentStock = productData.stock ?? 0;
+                if (currentStock < item.quantity) {
+                    throw new Error(`Not enough stock for product ${item.title}`);
+                }
+                updateData.stock = currentStock - item.quantity;
+            }
+            transaction.update(productRef, updateData);
+        }
     });
 }
 
