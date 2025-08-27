@@ -95,8 +95,8 @@ export default function CartPage() {
               <span>Total</span>
               <span>₹{formatCurrency(total)}</span>
             </div>
-            <Button className="w-full" size="lg">
-              Proceed to Checkout
+            <Button className="w-full" size="lg" asChild>
+              <Link href="/checkout">Proceed to Checkout</Link>
             </Button>
           </div>
         </div>

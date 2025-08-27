@@ -1,5 +1,6 @@
 import { db } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
+import type { CartItem } from './types';
 
 function slugify(text: string) {
   return text
@@ -80,5 +81,20 @@ export async function addCategory(category: { name: string }) {
         slug: slugify(category.name),
         active: true,
         sort: sort, 
+    });
+}
+
+export async function addCheckout(checkout: {
+    email: string;
+    shippingAddress: object;
+    items: CartItem[];
+    total: number;
+    userId?: string;
+}) {
+    const checkoutsRef = collection(db, 'checkouts');
+    await addDoc(checkoutsRef, {
+        ...checkout,
+        createdAt: Date.now(),
+        status: 'pending', // Initial status
     });
 }

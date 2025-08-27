@@ -37,6 +37,24 @@ export type CartItem = {
   image?: string;
 };
 
+export type Checkout = {
+    id: string;
+    email: string;
+    shippingAddress: {
+        name: string;
+        address: string;
+        city: string;
+        state: string;
+        zip: string;
+        country: string;
+    };
+    items: CartItem[];
+    total: number;
+    userId?: string;
+    createdAt: number;
+    status: 'pending' | 'completed' | 'failed';
+}
+
 export type ProductRecommendation = ProductRecommendationsOutput[0];
 
 export type { User };

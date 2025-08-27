@@ -1,6 +1,6 @@
 import { db } from './firebase.client';
 import { collection, getDocs, query, limit as firestoreLimit, orderBy, where, getDoc, doc } from 'firebase/firestore';
-import type { Product, Category } from './types';
+import type { Product, Category, Checkout } from './types';
 
 // A helper function to safely get data from a snapshot
 function getData<T>(snapshot: any): T[] {
@@ -60,4 +60,11 @@ export async function getCategories(options: { activeOnly?: boolean } = {}): Pro
     : query(categoriesRef, orderBy('sort', 'asc'));
   const snapshot = await getDocs(q);
   return getData<Category>(snapshot);
+}
+
+export async function getCheckouts(): Promise<Checkout[]> {
+    const checkoutsRef = collection(db, 'checkouts');
+    const q = query(checkoutsRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return getData<Checkout>(snapshot);
 }
