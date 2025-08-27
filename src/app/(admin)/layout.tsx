@@ -5,5 +5,5 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <SidebarProvider>{children}</SidebarProvider>;
+  return <SidebarProvider defaultOpen={false}>{children}</SidebarProvider>;
 }
