@@ -44,12 +44,15 @@ export default function AdminDashboardLayout({
         <div className="flex">
         <Sidebar collapsible="icon">
             <SidebarHeader>
-            <Button variant="ghost" className="h-10 w-full justify-center px-2 text-lg font-bold" asChild>
-                <Link href="/admin" onClick={handleLinkClick}>Jouwwinkel</Link>
-            </Button>
+              <Button variant="ghost" className="h-10 w-full justify-center px-2" asChild>
+                  <Link href="/admin" onClick={handleLinkClick}>
+                    <Home />
+                    <span className="group-data-[collapsible=icon]:hidden">Home</span>
+                  </Link>
+              </Button>
             </SidebarHeader>
             <SidebarContent>
-            <SidebarMenu>
+            <SidebarMenu className="pl-2">
                 <SidebarMenuItem>
                 <SidebarMenuButton
                     href="/admin/products"
@@ -126,7 +129,7 @@ export default function AdminDashboardLayout({
             </SidebarContent>
             <SidebarFooter>
                 <SidebarSeparator />
-                <SidebarMenu>
+                <SidebarMenu className="pl-2">
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             href="/admin/ui-config"
