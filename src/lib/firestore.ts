@@ -62,9 +62,14 @@ export async function getCategories(options: { activeOnly?: boolean } = {}): Pro
   return getData<Category>(snapshot);
 }
 
-export async function getCheckouts(): Promise<Checkout[]> {
+export async function getCheckouts(userId?: string): Promise<Checkout[]> {
     const checkoutsRef = collection(db, 'checkouts');
-    const q = query(checkoutsRef, orderBy('createdAt', 'desc'));
+    let q;
+    if (userId) {
+        q = query(checkoutsRef, where('userId', '==', userId), orderBy('createdAt', 'desc'));
+    } else {
+        q = query(checkoutsRef, orderBy('createdAt', 'desc'));
+    }
     const snapshot = await getDocs(q);
     return getData<Checkout>(snapshot);
 }

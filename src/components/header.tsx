@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Search, ShoppingBag, User, LogOut } from 'lucide-react';
+import { ShoppingBag, User, LogOut, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/lib/store';
 import { useEffect, useState } from 'react';
@@ -45,6 +45,12 @@ function UserNav() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+                <Link href="/orders">
+                    <Package className="mr-2 h-4 w-4" />
+                    <span>My Orders</span>
+                </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={signOut}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
@@ -85,6 +91,7 @@ export default function Header() {
         </div>
         <div className="flex items-center gap-1">
           <SearchDialog />
+          <UserNav />
           <Button variant="ghost" size="icon" className="relative" asChild>
             <Link href="/cart">
               <ShoppingBag className="h-6 w-6" />
@@ -96,7 +103,6 @@ export default function Header() {
               <span className="sr-only">Shopping Cart</span>
             </Link>
           </Button>
-          <UserNav />
         </div>
       </div>
     </header>
