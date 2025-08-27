@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -47,6 +46,11 @@ export default function AdminDashboardLayout({
   
   const handleLinkClick = () => {
     setOpenMobile(false);
+  }
+
+  // Do not render the standard layout for the printable shipping slip page
+  if (pathname.endsWith('/slip')) {
+    return <>{children}</>;
   }
 
   return (
