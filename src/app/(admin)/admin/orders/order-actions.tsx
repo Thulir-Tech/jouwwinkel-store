@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Truck, Eye, Save, CheckCircle, Home, Phone } from 'lucide-react';
+import { MoreHorizontal, Truck, Eye, Save, CheckCircle, Home, Phone, Printer } from 'lucide-react';
 import { MdDone } from 'react-icons/md';
 import {
   DropdownMenu,
@@ -40,6 +40,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
 
 interface OrderActionsProps {
   order: Checkout;
@@ -315,6 +316,12 @@ export function OrderActions({ order, setCheckouts }: OrderActionsProps) {
           <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
              <Eye className="mr-2 h-4 w-4" />
              View Details
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href={`/admin/orders/${order.id}/slip`} target="_blank">
+                <Printer className="mr-2 h-4 w-4" />
+                Generate Slip
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setIsPackingDialogOpen(true)} disabled={!canBePacked}>

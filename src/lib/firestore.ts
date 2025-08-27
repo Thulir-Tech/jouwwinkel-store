@@ -89,6 +89,18 @@ export async function getVariants(): Promise<Variant[]> {
     return getData<Variant>(snapshot);
 }
 
+export async function getCheckout(id: string): Promise<Checkout | null> {
+    const docRef = doc(db, "checkouts", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        const checkout = { id: docSnap.id, ...docSnap.data() } as Checkout;
+        return checkout;
+    } else {
+        return null;
+    }
+}
+
 export async function getCheckouts(userId?: string): Promise<Checkout[]> {
     const checkoutsRef = collection(db, 'checkouts');
     let q;
