@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +31,7 @@ import { addProduct, updateProduct } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { ImageUploader } from './products/image-uploader';
 
 const productFormSchema = z.object({
   title: z.string().min(2, {
@@ -46,6 +48,7 @@ const productFormSchema = z.object({
   stock: z.coerce.number().min(0, { message: 'Stock must be a positive number.'}),
   tags: z.string().optional(),
   relatedProductIds: z.array(z.string()).optional(),
+  images: z.array(z.string()).optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -74,6 +77,7 @@ export function ProductForm({ product, categories, selectableProducts }: Product
       stock: product?.stock || 0,
       tags: product?.tags?.join(', ') || '',
       relatedProductIds: product?.relatedProductIds || [],
+      images: product?.images || [],
     },
   });
 
@@ -145,6 +149,29 @@ export function ProductForm({ product, categories, selectableProducts }: Product
                   )}
                 />
               </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Images</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <FormField
+                        control={form.control}
+                        name="images"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <ImageUploader 
+                                        value={field.value || []} 
+                                        onChange={field.onChange}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </CardContent>
             </Card>
 
             <Card>

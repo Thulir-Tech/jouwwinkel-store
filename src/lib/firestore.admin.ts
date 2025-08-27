@@ -1,6 +1,7 @@
 
-import { db } from './firebase.client';
+import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import type { CartItem, Checkout, ShippingPartner, UiConfig, User } from './types';
 
 function slugify(text: string) {
@@ -34,6 +35,7 @@ export async function addProduct(product: {
     sku?: string;
     stock: number;
     tags?: string[];
+    images?: string[];
     relatedProductIds?: string[];
 }) {
     const productsRef = collection(db, 'products');
@@ -50,7 +52,7 @@ export async function addProduct(product: {
     await addDoc(productsRef, {
         ...productData,
         slug: slugify(product.title),
-        images: [], // Placeholder for images
+        images: product.images || [],
         createdAt: Date.now(),
     });
 }
@@ -67,6 +69,7 @@ export async function updateProduct(id: string, product: Partial<{
     sku?: string;
     stock: number;
     tags?: string[];
+    images?: string[];
     relatedProductIds?: string[];
 }>) {
     const productRef = doc(db, 'products', id);
@@ -178,4 +181,31 @@ export async function getUsers(): Promise<User[]> {
     const q = query(usersRef, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ ...doc.data() } as User));
+}
+
+// File Upload
+export function uploadFile(
+    path: string,
+    file: File,
+    onProgress: (progress: number) => void
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const storageRef = ref(storage, path);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+  
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          onProgress(progress);
+        },
+        (error) => {
+          reject(error);
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve(downloadURL);
+        }
+      );
+    });
 }
