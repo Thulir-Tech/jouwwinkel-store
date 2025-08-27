@@ -55,7 +55,7 @@ import { Truck } from 'lucide-react';
                     </TableCell>
                     <TableCell>{new Date(checkout.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>
-                        <Badge variant={checkout.status === 'completed' ? 'default' : 'secondary'}>
+                        <Badge variant={checkout.status === 'delivered' ? 'default' : 'secondary'}>
                             {checkout.status}
                         </Badge>
                     </TableCell>

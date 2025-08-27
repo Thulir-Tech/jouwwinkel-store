@@ -116,7 +116,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
           <CardContent className="p-4 md:p-6 space-y-4">
              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h3 className="text-lg font-semibold capitalize">
-                    Status: <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>{order.status}</Badge>
+                    Status: <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>{order.status}</Badge>
                 </h3>
                 {order.status === 'shipped' && (
                     <TrackShipmentButton order={order} />

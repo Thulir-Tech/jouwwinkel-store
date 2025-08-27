@@ -57,7 +57,7 @@ export type Checkout = {
     total: number;
     userId?: string;
     createdAt: number;
-    status: 'pending' | 'packed' | 'shipped' | 'completed' | 'failed';
+    status: 'pending' | 'packed' | 'shipped' | 'delivered' | 'failed';
     consignmentNumber?: string;
     shippingPartnerId?: string;
     shippingPartnerName?: string;

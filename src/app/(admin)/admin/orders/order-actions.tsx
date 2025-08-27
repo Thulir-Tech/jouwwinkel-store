@@ -153,7 +153,7 @@ export function OrderActions({ order }: OrderActionsProps) {
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => handleStatusUpdate('packed')}>Mark as Packed</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setIsShipDialogOpen(true)}>Mark as Shipped</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleStatusUpdate('completed')}>Mark as Completed</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleStatusUpdate('delivered')}>Mark as Delivered</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
