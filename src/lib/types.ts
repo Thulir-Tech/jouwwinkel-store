@@ -1,3 +1,4 @@
+
 import type { ProductRecommendationsOutput } from "@/ai/flows/product-recommendations";
 import type { User } from "firebase/auth";
 
@@ -48,6 +49,7 @@ export type Checkout = {
         zip: string;
         country: string;
     };
+    paymentMethod: 'cod' | 'upi';
     items: CartItem[];
     total: number;
     userId?: string;

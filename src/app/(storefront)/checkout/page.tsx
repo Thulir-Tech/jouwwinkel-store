@@ -1,11 +1,10 @@
+
 'use client';
 
 import { useCartStore } from '@/lib/store';
 import { formatCurrency } from '@/lib/format';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -19,6 +18,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from '@/components/ui/select';
+import {
     Card,
     CardContent,
 } from '@/components/ui/card';
@@ -28,6 +34,7 @@ import { useEffect } from 'react';
 import { addCheckout } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
 
 
 const checkoutFormSchema = z.object({
@@ -40,10 +47,8 @@ const checkoutFormSchema = z.object({
         zip: z.string().min(5),
         country: z.string().min(2),
     }),
-    paymentMethod: z.object({
-        cardNumber: z.string().min(16).max(16),
-        expiryDate: z.string().min(5).max(5),
-        cvc: z.string().min(3).max(4),
+    paymentMethod: z.enum(['cod', 'upi'], {
+        required_error: 'Please select a payment method.',
     }),
 });
 
@@ -82,11 +87,6 @@ export default function CheckoutPage() {
                 zip: '',
                 country: 'India',
             },
-            paymentMethod: {
-                cardNumber: '',
-                expiryDate: '',
-                cvc: '',
-            },
         },
     });
 
@@ -120,7 +120,8 @@ export default function CheckoutPage() {
             });
             clearCart();
             router.push('/');
-        } catch (error) {
+        } catch (error)
+        {
             console.error(error);
             toast({
                 title: 'Error',
@@ -208,13 +209,27 @@ export default function CheckoutPage() {
                             <Card>
                                 <CardContent className="pt-6">
                                     <h2 className="text-xl font-semibold mb-4 font-headline">Payment Method</h2>
-                                     <div className="space-y-4">
-                                        <FormField control={form.control} name="paymentMethod.cardNumber" render={({ field }) => (<FormItem><FormLabel>Card Number</FormLabel><FormControl><Input placeholder="•••• •••• •••• ••••" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <FormField control={form.control} name="paymentMethod.expiryDate" render={({ field }) => (<FormItem><FormLabel>Expiry Date</FormLabel><FormControl><Input placeholder="MM/YY" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                            <FormField control={form.control} name="paymentMethod.cvc" render={({ field }) => (<FormItem><FormLabel>CVC</FormLabel><FormControl><Input placeholder="CVC" {...field} /></FormControl><FormMessage /></FormItem>)} />
-                                        </div>
-                                    </div>
+                                    <FormField
+                                        control={form.control}
+                                        name="paymentMethod"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Payment Option</FormLabel>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select a payment method" />
+                                                    </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="cod">Cash on Delivery</SelectItem>
+                                                        <SelectItem value="upi">UPI</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
                                 </CardContent>
                             </Card>
                         </div>

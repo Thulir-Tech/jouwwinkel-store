@@ -1,3 +1,4 @@
+
 import { db } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
 import type { CartItem } from './types';
@@ -87,6 +88,7 @@ export async function addCategory(category: { name: string }) {
 export async function addCheckout(checkout: {
     email: string;
     shippingAddress: object;
+    paymentMethod: 'cod' | 'upi';
     items: CartItem[];
     total: number;
     userId?: string;
