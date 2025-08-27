@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -36,6 +37,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { formatCurrency } from '@/lib/format';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface OrderActionsProps {
   order: Checkout;
@@ -78,17 +80,16 @@ function ViewOrderDialog({ order, open, onOpenChange }: { order: Checkout, open:
                     <div className="space-y-4">
                         {order.items.map(item => {
                              const product = getProductById(item.id);
+                             const itemId = item.variantId || item.id;
                              return (
-                                <div key={item.variantId || item.id} className="flex items-start gap-4 pr-4">
-                                     <div 
-                                        className="flex items-center justify-center cursor-pointer pt-1"
-                                        onClick={() => handleToggleCheck(item.variantId || item.id)}
-                                    >
-                                        {checkedItems[item.variantId || item.id] ? 
-                                            <CheckSquare className="h-5 w-5 text-primary" /> : 
-                                            <Square className="h-5 w-5 text-muted-foreground" />
-                                        }
-                                    </div>
+                                <div key={itemId} className="flex items-start gap-4 pr-4">
+                                     <div className="flex items-center h-full pt-1">
+                                        <Checkbox
+                                            id={`check-${itemId}`}
+                                            checked={!!checkedItems[itemId]}
+                                            onCheckedChange={() => handleToggleCheck(itemId)}
+                                        />
+                                     </div>
                                     <Image 
                                         src={item.image || 'https://placehold.co/64x64.png'} 
                                         alt={item.title}
