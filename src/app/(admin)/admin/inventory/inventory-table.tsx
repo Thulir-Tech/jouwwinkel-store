@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Fragment } from 'react';
 import Image from 'next/image';
 import type { Product } from '@/lib/types';
 import {
@@ -123,7 +123,7 @@ export function InventoryTable({ products: initialProducts }: InventoryTableProp
                     const isRowOpen = openRows[product.id] ?? false;
                     
                     return (
-                        <Collapsible asChild key={product.id} open={isRowOpen} onOpenChange={(open) => setOpenRows(prev => ({...prev, [product.id]: open}))}>
+                        <Collapsible asChild key={product.id} open={isRowOpen} onOpenChange={(open) => setOpenRows(prev => ({...prev, [product.id]: open}))} tag="tbody">
                             <>
                                 <TableRow>
                                     <TableCell>
