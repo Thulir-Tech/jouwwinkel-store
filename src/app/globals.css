@@ -121,7 +121,8 @@
     white-space: nowrap;
   }
   .marquee-content {
-    display: inline-block;
+    display: flex;
+    width: fit-content;
     animation: marquee 40s linear infinite;
   }
   @keyframes marquee {

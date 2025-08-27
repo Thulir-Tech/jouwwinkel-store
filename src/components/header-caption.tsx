@@ -16,20 +16,22 @@ export default function HeaderCaption({ config }: HeaderCaptionProps) {
   if (headerCaptionType === 'carousel' && headerCaptionCarousel && headerCaptionCarousel.length > 0) {
     const carouselItems = headerCaptionCarousel.filter(item => item.trim() !== '');
     if (carouselItems.length === 0) return null;
-    
-    // Duplicate the content to create a seamless loop
-    const fullText = [...carouselItems, ...carouselItems];
+
+    const renderItems = () => (
+        carouselItems.map((item, index) => (
+            <Fragment key={index}>
+                <span className="mx-4">{item}</span>
+                {index < carouselItems.length - 1 && <span>|</span>}
+            </Fragment>
+        ))
+    );
 
     return (
       <div className="bg-primary text-primary-foreground text-center text-sm p-2 font-headline">
         <div className="marquee">
           <div className="marquee-content">
-            {fullText.map((item, index) => (
-                <Fragment key={index}>
-                    <span className="mx-4">{item}</span>
-                    {index < fullText.length - 1 && <span>|</span>}
-                </Fragment>
-            ))}
+            {renderItems()}
+            {renderItems()}
           </div>
         </div>
       </div>
