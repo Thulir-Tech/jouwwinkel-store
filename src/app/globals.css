@@ -113,3 +113,23 @@
     font-family: "Inter", sans-serif;
   }
 }
+
+@layer utilities {
+  .marquee {
+    overflow: hidden;
+    position: relative;
+    white-space: nowrap;
+  }
+  .marquee-content {
+    display: inline-block;
+    animation: marquee 40s linear infinite;
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
