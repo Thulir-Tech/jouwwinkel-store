@@ -32,7 +32,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import type { Checkout, ShippingPartner, Product, CartItem } from '@/lib/types';
 import { packOrderAndUpdateStock, updateOrderStatus } from '@/lib/firestore.admin';
-import { getShippingPartners, getProductsByIds } from '@/lib/firestore';
+import { getShippingPartners, getProductsByIds, getCheckouts } from '@/lib/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -42,11 +42,11 @@ import { Info } from 'lucide-react';
 
 interface OrderActionsProps {
   order: Checkout;
+  setCheckouts: React.Dispatch<React.SetStateAction<Checkout[]>>;
 }
 
-function PackingDialog({ order, open, onOpenChange, isViewOnly = false }: { order: Checkout, open: boolean, onOpenChange: (open: boolean) => void, isViewOnly?: boolean }) {
+function PackingDialog({ order, open, onOpenChange, isViewOnly = false, setCheckouts }: { order: Checkout, open: boolean, onOpenChange: (open: boolean) => void, isViewOnly?: boolean, setCheckouts: React.Dispatch<React.SetStateAction<Checkout[]>> }) {
     const { toast } = useToast();
-    const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
     const [itemsToUpdate, setItemsToUpdate] = useState<Record<string, boolean>>({});
     const [loading, setLoading] = useState(false);
@@ -86,9 +86,11 @@ function PackingDialog({ order, open, onOpenChange, isViewOnly = false }: { orde
             });
             
             await packOrderAndUpdateStock(order.id, checkedItems);
+            
+            const updatedCheckouts = await getCheckouts();
+            setCheckouts(updatedCheckouts);
 
             toast({ title: "Order marked as Packed", description: "Stock has been updated for selected items." });
-            router.refresh();
             onOpenChange(false);
         } catch (error: any) {
             console.error(error);
@@ -169,9 +171,8 @@ function PackingDialog({ order, open, onOpenChange, isViewOnly = false }: { orde
     )
 }
 
-export function OrderActions({ order }: OrderActionsProps) {
+export function OrderActions({ order, setCheckouts }: OrderActionsProps) {
   const { toast } = useToast();
-  const router = useRouter();
   const [isShipDialogOpen, setIsShipDialogOpen] = useState(false);
   const [isPackingDialogOpen, setIsPackingDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -192,8 +193,9 @@ export function OrderActions({ order }: OrderActionsProps) {
   const handleStatusUpdate = async (status: 'delivered') => {
     try {
       await updateOrderStatus(order.id, status);
+      const updatedCheckouts = await getCheckouts();
+      setCheckouts(updatedCheckouts);
       toast({ title: `Order marked as ${status}` });
-      router.refresh();
     } catch (error: any) {
       console.error(error);
       toast({ title: 'Error updating status', description: error.message, variant: 'destructive' });
@@ -216,11 +218,12 @@ export function OrderActions({ order }: OrderActionsProps) {
         shippingPartnerId: selectedPartnerId,
         shippingPartnerName: selectedPartner?.name,
       });
+      const updatedCheckouts = await getCheckouts();
+      setCheckouts(updatedCheckouts);
       toast({ title: 'Order marked as shipped' });
       setIsShipDialogOpen(false);
       setConsignmentNumber('');
       setSelectedPartnerId(undefined);
-      router.refresh();
     } catch (error: any) {
       console.error(error);
       toast({ title: 'Error shipping order', variant: 'destructive', description: error.message });
@@ -233,8 +236,8 @@ export function OrderActions({ order }: OrderActionsProps) {
 
   return (
     <>
-      <PackingDialog order={order} open={isPackingDialogOpen} onOpenChange={setIsPackingDialogOpen} />
-      <PackingDialog order={order} open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen} isViewOnly={true} />
+      <PackingDialog order={order} open={isPackingDialogOpen} onOpenChange={setIsPackingDialogOpen} setCheckouts={setCheckouts} />
+      <PackingDialog order={order} open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen} isViewOnly={true} setCheckouts={setCheckouts} />
 
       <Dialog open={isShipDialogOpen} onOpenChange={setIsShipDialogOpen}>
         <DialogContent>

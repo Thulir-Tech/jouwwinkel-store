@@ -210,7 +210,7 @@ export default function OrdersPage() {
                     </TableCell>
                     <TableCell className="text-right font-sans">₹{formatCurrency(checkout.total)}</TableCell>
                     <TableCell className="text-right">
-                        <OrderActions order={checkout} />
+                        <OrderActions order={checkout} setCheckouts={setCheckouts} />
                     </TableCell>
                 </TableRow>
                 ))}
