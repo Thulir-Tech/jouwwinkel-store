@@ -21,6 +21,7 @@ import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 
 const signupFormSchema = z.object({
+  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
@@ -42,6 +43,7 @@ export default function CustomerSignupPage() {
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
     },
@@ -49,7 +51,7 @@ export default function CustomerSignupPage() {
 
   const onSubmit = async (data: SignupFormValues) => {
     try {
-      await signUpWithEmail(data.email, data.password);
+      await signUpWithEmail(data.name, data.email, data.password);
       toast({ title: 'Account created successfully' });
       router.push('/'); // Redirect to homepage after signup
     } catch (error: any) {
@@ -91,6 +93,19 @@ export default function CustomerSignupPage() {
         <CardContent className="space-y-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="email"
