@@ -40,6 +40,16 @@ export async function getProduct(id: string): Promise<Product | null> {
     }
 }
 
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+    if (!ids || ids.length === 0) {
+        return [];
+    }
+    const productsRef = collection(db, 'products');
+    const q = query(productsRef, where('__name__', 'in', ids));
+    const snapshot = await getDocs(q);
+    return getData<Product>(snapshot);
+}
+
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const q = query(collection(db, "products"), where("slug", "==", slug), where('active', '==', true), firestoreLimit(1));
   const snapshot = await getDocs(q);

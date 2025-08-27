@@ -29,6 +29,7 @@ import { useRouter } from 'next/navigation';
 import { addProduct, updateProduct } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { MultiSelect } from '@/components/ui/multi-select';
 
 const productFormSchema = z.object({
   title: z.string().min(2, {
@@ -43,6 +44,7 @@ const productFormSchema = z.object({
   sku: z.string().optional(),
   stock: z.coerce.number().min(0, { message: 'Stock must be a positive number.'}),
   tags: z.string().optional(),
+  relatedProductIds: z.array(z.string()).optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -50,9 +52,10 @@ type ProductFormValues = z.infer<typeof productFormSchema>;
 interface ProductFormProps {
   product?: Product;
   categories: Category[];
+  selectableProducts: Product[];
 }
 
-export function ProductForm({ product, categories }: ProductFormProps) {
+export function ProductForm({ product, categories, selectableProducts }: ProductFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const form = useForm<ProductFormValues>({
@@ -61,13 +64,14 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       title: product?.title || '',
       description: product?.description || '',
       price: product?.price || 0,
-      compareAtPrice: product?.compareAtPrice || undefined,
+      compareAtPrice: product?.compareAtPrice,
       categoryId: product?.categoryId || '',
       active: product?.active ?? true,
       onSale: product?.onSale ?? false,
       sku: product?.sku || '',
       stock: product?.stock || 0,
       tags: product?.tags?.join(', ') || '',
+      relatedProductIds: product?.relatedProductIds || [],
     },
   });
 
@@ -96,6 +100,8 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       });
     }
   };
+  
+  const productOptions = selectableProducts.map(p => ({ value: p.id, label: p.title }));
 
   return (
     <Form {...form}>
@@ -165,7 +171,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                         <FormItem>
                         <FormLabel>Compare-at Price</FormLabel>
                         <FormControl>
-                            <Input type="number" placeholder="0.00" {...field} />
+                            <Input type="number" placeholder="0.00" {...field} value={field.value ?? ''} onChange={field.onChange} />
                         </FormControl>
                         <FormDescription>
                             To show a sale, enter a value higher than the price.
@@ -231,6 +237,35 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                   )}
                 />
               </CardContent>
+            </Card>
+            
+            <Card>
+                <CardHeader>
+                    <CardTitle>Related Products</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <FormField
+                        control={form.control}
+                        name="relatedProductIds"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Suggestions</FormLabel>
+                                <FormControl>
+                                    <MultiSelect
+                                        options={productOptions}
+                                        selected={field.value || []}
+                                        onChange={field.onChange}
+                                        placeholder="Select products to recommend..."
+                                    />
+                                </FormControl>
+                                <FormDescription>
+                                    These products will be shown in the "You Might Also Like" section.
+                                </FormDescription>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </CardContent>
             </Card>
 
           </div>
@@ -319,5 +354,3 @@ export function ProductForm({ product, categories }: ProductFormProps) {
     </Form>
   );
 }
-
-    

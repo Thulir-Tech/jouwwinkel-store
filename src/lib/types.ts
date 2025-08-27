@@ -1,5 +1,4 @@
 
-import type { ProductRecommendationsOutput } from "@/ai/flows/product-recommendations";
 import type { User as FirebaseUser } from "firebase/auth";
 
 
@@ -21,6 +20,7 @@ export type Product = {
   sku?: string;
   stock: number;
   tags?: string[];
+  relatedProductIds?: string[];
 };
 
 export type Category = {
@@ -62,8 +62,6 @@ export type Checkout = {
     shippingPartnerId?: string;
     shippingPartnerName?: string;
 }
-
-export type ProductRecommendation = ProductRecommendationsOutput[0];
 
 export interface User extends FirebaseUser {
     isAdmin: boolean;

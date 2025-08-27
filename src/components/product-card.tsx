@@ -25,7 +25,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const isSale = product.onSale && product.compareAtPrice && product.compareAtPrice > product.price;
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // prevent link navigation when clicking button
     if (!user) {
         setIsLoginDialogOpen(true);
     } else {
@@ -49,61 +50,63 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <>
-    <LoginDialog
-        open={isLoginDialogOpen}
-        onOpenChange={setIsLoginDialogOpen}
-        onContinueAsGuest={() => {
-            setIsLoginDialogOpen(false);
-            addToCartAction();
-        }}
-    />
-    <Card className="flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl">
-      <CardHeader className="p-0 relative">
-        <Link href={`/products/${product.slug}`} aria-label={product.title}>
-          <Image
-            src={product.images[0] || 'https://placehold.co/400x400.png'}
-            alt={product.title}
-            width={400}
-            height={400}
-            className="h-64 w-full object-cover"
-            data-ai-hint="product photo"
-          />
-        </Link>
-        {isSale && (
-          <Badge className="absolute top-2 left-2" variant="destructive">
-            Sale
-          </Badge>
-        )}
-      </CardHeader>
-      <CardContent className="flex-grow p-4">
-        <CardTitle className="mb-2 h-14 text-lg font-semibold leading-tight line-clamp-2 font-headline">
-          <Link href={`/products/${product.slug}`}>{product.title}</Link>
-        </CardTitle>
-        {product.rating && (
-          <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-            <div className="flex text-yellow-500">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`h-4 w-4 ${i < (product.rating || 0) ? 'fill-current' : ''}`} />
-              ))}
-            </div>
-            ({product.reviewsCount || 0})
-          </div>
-        )}
-        <div className="flex items-baseline gap-2 font-sans">
-          <p className="text-xl font-bold text-primary">₹{formatCurrency(product.price)}</p>
-          {isSale && (
-            <p className="text-sm text-muted-foreground line-through">
-              ₹{formatCurrency(product.compareAtPrice!)}
-            </p>
-          )}
-        </div>
-      </CardContent>
-      <CardFooter className="p-4 pt-0">
-        <Button className="w-full" onClick={handleAddToCart}>
-          <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
-        </Button>
-      </CardFooter>
-    </Card>
+      <LoginDialog
+          open={isLoginDialogOpen}
+          onOpenChange={setIsLoginDialogOpen}
+          onContinueAsGuest={() => {
+              setIsLoginDialogOpen(false);
+              addToCartAction();
+          }}
+      />
+      <Link href={`/products/${product.slug}`} passHref legacyBehavior>
+        <a className="block h-full">
+          <Card className="flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl">
+            <CardHeader className="p-0 relative">
+                <Image
+                  src={product.images[0] || 'https://placehold.co/400x400.png'}
+                  alt={product.title}
+                  width={400}
+                  height={400}
+                  className="h-64 w-full object-cover"
+                  data-ai-hint="product photo"
+                />
+              {isSale && (
+                <Badge className="absolute top-2 left-2" variant="destructive">
+                  Sale
+                </Badge>
+              )}
+            </CardHeader>
+            <CardContent className="flex-grow p-4">
+              <CardTitle className="mb-2 h-14 text-lg font-semibold leading-tight line-clamp-2 font-headline">
+                {product.title}
+              </CardTitle>
+              {product.rating && (
+                <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                  <div className="flex text-yellow-500">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`h-4 w-4 ${i < (product.rating || 0) ? 'fill-current' : ''}`} />
+                    ))}
+                  </div>
+                  ({product.reviewsCount || 0})
+                </div>
+              )}
+              <div className="flex items-baseline gap-2 font-sans">
+                <p className="text-xl font-bold text-primary">₹{formatCurrency(product.price)}</p>
+                {isSale && (
+                  <p className="text-sm text-muted-foreground line-through">
+                    ₹{formatCurrency(product.compareAtPrice!)}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+            <CardFooter className="p-4 pt-0">
+              <Button className="w-full" onClick={handleAddToCart}>
+                <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
+              </Button>
+            </CardFooter>
+          </Card>
+        </a>
+      </Link>
     </>
   );
 }
