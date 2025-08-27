@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Truck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 interface UserOrdersProps {
   userId: string;
@@ -75,7 +76,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
     <div className="space-y-6 max-w-4xl mx-auto">
       {orders.map(order => (
         <Card key={order.id}>
-          <CardHeader className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <CardHeader className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 md:p-6">
             <div>
               <p className="text-sm font-semibold">Order Placed</p>
               <p className="text-sm text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()}</p>
@@ -84,17 +85,18 @@ export default function UserOrders({ userId }: UserOrdersProps) {
               <p className="text-sm font-semibold">Total</p>
               <p className="text-sm text-muted-foreground font-sans">₹{formatCurrency(order.total)}</p>
             </div>
-            <div>
+            <div className="col-span-2 md:col-span-1">
               <p className="text-sm font-semibold">Ship To</p>
               <p className="text-sm text-muted-foreground truncate">{order.shippingAddress.name}</p>
             </div>
-            <div className="text-right">
+            <div className="col-span-2 md:col-span-1 md:text-right">
               <p className="text-sm font-semibold">Order ID</p>
               <p className="text-xs text-muted-foreground truncate font-mono">{order.orderId || order.id}</p>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-             <div className="flex justify-between items-center">
+          <Separator />
+          <CardContent className="p-4 md:p-6 space-y-4">
+             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h3 className="text-lg font-semibold capitalize">
                     Status: <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>{order.status}</Badge>
                 </h3>
@@ -107,16 +109,16 @@ export default function UserOrders({ userId }: UserOrdersProps) {
                 <Image
                   src={item.image || 'https://placehold.co/100x100.png'}
                   alt={item.title}
-                  width={100}
-                  height={100}
-                  className="rounded-md object-cover"
+                  width={80}
+                  height={80}
+                  className="rounded-md object-cover w-20 h-20"
                   data-ai-hint="product image"
                 />
                 <div className="flex-grow">
                   <p className="font-semibold">{item.title}</p>
                   <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                 </div>
-                <p className="font-semibold font-sans">₹{formatCurrency(item.price * item.quantity)}</p>
+                <p className="font-semibold font-sans self-start">₹{formatCurrency(item.price * item.quantity)}</p>
               </div>
             ))}
           </CardContent>
@@ -125,4 +127,3 @@ export default function UserOrders({ userId }: UserOrdersProps) {
     </div>
   );
 }
-
