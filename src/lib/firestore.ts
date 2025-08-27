@@ -1,3 +1,4 @@
+
 import { db } from './firebase.client';
 import { collection, getDocs, query, limit as firestoreLimit, orderBy, where, getDoc, doc } from 'firebase/firestore';
 import type { Product, Category, Checkout, ShippingPartner } from './types';
@@ -29,13 +30,12 @@ export async function getActiveProducts(limit?: number): Promise<Product[]> {
 }
 
 export async function getFeaturedProducts(limit?: number): Promise<Product[]> {
-    const productsRef = collection(db, 'products');
-    const q = limit 
-      ? query(productsRef, where('active', '==', true), where('isFeatured', '==', true), orderBy('createdAt', 'desc'), firestoreLimit(limit))
-      : query(productsRef, where('active', '==', true), where('isFeatured', '==', true), orderBy('createdAt', 'desc'));
-    
-    const snapshot = await getDocs(q);
-    return getData<Product>(snapshot);
+    // This query was causing an index error.
+    // We'll fetch all active products and filter in code.
+    // For larger datasets, creating the composite index in Firebase is recommended.
+    const allActiveProducts = await getActiveProducts();
+    const featuredProducts = allActiveProducts.filter(p => p.isFeatured);
+    return limit ? featuredProducts.slice(0, limit) : featuredProducts;
 }
 
 export async function getProduct(id: string): Promise<Product | null> {
