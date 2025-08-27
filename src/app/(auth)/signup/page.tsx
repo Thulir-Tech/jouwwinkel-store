@@ -20,12 +20,12 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 
-const loginFormSchema = z.object({
+const signupFormSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
-  password: z.string().min(1, { message: 'Password is required.' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
-type LoginFormValues = z.infer<typeof loginFormSchema>;
+type SignupFormValues = z.infer<typeof signupFormSchema>;
 
 const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
@@ -34,32 +34,32 @@ const GoogleIcon = () => (
 );
 
 
-export default function CustomerLoginPage() {
-  const { signInWithEmail, signInWithGoogle } = useAuth();
+export default function CustomerSignupPage() {
+  const { signUpWithEmail, signInWithGoogle } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginFormSchema),
+  const form = useForm<SignupFormValues>({
+    resolver: zodResolver(signupFormSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   });
 
-  const onSubmit = async (data: LoginFormValues) => {
+  const onSubmit = async (data: SignupFormValues) => {
     try {
-      await signInWithEmail(data.email, data.password);
-      toast({ title: 'Login successful' });
-      router.push('/'); // Redirect to homepage after customer login
+      await signUpWithEmail(data.email, data.password);
+      toast({ title: 'Account created successfully' });
+      router.push('/'); // Redirect to homepage after signup
     } catch (error: any) {
-      console.error('Login failed:', error.code);
-      let errorMessage = 'An error occurred during login.';
-       if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-          errorMessage = 'Invalid email or password. Please try again.';
+      console.error('Signup failed:', error.code);
+      let errorMessage = 'An error occurred during sign up.';
+      if (error.code === 'auth/email-already-in-use') {
+          errorMessage = 'This email address is already in use.';
       }
       toast({
-        title: 'Login Failed',
+        title: 'Sign Up Failed',
         description: errorMessage,
         variant: 'destructive',
       });
@@ -85,8 +85,8 @@ export default function CustomerLoginPage() {
     <div className="flex min-h-[calc(100vh-128px)] items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md bg-white">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold font-headline">Welcome Back</CardTitle>
-          <CardDescription>Sign in to continue to your account.</CardDescription>
+          <CardTitle className="text-2xl font-bold font-headline">Create an Account</CardTitle>
+          <CardDescription>Join us to start your shopping journey.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Form {...form}>
@@ -117,13 +117,8 @@ export default function CustomerLoginPage() {
                   </FormItem>
                 )}
               />
-               <div className="text-right text-sm">
-                <Link href="#" className="font-medium text-primary hover:underline">
-                    Forgot password?
-                </Link>
-              </div>
               <Button type="submit" className="w-full">
-                Sign In
+                Create Account
               </Button>
             </form>
           </Form>
@@ -137,11 +132,11 @@ export default function CustomerLoginPage() {
           </div>
           <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
             <GoogleIcon />
-            Sign in with Google
+            Sign up with Google
           </Button>
         </CardContent>
         <CardFooter className="justify-center text-sm">
-            <p>Don&apos;t have an account? <Link href="/signup" className="font-medium text-primary hover:underline">Sign up</Link></p>
+            <p>Already have an account? <Link href="/login" className="font-medium text-primary hover:underline">Sign In</Link></p>
         </CardFooter>
       </Card>
     </div>
