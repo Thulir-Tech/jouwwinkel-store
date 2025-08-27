@@ -151,7 +151,7 @@ export function InventoryTable({ products: initialProducts }: InventoryTableProp
                                             />
                                         ) : (
                                            <CollapsibleTrigger asChild>
-                                                <Button variant="ghost" size="sm">
+                                                <Button variant="ghost" size="sm" className="w-[130px] justify-start">
                                                    {isRowOpen ? 'Hide' : 'Show'} Variants
                                                    {isRowOpen ? <ChevronDown className="h-4 w-4 ml-2" /> : <ChevronRight className="h-4 w-4 ml-2" />}
                                                 </Button>
