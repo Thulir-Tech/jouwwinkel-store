@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CartItem } from './types';
@@ -6,7 +7,7 @@ interface CartState {
   items: CartItem[];
   count: number;
   total: number;
-  addToCart: (item: CartItem) => void;
+  addToCart: (item: Omit<CartItem, 'id'>) => void;
   removeFromCart: (itemId: string) => void;
   updateQuantity: (itemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -25,14 +26,17 @@ export const useCartStore = create<CartState>()(
       count: 0,
       total: 0,
       addToCart: (newItem) => {
-        const existingItem = get().items.find(item => item.id === newItem.id);
+        // ID is now composite: product ID + variant ID
+        const id = newItem.variantId ? `${newItem.productId}-${newItem.variantId}` : newItem.productId;
+        const existingItem = get().items.find(item => item.id === id);
         let updatedItems;
+
         if (existingItem) {
           updatedItems = get().items.map(item =>
-            item.id === newItem.id ? { ...item, quantity: item.quantity + newItem.quantity } : item
+            item.id === id ? { ...item, quantity: item.quantity + newItem.quantity } : item
           );
         } else {
-          updatedItems = [...get().items, newItem];
+          updatedItems = [...get().items, { ...newItem, id }];
         }
         set({ items: updatedItems, ...calculateState(updatedItems) });
       },

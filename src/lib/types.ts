@@ -49,12 +49,14 @@ export type Variant = {
 }
 
 export type CartItem = {
-  id: string;
+  id: string; // This will be composite: product.id-variantId
+  productId: string;
   quantity: number;
   price: number;
   title: string;
   image?: string;
   variantId?: string; // e.g. "red-small"
+  variantLabel?: string;
 };
 
 export type Checkout = {

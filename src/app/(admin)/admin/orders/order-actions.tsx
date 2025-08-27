@@ -56,7 +56,7 @@ function PackingDialog({ order, open, onOpenChange, isViewOnly = false, setCheck
     useEffect(() => {
         async function fetchProducts() {
             if (order.items) {
-                const productIds = order.items.map(item => item.id);
+                const productIds = order.items.map(item => item.productId);
                 const fetchedProducts = await getProductsByIds(productIds);
                 setProducts(fetchedProducts);
             }
@@ -65,13 +65,13 @@ function PackingDialog({ order, open, onOpenChange, isViewOnly = false, setCheck
             fetchProducts();
             // Pre-check all items if not in view-only mode
             const initialChecks = isViewOnly ? {} : order.items.reduce((acc, item) => {
-                const compositeId = item.variantId || item.id;
+                const compositeId = item.id;
                 acc[compositeId] = true;
                 return acc;
             }, {} as Record<string, boolean>);
             setItemsToUpdate(initialChecks); 
         }
-    }, [order.items, open, isViewOnly]);
+    }, [order.items, open, isViewOnly, order.id]);
 
     const getProductById = (id: string) => products.find(p => p.id === id);
 
@@ -83,7 +83,7 @@ function PackingDialog({ order, open, onOpenChange, isViewOnly = false, setCheck
         setLoading(true);
         try {
             const checkedItems: CartItem[] = order.items.filter(item => {
-                const compositeId = item.variantId || item.id;
+                const compositeId = item.id;
                 return itemsToUpdate[compositeId];
             });
             
@@ -144,8 +144,8 @@ function PackingDialog({ order, open, onOpenChange, isViewOnly = false, setCheck
                     )}
                     <div className="space-y-4">
                         {order.items.map(item => {
-                             const product = getProductById(item.id);
-                             const compositeId = item.variantId || item.id;
+                             const product = getProductById(item.productId);
+                             const compositeId = item.id;
                              return (
                                 <div key={compositeId} className="flex items-start gap-4 pr-4">
                                      {!isViewOnly && (
@@ -169,7 +169,7 @@ function PackingDialog({ order, open, onOpenChange, isViewOnly = false, setCheck
                                     <div className="flex-grow">
                                         <p className="font-semibold">{item.title}</p>
                                         <p className="text-sm text-muted-foreground">SKU: {product?.sku || 'N/A'}</p>
-                                        {item.variantId && <p className="text-sm text-muted-foreground capitalize">Variant: {item.variantId.replace(/-/g, ' / ')}</p>}
+                                        {item.variantId && <p className="text-sm text-muted-foreground capitalize">Variant: {item.variantLabel}</p>}
                                         <p className="text-sm text-muted-foreground">Qty: <span className="font-bold">{item.quantity}</span></p>
                                     </div>
                                 </div>

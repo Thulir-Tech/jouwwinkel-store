@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useCartStore } from '@/lib/store';
@@ -110,9 +111,10 @@ export default function CheckoutPage() {
 
     const onSubmit = async (data: CheckoutFormValues) => {
         try {
+            const itemsForCheckout = items.map(({ id, ...rest }) => rest);
             await addCheckout({
                 ...data,
-                items,
+                items: itemsForCheckout,
                 total,
                 userId: user?.uid,
             });
@@ -260,6 +262,7 @@ export default function CheckoutPage() {
                                             <Image src={item.image || 'https://placehold.co/64x64.png'} alt={item.title} width={64} height={64} className="rounded-md object-cover" data-ai-hint="product image" />
                                             <div className="flex-grow">
                                                 <p className="font-medium">{item.title}</p>
+                                                {item.variantLabel && <p className="text-sm text-muted-foreground capitalize">{item.variantLabel}</p>}
                                                 <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
                                             </div>
                                             <p className="font-sans">₹{formatCurrency(item.price * item.quantity)}</p>

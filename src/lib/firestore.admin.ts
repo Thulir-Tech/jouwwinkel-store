@@ -138,7 +138,7 @@ export async function addCheckout(checkout: {
     mobile: string;
     shippingAddress: object;
     paymentMethod: 'cod' | 'upi';
-    items: CartItem[];
+    items: Omit<CartItem, 'id'>[];
     total: number;
     userId?: string;
 }) {
@@ -150,6 +150,12 @@ export async function addCheckout(checkout: {
             delete checkoutData[key];
         }
     });
+
+    // Remap items to include the composite ID
+    const itemsWithId = checkout.items.map(item => ({
+        ...item,
+        id: item.variantId ? `${item.productId}-${item.variantId}` : item.productId,
+    }))
     
     // Also update the user's profile with their mobile number if available
     if (checkout.userId && checkout.mobile) {
@@ -159,6 +165,7 @@ export async function addCheckout(checkout: {
 
     await addDoc(checkoutsRef, {
         ...checkoutData,
+        items: itemsWithId,
         orderId: generateOrderId(),
         createdAt: Date.now(),
         status: 'pending', // Initial status
@@ -182,10 +189,10 @@ export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: Ca
         // Decrement stock for the checked items
         if (itemsToUpdate.length > 0) {
             for (const item of itemsToUpdate) {
-                const productRef = doc(db, 'products', item.id);
+                const productRef = doc(db, 'products', item.productId);
                 const productDoc = await transaction.get(productRef);
                 if (!productDoc.exists()) {
-                    throw new Error(`Product with ID ${item.id} not found.`);
+                    throw new Error(`Product with ID ${item.productId} not found.`);
                 }
 
                 const productData = productDoc.data() as Product;

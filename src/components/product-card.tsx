@@ -1,65 +1,59 @@
 
+
 'use client';
 
 import Image from 'next/image';
 import { Star, ShoppingCart } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
-import { useCartStore } from '@/lib/store';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
-import LoginDialog from './login-dialog';
+import AddToCartDialog from './add-to-cart-dialog';
+import { useCartStore } from '@/lib/store';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { addToCart } = useCartStore();
   const { toast } = useToast();
-  const { user } = useAuth();
-  const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   
   const showCompareAtPrice = product.compareAtPrice && product.compareAtPrice > product.price;
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // prevent link navigation when clicking button
-    if (!user) {
-        setIsLoginDialogOpen(true);
+    if (product.hasVariants) {
+        setIsDialogOpen(true);
     } else {
-        addToCartAction();
+        addToCart({
+            productId: product.id,
+            title: product.title,
+            price: product.price,
+            quantity: 1,
+            image: product.images[0],
+        });
+        toast({
+            title: "Added to cart",
+            description: `${product.title} has been added to your cart.`,
+        });
     }
   };
 
-  const addToCartAction = () => {
-    addToCart({
-        id: product.id,
-        title: product.title,
-        price: product.price,
-        quantity: 1,
-        image: product.images[0],
-      });
-      toast({
-        title: "Added to cart",
-        description: `${product.title} has been added to your cart.`,
-      });
-  }
-
   return (
     <>
-      <LoginDialog
-          open={isLoginDialogOpen}
-          onOpenChange={setIsLoginDialogOpen}
-          onContinueAsGuest={() => {
-              setIsLoginDialogOpen(false);
-              addToCartAction();
-          }}
-      />
+      {product.hasVariants && (
+        <AddToCartDialog
+          product={product}
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+        />
+      )}
       <Card className="flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl">
         <Link href={`/products/${product.slug}`} className="block h-full">
             <CardHeader className="p-0 relative">

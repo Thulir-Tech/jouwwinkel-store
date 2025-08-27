@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useCartStore } from '@/lib/store';
@@ -55,6 +56,7 @@ export default function CartPage() {
               />
               <div className="flex-grow">
                 <h2 className="font-semibold font-headline">{item.title}</h2>
+                {item.variantLabel && <p className="text-sm text-muted-foreground capitalize">{item.variantLabel}</p>}
                 <p className="text-sm text-muted-foreground font-sans">₹{formatCurrency(item.price)}</p>
               </div>
               <div className="flex items-center gap-2">
