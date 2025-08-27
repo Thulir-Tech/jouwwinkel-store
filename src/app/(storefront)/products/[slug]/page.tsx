@@ -1,3 +1,4 @@
+
 import { getProductBySlug } from '@/lib/firestore';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -43,7 +44,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  const isSale = product.compareAtPrice && product.compareAtPrice > product.price;
+  const isSale = product.onSale && product.compareAtPrice && product.compareAtPrice > product.price;
 
   return (
     <div className="container mx-auto px-4 py-8">

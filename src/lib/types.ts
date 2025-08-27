@@ -10,6 +10,7 @@ export type Product = {
   description?: string;
   price: number;
   compareAtPrice?: number;
+  onSale?: boolean;
   images: string[];
   rating?: number;
   reviewsCount?: number;

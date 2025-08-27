@@ -27,6 +27,7 @@ export async function addProduct(product: {
     description?: string;
     price: number;
     compareAtPrice?: number;
+    onSale?: boolean;
     categoryId?: string;
     active: boolean;
     sku?: string;
@@ -57,6 +58,7 @@ export async function updateProduct(id: string, product: Partial<{
     description?: string;
     price: number;
     compareAtPrice?: number;
+    onSale?: boolean;
     categoryId?: string;
     active: boolean;
     sku?: string;

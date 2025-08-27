@@ -28,6 +28,7 @@ import type { Category, Product } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { addProduct, updateProduct } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 const productFormSchema = z.object({
   title: z.string().min(2, {
@@ -38,6 +39,7 @@ const productFormSchema = z.object({
   compareAtPrice: z.coerce.number().optional(),
   categoryId: z.string().optional(),
   active: z.boolean(),
+  onSale: z.boolean(),
   sku: z.string().optional(),
   stock: z.coerce.number().min(0, { message: 'Stock must be a positive number.'}),
   tags: z.string().optional(),
@@ -62,6 +64,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       compareAtPrice: product?.compareAtPrice || undefined,
       categoryId: product?.categoryId || '',
       active: product?.active ?? true,
+      onSale: product?.onSale ?? false,
       sku: product?.sku || '',
       stock: product?.stock || 0,
       tags: product?.tags?.join(', ') || '',
@@ -140,33 +143,56 @@ export function ProductForm({ product, categories }: ProductFormProps) {
               <CardHeader>
                 <CardTitle>Pricing</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-4">
-                <FormField
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Price</FormLabel>
+                        <FormControl>
+                            <Input type="number" placeholder="0.00" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="compareAtPrice"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Compare-at Price</FormLabel>
+                        <FormControl>
+                            <Input type="number" placeholder="0.00" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                            To show a sale, enter a value higher than the price.
+                        </FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
+                <Separator />
+                 <FormField
                   control={form.control}
-                  name="price"
+                  name="onSale"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Price</FormLabel>
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>Show &apos;Sale&apos; Tag</FormLabel>
+                        <FormDescription>
+                          Display a sale badge on the product.
+                        </FormDescription>
+                      </div>
                       <FormControl>
-                        <Input type="number" placeholder="0.00" {...field} />
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="compareAtPrice"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Compare-at Price</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="0.00" {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        To show a sale, enter a value higher than the price.
-                      </FormDescription>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />

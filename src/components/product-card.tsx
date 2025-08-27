@@ -23,7 +23,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { toast } = useToast();
   const { user } = useAuth();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
-  const isSale = product.compareAtPrice && product.compareAtPrice > product.price;
+  const isSale = product.onSale && product.compareAtPrice && product.compareAtPrice > product.price;
 
   const handleAddToCart = () => {
     if (!user) {
