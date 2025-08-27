@@ -1,6 +1,6 @@
 
 import type { ProductRecommendationsOutput } from "@/ai/flows/product-recommendations";
-import type { User } from "firebase/auth";
+import type { User as FirebaseUser } from "firebase/auth";
 
 
 export type Product = {
@@ -61,4 +61,6 @@ export type Checkout = {
 
 export type ProductRecommendation = ProductRecommendationsOutput[0];
 
-export type { User };
+export interface User extends FirebaseUser {
+    isAdmin?: boolean;
+}

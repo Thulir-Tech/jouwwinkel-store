@@ -10,12 +10,14 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/adminLogin');
+    if (!loading) {
+      if (!user || !user.isAdmin) {
+        router.push('/adminLogin');
+      }
     }
   }, [user, loading, router]);
 
-  if (loading || !user) {
+  if (loading || !user || !user.isAdmin) {
     return (
         <div className="flex h-screen w-screen items-center justify-center">
             <div className="space-y-4 flex flex-col items-center">

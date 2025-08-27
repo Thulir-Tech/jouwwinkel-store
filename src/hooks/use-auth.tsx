@@ -22,8 +22,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        const tokenResult = await firebaseUser.getIdTokenResult();
+        const userWithAdmin: User = {
+            ...firebaseUser,
+            isAdmin: !!tokenResult.claims.admin,
+        };
+        setUser(userWithAdmin);
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
@@ -40,8 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await updateProfile(userCredential.user, { displayName: name });
     }
     // Manually trigger a re-render/state update after profile update
-    const updatedUser = { ...userCredential.user, displayName: name };
-    setUser(updatedUser as User);
+    const updatedUser = { ...userCredential.user, displayName: name } as User;
+    setUser(updatedUser);
     return userCredential;
   };
   
