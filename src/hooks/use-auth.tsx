@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const updateUserProfile = async (firebaseUser: FirebaseUser) => {
     const userRef = doc(db, 'users', firebaseUser.uid);
     const userDoc = await getDoc(userRef);
+    let mobile = '';
 
     if (!userDoc.exists()) {
         // New user, create profile
@@ -33,9 +35,11 @@ const updateUserProfile = async (firebaseUser: FirebaseUser) => {
             createdAt: Date.now(),
             isAdmin: false, // Default to not admin
         });
+    } else {
+        mobile = userDoc.data()?.mobile || '';
     }
     const userData = (await getDoc(userRef)).data();
-    return { ...firebaseUser, ...userData } as User;
+    return { ...firebaseUser, ...userData, mobile } as User;
 }
 
 

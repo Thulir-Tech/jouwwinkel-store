@@ -1,7 +1,7 @@
 
 import { db } from './firebase.client';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc } from 'firebase/firestore';
-import type { CartItem, Checkout, ShippingPartner, UiConfig } from './types';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy } from 'firebase/firestore';
+import type { CartItem, Checkout, ShippingPartner, UiConfig, User } from './types';
 
 function slugify(text: string) {
   return text
@@ -116,6 +116,12 @@ export async function addCheckout(checkout: {
         }
     });
 
+    // Also update the user's profile with their mobile number if available
+    if (checkout.userId && checkout.mobile) {
+        const userRef = doc(db, 'users', checkout.userId);
+        await setDoc(userRef, { mobile: checkout.mobile }, { merge: true });
+    }
+
     await addDoc(checkoutsRef, {
         ...checkoutData,
         orderId: generateOrderId(),
@@ -164,4 +170,12 @@ export async function updateUiConfig(config: Partial<UiConfig>) {
     // Use set with merge: true to create the document if it doesn't exist,
     // or update it if it does.
     await setDoc(configRef, config, { merge: true });
+}
+
+// Get all users
+export async function getUsers(): Promise<User[]> {
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ ...doc.data() } as User));
 }

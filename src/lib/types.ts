@@ -65,7 +65,10 @@ export type Checkout = {
 }
 
 export interface User extends FirebaseUser {
+    uid: string; // Ensure uid is not nullable
     isAdmin: boolean;
+    mobile?: string; // Add mobile to user type
+    createdAt: number;
 }
 
 export type ShippingPartner = {

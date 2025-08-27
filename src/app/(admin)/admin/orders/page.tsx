@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -31,6 +32,7 @@ import type { Checkout } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
+import { useSearchParams } from 'next/navigation';
 
 function OrdersPageSkeleton() {
     return (
@@ -50,11 +52,14 @@ function OrdersPageSkeleton() {
 }
   
 export default function OrdersPage() {
+    const searchParams = useSearchParams();
+    const customerQuery = searchParams.get('customer');
+
     const [checkouts, setCheckouts] = useState<Checkout[]>([]);
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState({
         orderId: '',
-        customer: '',
+        customer: customerQuery || '',
         status: 'all',
         date: undefined as DateRange | undefined,
     });
@@ -71,8 +76,9 @@ export default function OrdersPage() {
     const filteredCheckouts = useMemo(() => {
         return checkouts.filter(checkout => {
             const { orderId, customer, status, date } = filters;
+            const customerName = checkout.shippingAddress.name || checkout.email;
             if (orderId && !(checkout.orderId || checkout.id).toLowerCase().includes(orderId.toLowerCase())) return false;
-            if (customer && !checkout.shippingAddress.name.toLowerCase().includes(customer.toLowerCase())) return false;
+            if (customer && !customerName.toLowerCase().includes(customer.toLowerCase())) return false;
             if (status !== 'all' && checkout.status !== status) return false;
             if (date?.from && new Date(checkout.createdAt) < date.from) return false;
             if (date?.to && new Date(checkout.createdAt) > date.to) return false;
