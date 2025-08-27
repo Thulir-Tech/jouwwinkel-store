@@ -2,7 +2,7 @@
 import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import type { CartItem, Checkout, ShippingPartner, UiConfig, User } from './types';
+import type { CartItem, Checkout, ShippingPartner, UiConfig, User, Variant } from './types';
 
 function slugify(text: string) {
   return text
@@ -98,6 +98,13 @@ export async function addCategory(category: { name: string }) {
         slug: slugify(category.name),
         active: true,
         sort: sort, 
+    });
+}
+
+export async function addVariant(variant: { name: string, options: string[] }) {
+    await addDoc(collection(db, 'variants'), {
+        name: variant.name,
+        options: variant.options,
     });
 }
 

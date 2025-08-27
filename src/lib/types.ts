@@ -32,6 +32,12 @@ export type Category = {
   sort: number;
 };
 
+export type Variant = {
+    id: string;
+    name: string; // e.g. "Color"
+    options: string[]; // e.g. ["Red", "Green", "Blue"]
+}
+
 export type CartItem = {
   id: string;
   quantity: number;

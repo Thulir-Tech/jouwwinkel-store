@@ -75,7 +75,7 @@ export default function AdminDashboardLayout({
                 >
                     <Link href="/admin/categories" onClick={handleLinkClick}>
                     <Shapes />
-                    <span>Categories</span>
+                    <span>Categories & Variants</span>
                     </Link>
                 </SidebarMenuButton>
                 </SidebarMenuItem>
