@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Truck } from 'lucide-react';
+import { MoreHorizontal, Truck, Eye, CheckSquare, Square } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,20 +28,99 @@ import {
   } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import type { Checkout, ShippingPartner } from '@/lib/types';
+import type { Checkout, ShippingPartner, Product } from '@/lib/types';
 import { updateOrderStatus } from '@/lib/firestore.admin';
-import { getShippingPartners } from '@/lib/firestore';
+import { getShippingPartners, getProductsByIds } from '@/lib/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { formatCurrency } from '@/lib/format';
+import { Separator } from '@/components/ui/separator';
 
 interface OrderActionsProps {
   order: Checkout;
+}
+
+function ViewOrderDialog({ order, open, onOpenChange }: { order: Checkout, open: boolean, onOpenChange: (open: boolean) => void }) {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+
+    useEffect(() => {
+        async function fetchProducts() {
+            if (order.items) {
+                const productIds = order.items.map(item => item.id);
+                const fetchedProducts = await getProductsByIds(productIds);
+                setProducts(fetchedProducts);
+            }
+        }
+        if (open) {
+            fetchProducts();
+            setCheckedItems({}); // Reset checks when dialog opens
+        }
+    }, [order.items, open]);
+
+    const getProductById = (id: string) => products.find(p => p.id === id);
+
+    const handleToggleCheck = (itemId: string) => {
+        setCheckedItems(prev => ({ ...prev, [itemId]: !prev[itemId] }));
+    }
+    
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle>Order Details (Packing Slip)</DialogTitle>
+                    <DialogDescription>
+                       Order ID: {order.orderId}. Use this list to pack the order.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="max-h-[60vh] overflow-y-auto p-1">
+                    <div className="space-y-4">
+                        {order.items.map(item => {
+                             const product = getProductById(item.id);
+                             return (
+                                <div key={item.variantId || item.id} className="flex items-start gap-4 pr-4">
+                                     <div 
+                                        className="flex items-center justify-center cursor-pointer pt-1"
+                                        onClick={() => handleToggleCheck(item.variantId || item.id)}
+                                    >
+                                        {checkedItems[item.variantId || item.id] ? 
+                                            <CheckSquare className="h-5 w-5 text-primary" /> : 
+                                            <Square className="h-5 w-5 text-muted-foreground" />
+                                        }
+                                    </div>
+                                    <Image 
+                                        src={item.image || 'https://placehold.co/64x64.png'} 
+                                        alt={item.title}
+                                        width={64}
+                                        height={64}
+                                        className="rounded-md object-cover"
+                                        data-ai-hint="product image"
+                                    />
+                                    <div className="flex-grow">
+                                        <p className="font-semibold">{item.title}</p>
+                                        <p className="text-sm text-muted-foreground">SKU: {product?.sku || 'N/A'}</p>
+                                        {item.variantId && <p className="text-sm text-muted-foreground capitalize">Variant: {item.variantId.replace(/-/g, ' / ')}</p>}
+                                        <p className="text-sm text-muted-foreground">Qty: <span className="font-bold">{item.quantity}</span></p>
+                                    </div>
+                                </div>
+                             )
+                        })}
+                    </div>
+                </div>
+                 <DialogFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
 }
 
 export function OrderActions({ order }: OrderActionsProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isShipDialogOpen, setIsShipDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [consignmentNumber, setConsignmentNumber] = useState('');
   const [shippingPartners, setShippingPartners] = useState<ShippingPartner[]>([]);
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | undefined>();
@@ -58,12 +137,12 @@ export function OrderActions({ order }: OrderActionsProps) {
 
   const handleStatusUpdate = async (status: Checkout['status']) => {
     try {
-      await updateOrderStatus(order.id, status);
+      await updateOrderStatus(order.id, status, order.items);
       toast({ title: `Order marked as ${status}` });
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast({ title: 'Error updating status', variant: 'destructive' });
+      toast({ title: 'Error updating status', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -78,7 +157,7 @@ export function OrderActions({ order }: OrderActionsProps) {
     }
     try {
       const selectedPartner = shippingPartners.find(p => p.id === selectedPartnerId);
-      await updateOrderStatus(order.id, 'shipped', { 
+      await updateOrderStatus(order.id, 'shipped', order.items, { 
         consignmentNumber,
         shippingPartnerId: selectedPartnerId,
         shippingPartnerName: selectedPartner?.name,
@@ -96,6 +175,7 @@ export function OrderActions({ order }: OrderActionsProps) {
 
   return (
     <>
+      <ViewOrderDialog order={order} open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen} />
       <Dialog open={isShipDialogOpen} onOpenChange={setIsShipDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -150,10 +230,14 @@ export function OrderActions({ order }: OrderActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
+             <Eye className="mr-2 h-4 w-4" />
+             View Order / Pack
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => handleStatusUpdate('packed')}>Mark as Packed</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setIsShipDialogOpen(true)}>Mark as Shipped</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleStatusUpdate('delivered')}>Mark as Delivered</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleStatusUpdate('packed')} disabled={order.status !== 'pending'}>Mark as Packed</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsShipDialogOpen(true)} disabled={order.status === 'shipped' || order.status === 'delivered'}>Mark as Shipped</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => handleStatusUpdate('delivered')} disabled={order.status === 'delivered'}>Mark as Delivered</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

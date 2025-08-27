@@ -83,7 +83,7 @@ export async function updateProduct(id: string, product: Partial<{
 }>) {
     const productRef = doc(db, 'products', id);
 
-    const productData: { [key-string]: any } = { ...product };
+    const productData: { [key: string]: any } = { ...product };
     if (product.title) {
         productData.slug = slugify(product.title);
     }
@@ -157,67 +157,72 @@ export async function addCheckout(checkout: {
         await setDoc(userRef, { mobile: checkout.mobile }, { merge: true });
     }
 
-    // Transaction to add checkout and update stock
-    await runTransaction(db, async (transaction) => {
-        const newCheckoutRef = doc(collection(db, "checkouts"));
-        transaction.set(newCheckoutRef, {
-            ...checkoutData,
-            orderId: generateOrderId(),
-            createdAt: Date.now(),
-            status: 'pending', // Initial status
-        });
-
-        // Decrement stock
-        for (const item of checkout.items) {
-            const productRef = doc(db, 'products', item.id);
-            const productDoc = await transaction.get(productRef);
-            if (!productDoc.exists()) {
-                throw new Error(`Product with ID ${item.id} not found.`);
-            }
-
-            const productData = productDoc.data() as Product;
-            const updateData: { [key: string]: any } = {};
-
-            if (productData.hasVariants) {
-                // Decrement variant stock
-                const variantKey = `variantStock.${item.variantId}`;
-                const currentVariantStock = productData.variantStock?.[item.variantId!] ?? 0;
-                if (currentVariantStock < item.quantity) {
-                    throw new Error(`Not enough stock for variant ${item.variantId} of product ${item.title}`);
-                }
-                updateData[variantKey] = currentVariantStock - item.quantity;
-            } else {
-                // Decrement simple stock
-                const currentStock = productData.stock ?? 0;
-                if (currentStock < item.quantity) {
-                    throw new Error(`Not enough stock for product ${item.title}`);
-                }
-                updateData.stock = currentStock - item.quantity;
-            }
-            transaction.update(productRef, updateData);
-        }
+    await addDoc(checkoutsRef, {
+        ...checkoutData,
+        orderId: generateOrderId(),
+        createdAt: Date.now(),
+        status: 'pending', // Initial status
     });
 }
 
 export async function updateOrderStatus(
     orderId: string, 
     status: Checkout['status'], 
+    items: CartItem[],
     details?: { consignmentNumber?: string; shippingPartnerId?: string, shippingPartnerName?: string }
 ) {
-    const orderRef = doc(db, 'checkouts', orderId);
-    const updateData: Partial<Checkout> = { status };
+    await runTransaction(db, async (transaction) => {
+        const orderRef = doc(db, 'checkouts', orderId);
+        const orderDoc = await transaction.get(orderRef);
+        
+        if (!orderDoc.exists()) {
+            throw new Error("Order not found!");
+        }
 
-    if (details?.consignmentNumber) {
-        updateData.consignmentNumber = details.consignmentNumber;
-    }
-    if (details?.shippingPartnerId) {
-        updateData.shippingPartnerId = details.shippingPartnerId;
-    }
-     if (details?.shippingPartnerName) {
-        updateData.shippingPartnerName = details.shippingPartnerName;
-    }
+        const updateData: Partial<Checkout> = { status };
 
-    await updateDoc(orderRef, updateData);
+        if (details?.consignmentNumber) {
+            updateData.consignmentNumber = details.consignmentNumber;
+        }
+        if (details?.shippingPartnerId) {
+            updateData.shippingPartnerId = details.shippingPartnerId;
+        }
+        if (details?.shippingPartnerName) {
+            updateData.shippingPartnerName = details.shippingPartnerName;
+        }
+
+        // Decrement stock ONLY when status is being set to 'packed'
+        if (status === 'packed' && orderDoc.data().status !== 'packed') {
+            for (const item of items) {
+                const productRef = doc(db, 'products', item.id);
+                const productDoc = await transaction.get(productRef);
+                if (!productDoc.exists()) {
+                    throw new Error(`Product with ID ${item.id} not found.`);
+                }
+
+                const productData = productDoc.data() as Product;
+                const stockUpdate: { [key: string]: any } = {};
+
+                if (productData.hasVariants && item.variantId) {
+                    const variantKey = `variantStock.${item.variantId}`;
+                    const currentVariantStock = productData.variantStock?.[item.variantId] ?? 0;
+                    if (currentVariantStock < item.quantity) {
+                        throw new Error(`Not enough stock for variant ${item.variantId} of product ${item.title}`);
+                    }
+                    stockUpdate[variantKey] = currentVariantStock - item.quantity;
+                } else {
+                    const currentStock = productData.stock ?? 0;
+                    if (currentStock < item.quantity) {
+                        throw new Error(`Not enough stock for product ${item.title}`);
+                    }
+                    stockUpdate.stock = currentStock - item.quantity;
+                }
+                transaction.update(productRef, stockUpdate);
+            }
+        }
+
+        transaction.update(orderRef, updateData);
+    });
 }
 
 // Shipping Partners
