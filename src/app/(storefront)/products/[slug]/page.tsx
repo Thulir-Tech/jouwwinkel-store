@@ -3,7 +3,7 @@
 'use client';
 
 import { getProductBySlug } from '@/lib/firestore';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/format';
@@ -16,12 +16,6 @@ import { FaWhatsapp } from 'react-icons/fa';
 import { Check } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import VariantSelector from '@/components/variant-selector';
-
-type ProductPageProps = {
-  params: {
-    slug: string;
-  };
-};
 
 function ProductPageSkeleton() {
     return (
@@ -54,15 +48,19 @@ function ProductGridSkeleton() {
   );
 }
 
-export default function ProductPage({ params }: ProductPageProps) {
+export default function ProductPage() {
+  const params = useParams();
+  const slug = params.slug as string;
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   
   useEffect(() => {
     async function fetchProduct() {
+      if (!slug) return;
       setLoading(true);
-      const fetchedProduct = await getProductBySlug(params.slug);
+      const fetchedProduct = await getProductBySlug(slug);
       if (!fetchedProduct) {
         notFound();
       }
@@ -70,7 +68,7 @@ export default function ProductPage({ params }: ProductPageProps) {
       setLoading(false);
     }
     fetchProduct();
-  }, [params.slug]);
+  }, [slug]);
 
 
   if (loading || !product) {
