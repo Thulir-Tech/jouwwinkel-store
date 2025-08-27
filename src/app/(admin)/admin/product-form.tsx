@@ -58,6 +58,8 @@ const productFormSchema = z.object({
   images: z.array(z.string()).optional(),
   hasVariants: z.boolean(),
   variants: z.array(productVariantSchema).optional(),
+  hasHighlights: z.boolean(),
+  highlights: z.array(z.string().min(1, 'Highlight cannot be empty')).optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -89,15 +91,23 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
       images: product?.images || [],
       hasVariants: product?.hasVariants || false,
       variants: product?.variants || [],
+      hasHighlights: product?.hasHighlights || false,
+      highlights: product?.highlights || [],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields: variantFields, append: appendVariant, remove: removeVariant } = useFieldArray({
     control: form.control,
     name: 'variants',
   });
+  
+  const { fields: highlightFields, append: appendHighlight, remove: removeHighlight } = useFieldArray({
+    control: form.control,
+    name: 'highlights',
+  });
 
   const hasVariants = form.watch('hasVariants');
+  const hasHighlights = form.watch('hasHighlights');
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
@@ -198,6 +208,72 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
             
             <Card>
                 <CardHeader>
+                    <CardTitle className="text-base">Highlights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <FormField
+                      control={form.control}
+                      name="hasHighlights"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                          <div className="space-y-0.5">
+                            <FormLabel>Product has highlights</FormLabel>
+                            <FormDescription>
+                              Enable to add key feature bullet points for the product.
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                    {hasHighlights && (
+                        <div className="space-y-4 pt-4">
+                            {highlightFields.map((field, index) => (
+                                <div key={field.id} className="flex items-center gap-2">
+                                    <FormField
+                                        control={form.control}
+                                        name={`highlights.${index}`}
+                                        render={({ field }) => (
+                                            <FormItem className="flex-grow">
+                                                <FormControl>
+                                                    <Input placeholder={`Highlight ${index + 1}`} {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                     <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="text-destructive hover:bg-destructive/10"
+                                        onClick={() => removeHighlight(index)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                             <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => appendHighlight('')}
+                            >
+                                Add Point
+                            </Button>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+
+            <Card>
+                <CardHeader>
                     <CardTitle className="text-base">Variants</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -224,7 +300,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
 
                     {hasVariants && (
                         <div className="space-y-4 pt-4">
-                            {fields.map((field, index) => {
+                            {variantFields.map((field, index) => {
                                 const selectedVariant = allVariants.find(v => v.id === form.watch(`variants.${index}.variantId`));
                                 const variantOptions = selectedVariant ? selectedVariant.options.map(o => ({ value: o, label: o })) : [];
 
@@ -235,7 +311,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
                                             variant="ghost"
                                             size="icon"
                                             className="absolute top-2 right-2 text-destructive hover:bg-destructive/10"
-                                            onClick={() => remove(index)}
+                                            onClick={() => removeVariant(index)}
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
@@ -303,8 +379,8 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => append({ variantId: '', variantName: '', options: [] })}
-                                disabled={fields.length >= allVariants.length}
+                                onClick={() => appendVariant({ variantId: '', variantName: '', options: [] })}
+                                disabled={variantFields.length >= allVariants.length}
                             >
                                 Add Variant Type
                             </Button>

@@ -30,6 +30,8 @@ export type Product = {
   relatedProductIds?: string[];
   hasVariants: boolean;
   variants: ProductVariant[];
+  hasHighlights: boolean;
+  highlights?: string[];
 };
 
 export type Category = {

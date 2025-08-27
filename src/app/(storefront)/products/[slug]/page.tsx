@@ -11,6 +11,8 @@ import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import AddToCartButton from './add-to-cart-button';
 import { FaWhatsapp } from 'react-icons/fa';
+import { Check } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 type ProductPageProps = {
   params: {
@@ -43,7 +45,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         <div>
           <Image
             src={product.images[0] || 'https://placehold.co/600x600.png'}
@@ -66,10 +68,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 )}
                 {product.onSale && <Badge variant="destructive">Sale</Badge>}
             </div>
-
-            <p className="text-muted-foreground mb-6 flex-grow">{product.description}</p>
             
-            <div className="space-y-4">
+            <p className="text-muted-foreground mb-6">{product.description}</p>
+
+            {product.hasHighlights && product.highlights && product.highlights.length > 0 && (
+                <>
+                    <ul className="space-y-3 mb-6 text-muted-foreground">
+                        {product.highlights.map((highlight, index) => (
+                            <li key={index} className="flex items-center gap-2">
+                                <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
+                                <span>{highlight}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </>
+            )}
+
+            <div className="mt-auto space-y-4 pt-4">
                 <AddToCartButton product={product} />
                 <Button variant="outline" className="w-full">Size Guide</Button>
             </div>
