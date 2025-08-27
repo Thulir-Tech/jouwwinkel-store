@@ -12,10 +12,10 @@ import { Search } from 'lucide-react';
 
 function ProductGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="space-y-4">
-          <Skeleton className="h-[300px] w-full rounded-lg" />
+          <Skeleton className="h-[200px] sm:h-[300px] w-full rounded-lg" />
           <Skeleton className="h-6 w-3/4" />
           <Skeleton className="h-6 w-1/4" />
         </div>
@@ -126,7 +126,7 @@ export default function ProductsPage() {
       {loading ? (
         <ProductGridSkeleton />
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {filteredAndSortedProducts.map(product => (
             <ProductCard key={product.id} product={product} />
           ))}
