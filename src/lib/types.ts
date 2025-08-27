@@ -58,6 +58,8 @@ export type Checkout = {
     createdAt: number;
     status: 'pending' | 'packed' | 'shipped' | 'completed' | 'failed';
     consignmentNumber?: string;
+    shippingPartnerId?: string;
+    shippingPartnerName?: string;
 }
 
 export type ProductRecommendation = ProductRecommendationsOutput[0];
@@ -65,3 +67,9 @@ export type ProductRecommendation = ProductRecommendationsOutput[0];
 export interface User extends FirebaseUser {
     isAdmin: boolean;
 }
+
+export type ShippingPartner = {
+    id: string;
+    name: string;
+    trackingUrl: string;
+};

@@ -18,6 +18,7 @@ import {
   import { getCheckouts } from '@/lib/firestore';
   import { formatCurrency } from '@/lib/format';
 import { OrderActions } from './order-actions';
+import { Truck } from 'lucide-react';
   
   export default async function OrdersPage() {
     const checkouts = await getCheckouts();
@@ -36,6 +37,7 @@ import { OrderActions } from './order-actions';
                 <TableHead>Customer</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Shipping</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead>
                     <span className="sr-only">Actions</span>
@@ -56,6 +58,17 @@ import { OrderActions } from './order-actions';
                         <Badge variant={checkout.status === 'completed' ? 'default' : 'secondary'}>
                             {checkout.status}
                         </Badge>
+                    </TableCell>
+                    <TableCell>
+                        {checkout.status === 'shipped' && checkout.consignmentNumber && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Truck className="h-4 w-4" />
+                                <div className="flex flex-col">
+                                    <span>{checkout.shippingPartnerName}</span>
+                                    <span className="font-mono text-xs">{checkout.consignmentNumber}</span>
+                                </div>
+                            </div>
+                        )}
                     </TableCell>
                     <TableCell className="text-right font-sans">₹{formatCurrency(checkout.total)}</TableCell>
                     <TableCell className="text-right">

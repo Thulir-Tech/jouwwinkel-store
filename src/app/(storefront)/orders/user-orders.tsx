@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCheckouts } from '@/lib/firestore';
-import type { Checkout } from '@/lib/types';
+import { getCheckouts, getShippingPartner } from '@/lib/firestore';
+import type { Checkout, ShippingPartner } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -22,14 +21,33 @@ interface UserOrdersProps {
   userId: string;
 }
 
-function TrackShipmentButton({ consignmentNumber }: { consignmentNumber: string }) {
+function TrackShipmentButton({ order }: { order: Checkout }) {
   const { toast } = useToast();
+  const [partner, setPartner] = useState<ShippingPartner | null>(null);
+
+  useEffect(() => {
+    async function fetchPartner() {
+      if (order.shippingPartnerId) {
+        const p = await getShippingPartner(order.shippingPartnerId);
+        setPartner(p);
+      }
+    }
+    fetchPartner();
+  }, [order.shippingPartnerId]);
 
   const handleTrack = () => {
-    navigator.clipboard.writeText(consignmentNumber);
+    if (!order.consignmentNumber || !partner?.trackingUrl) {
+      toast({ title: 'Tracking information not available yet.', variant: 'destructive' });
+      return;
+    }
+    navigator.clipboard.writeText(order.consignmentNumber);
     toast({ title: 'Copied to clipboard!', description: 'Consignment number has been copied.' });
-    window.open('https://stcourier.com/track/shipment', '_blank');
+    
+    const trackingUrl = partner.trackingUrl.replace('{consignment_number}', order.consignmentNumber);
+    window.open(trackingUrl, '_blank');
   };
+  
+  if (!order.consignmentNumber) return null;
 
   return (
     <Button variant="outline" size="sm" onClick={handleTrack}>
@@ -100,8 +118,8 @@ export default function UserOrders({ userId }: UserOrdersProps) {
                 <h3 className="text-lg font-semibold capitalize">
                     Status: <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>{order.status}</Badge>
                 </h3>
-                {order.status === 'shipped' && order.consignmentNumber && (
-                    <TrackShipmentButton consignmentNumber={order.consignmentNumber} />
+                {order.status === 'shipped' && (
+                    <TrackShipmentButton order={order} />
                 )}
             </div>
             {order.items.map(item => (

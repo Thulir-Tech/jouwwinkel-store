@@ -15,7 +15,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Package, Shapes, Home, ShoppingCart, Users, LineChart, Settings } from 'lucide-react';
+import { Package, Shapes, Home, ShoppingCart, Users, LineChart, Settings, Truck } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { AuthGuard } from './auth-guard';
 import { useAuth } from '@/hooks/use-auth';
@@ -83,6 +83,18 @@ export default function AdminDashboardLayout({
                     <Link href="/admin/orders" onClick={handleLinkClick}>
                     <ShoppingCart />
                     <span>Orders</span>
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                 <SidebarMenuItem>
+                <SidebarMenuButton
+                    href="/admin/shipping-partners"
+                    isActive={isActive('/admin/shipping-partners')}
+                    asChild
+                >
+                    <Link href="/admin/shipping-partners" onClick={handleLinkClick}>
+                    <Truck />
+                    <span>Shipping Partners</span>
                     </Link>
                 </SidebarMenuButton>
                 </SidebarMenuItem>

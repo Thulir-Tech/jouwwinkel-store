@@ -1,8 +1,7 @@
 
-
 import { db } from './firebase.client';
-import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
-import type { CartItem, Checkout } from './types';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import type { CartItem, Checkout, ShippingPartner } from './types';
 
 function slugify(text: string) {
   return text
@@ -104,8 +103,6 @@ export async function addCheckout(checkout: {
 }) {
     const checkoutsRef = collection(db, 'checkouts');
     
-    // Firestore doesn't accept `undefined` values.
-    // We need to clean the object before sending it.
     const checkoutData: { [key: string]: any } = { ...checkout };
     Object.keys(checkoutData).forEach(key => {
         if (checkoutData[key] === undefined) {
@@ -121,13 +118,36 @@ export async function addCheckout(checkout: {
     });
 }
 
-export async function updateOrderStatus(orderId: string, status: Checkout['status'], consignmentNumber?: string) {
+export async function updateOrderStatus(
+    orderId: string, 
+    status: Checkout['status'], 
+    details?: { consignmentNumber?: string; shippingPartnerId?: string, shippingPartnerName?: string }
+) {
     const orderRef = doc(db, 'checkouts', orderId);
-    const updateData: { status: Checkout['status'], consignmentNumber?: string } = { status };
+    const updateData: Partial<Checkout> = { status };
 
-    if (consignmentNumber) {
-        updateData.consignmentNumber = consignmentNumber;
+    if (details?.consignmentNumber) {
+        updateData.consignmentNumber = details.consignmentNumber;
+    }
+    if (details?.shippingPartnerId) {
+        updateData.shippingPartnerId = details.shippingPartnerId;
+    }
+     if (details?.shippingPartnerName) {
+        updateData.shippingPartnerName = details.shippingPartnerName;
     }
 
     await updateDoc(orderRef, updateData);
+}
+
+// Shipping Partners
+export async function addShippingPartner(partner: Omit<ShippingPartner, 'id'>) {
+    await addDoc(collection(db, 'shippingPartners'), partner);
+}
+
+export async function updateShippingPartner(id: string, partner: Partial<Omit<ShippingPartner, 'id'>>) {
+    await updateDoc(doc(db, 'shippingPartners', id), partner);
+}
+
+export async function deleteShippingPartner(id: string) {
+    await deleteDoc(doc(db, 'shippingPartners', id));
 }
