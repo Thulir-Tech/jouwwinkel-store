@@ -41,7 +41,7 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Follow Us</h4>
             <div className="flex space-x-4">
-              <a href="#" aria-label="Instagram" className="text-muted-foreground hover:text-primary"><InstagramIcon /></a>
+              <a href="https://www.instagram.com/jouwwinkel.store" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-muted-foreground hover:text-primary"><InstagramIcon /></a>
               <a href="#" aria-label="WhatsApp" className="text-muted-foreground hover:text-primary"><WhatsAppIcon /></a>
             </div>
           </div>
