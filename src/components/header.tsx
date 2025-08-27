@@ -85,7 +85,6 @@ export default function Header() {
         </div>
         <div className="flex items-center gap-1">
           <SearchDialog />
-          <UserNav />
           <Button variant="ghost" size="icon" className="relative" asChild>
             <Link href="/cart">
               <ShoppingBag className="h-6 w-6" />
@@ -97,6 +96,7 @@ export default function Header() {
               <span className="sr-only">Shopping Cart</span>
             </Link>
           </Button>
+          <UserNav />
         </div>
       </div>
     </header>
