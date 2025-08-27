@@ -30,7 +30,7 @@ import { updateUiConfig } from '@/lib/firestore.admin';
 import { Separator } from '@/components/ui/separator';
 import { Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ImageUploader } from '../products/image-uploader';
+import { MediaUploader } from '../products/media-uploader';
 
 const configFormSchema = z.object({
   headerCaptionType: z.enum(['static', 'carousel']).optional(),
@@ -40,6 +40,11 @@ const configFormSchema = z.object({
   instagramLink: z.string().url().or(z.literal('')).optional(),
   whatsappLink: z.string().url().or(z.literal('')).optional(),
   storeAddress: z.string().optional(),
+  
+  heroViewType: z.enum(['default', 'static', 'carousel']).optional(),
+  heroFileType: z.enum(['stable', 'motion']).optional(),
+  heroMediaItems: z.array(z.string()).optional(),
+
   heroText1: z.string().optional(),
   heroText2: z.string().optional(),
   heroText3: z.string().optional(),
@@ -66,6 +71,11 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       instagramLink: initialData?.instagramLink || '',
       whatsappLink: initialData?.whatsappLink || '',
       storeAddress: initialData?.storeAddress || '',
+
+      heroViewType: initialData?.heroViewType || 'default',
+      heroFileType: initialData?.heroFileType || 'stable',
+      heroMediaItems: initialData?.heroMediaItems || [],
+
       heroText1: initialData?.heroText1 || '',
       heroText2: initialData?.heroText2 || '',
       heroText3: initialData?.heroText3 || '',
@@ -78,15 +88,27 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     control: form.control,
     name: "headerCaptionCarousel",
   });
+  
+  const { fields: heroMediaFields, append: appendHeroMedia, remove: removeHeroMedia, replace: replaceHeroMedia } = useFieldArray({
+    control: form.control,
+    name: "heroMediaItems",
+  });
 
   const captionType = form.watch('headerCaptionType');
+  const heroViewType = form.watch('heroViewType');
+  const heroFileType = form.watch('heroFileType');
 
   const onSubmit = async (data: ConfigFormValues) => {
     try {
-      const finalData = {
+      const finalData: Partial<UiConfig> = {
         ...data,
         brandLogoUrl: data.brandLogoUrl?.[0] || '',
+      };
+      // If hero view is default, clear media items
+      if (data.heroViewType === 'default') {
+        finalData.heroMediaItems = [];
       }
+      
       await updateUiConfig(finalData);
       toast({ title: 'Configuration updated successfully' });
       router.refresh();
@@ -113,9 +135,11 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                         <FormItem>
                              <FormDescription>Upload your store logo. Recommended size: 200x100 pixels.</FormDescription>
                             <FormControl>
-                                <ImageUploader 
+                                <MediaUploader 
                                     value={field.value || []} 
                                     onChange={field.onChange}
+                                    fileTypes={['image']}
+                                    maxFiles={1}
                                 />
                             </FormControl>
                             <FormMessage />
@@ -223,48 +247,144 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
             />
         </div>
         <Separator />
-        <div className="space-y-4">
-            <h3 className="text-lg font-medium">Hero Section</h3>
-             <FormField
-            control={form.control}
-            name="heroText1"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Hero Text 1 (Subheading)</FormLabel>
-                <FormControl>
-                    <Input placeholder="e.g. Make Your Own" {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-             <FormField
-            control={form.control}
-            name="heroText2"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Hero Text 2 (Main Heading)</FormLabel>
-                <FormControl>
-                    <Input placeholder="e.g. Elevate your style" {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-             <FormField
-            control={form.control}
-            name="heroText3"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Hero Text 3 (Description)</FormLabel>
-                <FormControl>
-                    <Textarea placeholder="e.g. Discover a world of elegance..." {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-        </div>
+        <Card>
+            <CardHeader><CardTitle>Hero Section</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+                 <FormField
+                    control={form.control}
+                    name="heroViewType"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Hero View Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select view type" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="default">Colors by Default</SelectItem>
+                                    <SelectItem value="static">Static Media</SelectItem>
+                                    <SelectItem value="carousel">Carousel</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormDescription>Choose how the hero section is displayed.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                
+                {heroViewType !== 'default' && (
+                    <div className="space-y-4 p-4 border rounded-md">
+                        <FormField
+                            control={form.control}
+                            name="heroFileType"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>File Type</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select file type" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="stable">Stable (Image)</SelectItem>
+                                            <SelectItem value="motion">Motion (Video)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <Separator />
+
+                        {heroViewType === 'static' && (
+                             <FormField
+                                control={form.control}
+                                name="heroMediaItems"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Media</FormLabel>
+                                        <FormControl>
+                                            <MediaUploader 
+                                                value={field.value || []} 
+                                                onChange={field.onChange}
+                                                fileTypes={[heroFileType || 'stable']}
+                                                maxFiles={1}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
+
+                        {heroViewType === 'carousel' && (
+                           <FormField
+                                control={form.control}
+                                name="heroMediaItems"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Carousel Media</FormLabel>
+                                        <FormControl>
+                                            <MediaUploader 
+                                                value={field.value || []} 
+                                                onChange={field.onChange}
+                                                fileTypes={[heroFileType || 'stable']}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        )}
+                    </div>
+                )}
+                 <Separator />
+                <h4 className="font-medium">Hero Text Content</h4>
+                 <FormField
+                    control={form.control}
+                    name="heroText1"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Hero Text 1 (Subheading)</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g. Make Your Own" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="heroText2"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Hero Text 2 (Main Heading)</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g. Elevate your style" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="heroText3"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Hero Text 3 (Description)</FormLabel>
+                        <FormControl>
+                            <Textarea placeholder="e.g. Discover a world of elegance..." {...field} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+            </CardContent>
+        </Card>
         <Separator />
          <div className="space-y-4">
             <h3 className="text-lg font-medium">Contact & Social</h3>
@@ -331,5 +451,3 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     </Form>
   );
 }
-
-    

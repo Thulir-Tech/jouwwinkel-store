@@ -31,7 +31,7 @@ import { addProduct, updateProduct } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { ImageUploader } from './products/image-uploader';
+import { MediaUploader } from './products/media-uploader';
 import { Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -194,9 +194,10 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <ImageUploader 
+                                    <MediaUploader 
                                         value={field.value || []} 
                                         onChange={field.onChange}
+                                        fileTypes={['image']}
                                     />
                                 </FormControl>
                                 <FormMessage />

@@ -104,6 +104,11 @@ export type UiConfig = {
     instagramLink?: string;
     whatsappLink?: string;
     storeAddress?: string;
+
+    heroViewType?: 'default' | 'static' | 'carousel';
+    heroFileType?: 'stable' | 'motion';
+    heroMediaItems?: string[];
+
     heroText1?: string;
     heroText2?: string;
     heroText3?: string;

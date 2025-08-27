@@ -1,6 +1,6 @@
 
 import { getCategories, getProducts, getVariants } from '@/lib/firestore';
-import { ProductForm } from '../../product-form';
+import { ProductForm } from '../../../product-form';
 
 export default async function NewProductPage() {
   const [categories, products, variants] = await Promise.all([
