@@ -161,10 +161,10 @@ export default function ProductPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         <div>
           <Image
-            src={product.images[0] || 'https://placehold.co/400x400.png'}
+            src={product.images[0] || 'https://placehold.co/300x300.png'}
             alt={product.title}
-            width={400}
-            height={400}
+            width={300}
+            height={300}
             className="w-full rounded-lg object-cover"
             data-ai-hint="product photo"
           />
