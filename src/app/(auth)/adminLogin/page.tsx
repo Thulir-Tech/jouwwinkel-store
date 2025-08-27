@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-sm bg-white">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold font-headline">Jouwwinkel Admin</CardTitle>
           <CardDescription>Enter your credentials to access the dashboard</CardDescription>
