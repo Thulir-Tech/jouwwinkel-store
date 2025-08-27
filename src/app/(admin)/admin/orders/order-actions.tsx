@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Truck, Eye, Save, CheckCircle } from 'lucide-react';
+import { MoreHorizontal, Truck, Eye, Save, CheckCircle, Home, Phone } from 'lucide-react';
 import { MdDone } from 'react-icons/md';
 import {
   DropdownMenu,
@@ -39,6 +39,7 @@ import Image from 'next/image';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 interface OrderActionsProps {
   order: Checkout;
@@ -112,7 +113,25 @@ function PackingDialog({ order, open, onOpenChange, isViewOnly = false, setCheck
                        {dialogDescription}
                     </DialogDescription>
                 </DialogHeader>
-                <div className="max-h-[60vh] overflow-y-auto p-1">
+                <div className="max-h-[60vh] overflow-y-auto p-1 space-y-4">
+                    {isViewOnly && (
+                        <div className="space-y-4 text-sm">
+                            <div className="flex items-start gap-4">
+                                <Home className="h-4 w-4 mt-1 text-muted-foreground flex-shrink-0" />
+                                <div>
+                                    <p className="font-semibold">{order.shippingAddress.name}</p>
+                                    <p className="text-muted-foreground">
+                                        {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.zip}
+                                    </p>
+                                </div>
+                            </div>
+                             <div className="flex items-center gap-4">
+                                <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                <p className="text-muted-foreground">{order.mobile}</p>
+                            </div>
+                           <Separator />
+                        </div>
+                    )}
                     {!isViewOnly && (
                         <Alert variant="default" className="mb-4">
                             <Info className="h-4 w-4" />
