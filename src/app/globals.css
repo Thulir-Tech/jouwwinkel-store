@@ -119,18 +119,37 @@
     overflow: hidden;
     position: relative;
     white-space: nowrap;
+    display: flex;
   }
   .marquee-content {
+    flex-shrink: 0;
     display: flex;
-    width: fit-content;
-    animation: marquee 40s linear infinite;
+    justify-content: space-around;
+    min-width: 100%;
+    animation: marquee 30s linear infinite;
   }
   @keyframes marquee {
     from {
       transform: translateX(0);
     }
     to {
-      transform: translateX(-50%);
+      transform: translateX(-100%);
     }
+  }
+   .marquee:hover .marquee-content {
+    animation-play-state: paused;
+  }
+  .marquee-content::before,
+  .marquee-content::after {
+    content: attr(data-content);
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-around;
+    min-width: 100%;
+  }
+   .marquee .marquee-content:before {
+    content: ''; /* Empty pseudo-element for spacing */
+    flex-shrink: 0;
+    padding-left: 100%;
   }
 }
