@@ -9,20 +9,34 @@ import { Badge } from '@/components/ui/badge';
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Truck } from 'lucide-react';
+import { Truck, Copy } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
 
 interface UserOrdersProps {
   userId: string;
 }
+
+function CopyToClipboard({ text }: { text: string }) {
+  const { toast } = useToast();
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(text);
+    toast({ title: 'Copied to clipboard!', description: 'Consignment number has been copied.' });
+  };
+
+  return (
+    <Button variant="ghost" size="icon" onClick={handleCopy} aria-label="Copy consignment number">
+      <Copy className="h-4 w-4" />
+    </Button>
+  );
+}
+
 
 export default function UserOrders({ userId }: UserOrdersProps) {
   const [orders, setOrders] = useState<Checkout[]>([]);
@@ -84,12 +98,18 @@ export default function UserOrders({ userId }: UserOrdersProps) {
                     Status: <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>{order.status}</Badge>
                 </h3>
                 {order.status === 'shipped' && order.consignmentNumber && (
-                     <Button variant="outline" size="sm" asChild>
-                        <Link href={`https://www.delhivery.com/track/package/${order.consignmentNumber}`} target="_blank">
-                            <Truck className="mr-2 h-4 w-4" />
-                            Track Shipment
-                        </Link>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 rounded-md border bg-background pl-3">
+                           <span className="text-sm font-medium">{order.consignmentNumber}</span>
+                           <CopyToClipboard text={order.consignmentNumber} />
+                        </div>
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href="https://www.stcourier.com/" target="_blank">
+                                <Truck className="mr-2 h-4 w-4" />
+                                Track Shipment
+                            </Link>
+                        </Button>
+                    </div>
                 )}
             </div>
             {order.items.map(item => (
@@ -115,3 +135,4 @@ export default function UserOrders({ userId }: UserOrdersProps) {
     </div>
   );
 }
+
