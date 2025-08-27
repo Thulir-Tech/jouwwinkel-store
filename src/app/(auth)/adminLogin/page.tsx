@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
   });
 
   useEffect(() => {
-    if (user) {
+    if (user && user.isAdmin) {
       router.push('/admin');
     }
   }, [user, router]);
@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
     try {
       await signInWithEmail(data.email, data.password);
       toast({ title: 'Login successful' });
-      router.push('/admin');
+      // The useEffect will handle the redirect if the user is an admin
     } catch (error: any) {
       console.error('Login failed:', error.code);
       let errorMessage = 'An error occurred during login.';
