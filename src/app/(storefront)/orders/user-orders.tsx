@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -15,6 +16,9 @@ import {
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Truck } from 'lucide-react';
+import Link from 'next/link';
 
 interface UserOrdersProps {
   userId: string;
@@ -76,9 +80,17 @@ export default function UserOrders({ userId }: UserOrdersProps) {
           </CardHeader>
           <CardContent className="space-y-4">
              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">
+                <h3 className="text-lg font-semibold capitalize">
                     Status: <Badge variant={order.status === 'completed' ? 'default' : 'secondary'}>{order.status}</Badge>
                 </h3>
+                {order.status === 'shipped' && order.consignmentNumber && (
+                     <Button variant="outline" size="sm" asChild>
+                        <Link href={`https://www.delhivery.com/track/package/${order.consignmentNumber}`} target="_blank">
+                            <Truck className="mr-2 h-4 w-4" />
+                            Track Shipment
+                        </Link>
+                    </Button>
+                )}
             </div>
             {order.items.map(item => (
               <div key={item.id} className="flex items-center gap-4">

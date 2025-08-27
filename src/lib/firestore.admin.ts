@@ -2,7 +2,7 @@
 
 import { db } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
-import type { CartItem } from './types';
+import type { CartItem, Checkout } from './types';
 
 function slugify(text: string) {
   return text
@@ -119,4 +119,15 @@ export async function addCheckout(checkout: {
         createdAt: Date.now(),
         status: 'pending', // Initial status
     });
+}
+
+export async function updateOrderStatus(orderId: string, status: Checkout['status'], consignmentNumber?: string) {
+    const orderRef = doc(db, 'checkouts', orderId);
+    const updateData: { status: Checkout['status'], consignmentNumber?: string } = { status };
+
+    if (consignmentNumber) {
+        updateData.consignmentNumber = consignmentNumber;
+    }
+
+    await updateDoc(orderRef, updateData);
 }

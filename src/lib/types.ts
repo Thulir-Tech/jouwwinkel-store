@@ -56,7 +56,8 @@ export type Checkout = {
     total: number;
     userId?: string;
     createdAt: number;
-    status: 'pending' | 'completed' | 'failed';
+    status: 'pending' | 'packed' | 'shipped' | 'completed' | 'failed';
+    consignmentNumber?: string;
 }
 
 export type ProductRecommendation = ProductRecommendationsOutput[0];

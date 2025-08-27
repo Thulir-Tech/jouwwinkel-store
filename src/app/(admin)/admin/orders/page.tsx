@@ -17,6 +17,7 @@ import {
   import { Badge } from '@/components/ui/badge';
   import { getCheckouts } from '@/lib/firestore';
   import { formatCurrency } from '@/lib/format';
+import { OrderActions } from './order-actions';
   
   export default async function OrdersPage() {
     const checkouts = await getCheckouts();
@@ -36,6 +37,9 @@ import {
                 <TableHead>Date</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Total</TableHead>
+                <TableHead>
+                    <span className="sr-only">Actions</span>
+                </TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -54,6 +58,9 @@ import {
                         </Badge>
                     </TableCell>
                     <TableCell className="text-right font-sans">₹{formatCurrency(checkout.total)}</TableCell>
+                    <TableCell className="text-right">
+                        <OrderActions order={checkout} />
+                    </TableCell>
                 </TableRow>
                 ))}
             </TableBody>
