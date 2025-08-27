@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Truck, Eye, Save } from 'lucide-react';
+import { MoreHorizontal, Truck, Eye, Save, CheckCircle } from 'lucide-react';
+import { MdDone } from 'react-icons/md';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,7 +36,6 @@ import { getShippingPartners, getProductsByIds } from '@/lib/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
@@ -44,7 +44,7 @@ interface OrderActionsProps {
   order: Checkout;
 }
 
-function PackingSlipDialog({ order, open, onOpenChange }: { order: Checkout, open: boolean, onOpenChange: (open: boolean) => void }) {
+function PackingDialog({ order, open, onOpenChange, isViewOnly = false }: { order: Checkout, open: boolean, onOpenChange: (open: boolean) => void, isViewOnly?: boolean }) {
     const { toast } = useToast();
     const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
@@ -61,9 +61,15 @@ function PackingSlipDialog({ order, open, onOpenChange }: { order: Checkout, ope
         }
         if (open) {
             fetchProducts();
-            setItemsToUpdate({}); // Reset checks when dialog opens
+            // Pre-check all items if not in view-only mode
+            const initialChecks = isViewOnly ? {} : order.items.reduce((acc, item) => {
+                const compositeId = item.variantId || item.id;
+                acc[compositeId] = true;
+                return acc;
+            }, {} as Record<string, boolean>);
+            setItemsToUpdate(initialChecks); 
         }
-    }, [order.items, open]);
+    }, [order.items, open, isViewOnly]);
 
     const getProductById = (id: string) => products.find(p => p.id === id);
 
@@ -91,38 +97,45 @@ function PackingSlipDialog({ order, open, onOpenChange }: { order: Checkout, ope
             setLoading(false);
         }
     }
+    
+    const dialogTitle = isViewOnly ? "View Order Details" : "Pack Order & Update Stock";
+    const dialogDescription = `Order ID: ${order.orderId}.`;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>Pack Order & Update Stock</DialogTitle>
+                    <DialogTitle>{dialogTitle}</DialogTitle>
                     <DialogDescription>
-                       Order ID: {order.orderId}. Use this list to pack the order.
+                       {dialogDescription}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="max-h-[60vh] overflow-y-auto p-1">
-                    <Alert variant="default" className="mb-4">
-                        <Info className="h-4 w-4" />
-                        <AlertTitle>Instructions</AlertTitle>
-                        <AlertDescription>
-                          Check the box for each item you want to deduct from inventory. This action will also mark the order as 'Packed'.
-                        </AlertDescription>
-                    </Alert>
+                    {!isViewOnly && (
+                        <Alert variant="default" className="mb-4">
+                            <Info className="h-4 w-4" />
+                            <AlertTitle>Instructions</AlertTitle>
+                            <AlertDescription>
+                            Check the box for each item you want to deduct from inventory. This action will also mark the order as 'Packed'.
+                            </AlertDescription>
+                        </Alert>
+                    )}
                     <div className="space-y-4">
                         {order.items.map(item => {
                              const product = getProductById(item.id);
                              const compositeId = item.variantId || item.id;
                              return (
                                 <div key={compositeId} className="flex items-start gap-4 pr-4">
-                                     <div className="flex items-center h-full pt-1">
-                                        <Checkbox
-                                            id={`check-${compositeId}`}
-                                            checked={!!itemsToUpdate[compositeId]}
-                                            onCheckedChange={() => handleToggleCheck(compositeId)}
-                                            aria-label={`Select ${item.title} for stock update`}
-                                        />
-                                     </div>
+                                     {!isViewOnly && (
+                                        <div className="flex items-center h-full pt-1">
+                                            <Checkbox
+                                                id={`check-${compositeId}`}
+                                                checked={!!itemsToUpdate[compositeId]}
+                                                onCheckedChange={() => handleToggleCheck(compositeId)}
+                                                aria-label={`Select ${item.title} for stock update`}
+                                            />
+                                        </div>
+                                     )}
                                     <Image 
                                         src={item.image || 'https://placehold.co/64x64.png'} 
                                         alt={item.title}
@@ -143,11 +156,13 @@ function PackingSlipDialog({ order, open, onOpenChange }: { order: Checkout, ope
                     </div>
                 </div>
                  <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button onClick={handleSaveAndPack} disabled={loading || order.status !== 'pending'}>
-                        <Save className="mr-2 h-4 w-4" />
-                        {loading ? 'Saving...' : "Update Stock & Mark as Packed"}
-                    </Button>
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
+                    {!isViewOnly && (
+                        <Button onClick={handleSaveAndPack} disabled={loading || order.status !== 'pending'}>
+                            <Save className="mr-2 h-4 w-4" />
+                            {loading ? 'Saving...' : "Update Stock & Mark as Packed"}
+                        </Button>
+                    )}
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -159,6 +174,7 @@ export function OrderActions({ order }: OrderActionsProps) {
   const router = useRouter();
   const [isShipDialogOpen, setIsShipDialogOpen] = useState(false);
   const [isPackingDialogOpen, setIsPackingDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [consignmentNumber, setConsignmentNumber] = useState('');
   const [shippingPartners, setShippingPartners] = useState<ShippingPartner[]>([]);
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | undefined>();
@@ -217,7 +233,9 @@ export function OrderActions({ order }: OrderActionsProps) {
 
   return (
     <>
-      <PackingSlipDialog order={order} open={isPackingDialogOpen} onOpenChange={setIsPackingDialogOpen} />
+      <PackingDialog order={order} open={isPackingDialogOpen} onOpenChange={setIsPackingDialogOpen} />
+      <PackingDialog order={order} open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen} isViewOnly={true} />
+
       <Dialog open={isShipDialogOpen} onOpenChange={setIsShipDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -272,16 +290,21 @@ export function OrderActions({ order }: OrderActionsProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => setIsPackingDialogOpen(true)} disabled={!canBePacked}>
+          <DropdownMenuItem onClick={() => setIsViewDialogOpen(true)}>
              <Eye className="mr-2 h-4 w-4" />
-             Pack & Update Stock
+             View Details
           </DropdownMenuItem>
           <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setIsPackingDialogOpen(true)} disabled={!canBePacked}>
+             <CheckCircle className="mr-2 h-4 w-4" />
+             Pack & Update Stock
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setIsShipDialogOpen(true)} disabled={!canBeShipped}>
             <Truck className="mr-2 h-4 w-4" />
             Mark as Shipped
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => handleStatusUpdate('delivered')} disabled={!canBeDelivered}>
+            <MdDone className="mr-2 h-4 w-4" />
             Mark as Delivered
           </DropdownMenuItem>
         </DropdownMenuContent>
