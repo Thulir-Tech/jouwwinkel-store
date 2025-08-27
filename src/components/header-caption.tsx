@@ -30,8 +30,8 @@ export default function HeaderCaption({ config }: HeaderCaptionProps) {
       <div className="bg-primary text-primary-foreground text-center text-sm p-2 font-headline">
         <div className="marquee">
           <div className="marquee-content">
-            {renderItems()}
-            {renderItems()}
+            <div className="flex">{renderItems()}</div>
+            <div className="flex">{renderItems()}</div>
           </div>
         </div>
       </div>
