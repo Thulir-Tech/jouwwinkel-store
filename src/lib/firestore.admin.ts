@@ -1,4 +1,5 @@
 
+
 import { db } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc } from 'firebase/firestore';
 import type { CartItem } from './types';
@@ -102,8 +103,18 @@ export async function addCheckout(checkout: {
     userId?: string;
 }) {
     const checkoutsRef = collection(db, 'checkouts');
+    
+    // Firestore doesn't accept `undefined` values.
+    // We need to clean the object before sending it.
+    const checkoutData: { [key: string]: any } = { ...checkout };
+    Object.keys(checkoutData).forEach(key => {
+        if (checkoutData[key] === undefined) {
+            delete checkoutData[key];
+        }
+    });
+
     await addDoc(checkoutsRef, {
-        ...checkout,
+        ...checkoutData,
         orderId: generateOrderId(),
         createdAt: Date.now(),
         status: 'pending', // Initial status
