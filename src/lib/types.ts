@@ -97,7 +97,9 @@ export type ShippingPartner = {
 };
 
 export type UiConfig = {
-    headerCaption?: string;
+    headerCaptionType?: 'static' | 'carousel';
+    headerCaptionStatic?: string;
+    headerCaptionCarousel?: string[];
     heroText1?: string;
     heroText2?: string;
     heroText3?: string;

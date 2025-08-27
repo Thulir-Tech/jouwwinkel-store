@@ -1,3 +1,5 @@
+
+import HeaderCaption from '@/components/header-caption';
 import Hero from '@/components/hero';
 import ProductGrid from '@/components/product-grid';
 import { getFeaturedProducts, getUiConfig } from '@/lib/firestore';
@@ -25,11 +27,7 @@ export default async function HomePage() {
   const config = await getUiConfig();
   return (
     <div>
-      {config?.headerCaption && (
-        <div className="bg-primary text-primary-foreground text-center text-sm p-2 font-headline">
-          {config.headerCaption}
-        </div>
-      )}
+      <HeaderCaption config={config} />
       <Hero />
       <section className="container mx-auto px-4 py-12">
         <h2 className="text-3xl font-bold text-center mb-8 font-headline">Featured Products</h2>

@@ -1,7 +1,8 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +14,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -20,9 +28,12 @@ import { useRouter } from 'next/navigation';
 import type { UiConfig } from '@/lib/types';
 import { updateUiConfig } from '@/lib/firestore.admin';
 import { Separator } from '@/components/ui/separator';
+import { Trash2 } from 'lucide-react';
 
 const configFormSchema = z.object({
-  headerCaption: z.string().optional(),
+  headerCaptionType: z.enum(['static', 'carousel']).optional(),
+  headerCaptionStatic: z.string().optional(),
+  headerCaptionCarousel: z.array(z.string().min(1, 'Carousel item cannot be empty')).optional(),
   footerHeading: z.string().optional(),
   instagramLink: z.string().url().or(z.literal('')).optional(),
   whatsappLink: z.string().url().or(z.literal('')).optional(),
@@ -45,7 +56,9 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
   const form = useForm<ConfigFormValues>({
     resolver: zodResolver(configFormSchema),
     defaultValues: {
-      headerCaption: initialData?.headerCaption || '',
+      headerCaptionType: initialData?.headerCaptionType || 'static',
+      headerCaptionStatic: initialData?.headerCaptionStatic || '',
+      headerCaptionCarousel: initialData?.headerCaptionCarousel || [],
       footerHeading: initialData?.footerHeading || '',
       instagramLink: initialData?.instagramLink || '',
       whatsappLink: initialData?.whatsappLink || '',
@@ -56,6 +69,13 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       ourStoryContent: initialData?.ourStoryContent || '',
     },
   });
+
+  const { fields: carouselFields, append: appendCarousel, remove: removeCarousel } = useFieldArray({
+    control: form.control,
+    name: "headerCaptionCarousel",
+  });
+
+  const captionType = form.watch('headerCaptionType');
 
   const onSubmit = async (data: ConfigFormValues) => {
     try {
@@ -78,19 +98,86 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
         <div className="space-y-4">
             <h3 className="text-lg font-medium">General</h3>
             <FormField
-            control={form.control}
-            name="headerCaption"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Header Caption</FormLabel>
-                <FormControl>
-                    <Input placeholder="e.g. Pan India Free Shipping" {...field} />
-                </FormControl>
-                <FormDescription>The text displayed in the announcement bar below the main header.</FormDescription>
-                <FormMessage />
-                </FormItem>
-            )}
+              control={form.control}
+              name="headerCaptionType"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Header Caption Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select caption type" />
+                        </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                            <SelectItem value="static">Static Text</SelectItem>
+                            <SelectItem value="carousel">Carousel</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <FormDescription>Choose how the announcement in the header is displayed.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+              )}
             />
+
+            {captionType === 'static' && (
+                 <FormField
+                    control={form.control}
+                    name="headerCaptionStatic"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Header Caption Text</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g. Pan India Free Shipping" {...field} />
+                        </FormControl>
+                        <FormDescription>The text displayed in the announcement bar.</FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            )}
+
+            {captionType === 'carousel' && (
+                <div className="space-y-4 p-4 border rounded-md">
+                    <FormLabel>Carousel Items</FormLabel>
+                    <FormDescription>Add points that will be displayed in a sliding carousel.</FormDescription>
+                    {carouselFields.map((field, index) => (
+                        <div key={field.id} className="flex items-center gap-2">
+                            <FormField
+                                control={form.control}
+                                name={`headerCaptionCarousel.${index}`}
+                                render={({ field }) => (
+                                    <FormItem className="flex-grow">
+                                        <FormControl>
+                                            <Input placeholder={`Carousel item ${index + 1}`} {...field} value={field.value || ''} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                                <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive hover:bg-destructive/10"
+                                onClick={() => removeCarousel(index)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ))}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => appendCarousel('')}
+                    >
+                        Add Point
+                    </Button>
+                </div>
+            )}
+           
+            <Separator />
+
             <FormField
             control={form.control}
             name="footerHeading"
