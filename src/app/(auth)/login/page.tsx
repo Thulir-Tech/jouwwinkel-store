@@ -54,9 +54,13 @@ export default function CustomerLoginPage() {
       router.push('/'); // Redirect to homepage after customer login
     } catch (error: any) {
       console.error(error);
+      let errorMessage = 'An error occurred during login.';
+       if (error.code === 'auth/invalid-credential') {
+          errorMessage = 'Invalid email or password. Please try again.';
+      }
       toast({
         title: 'Login Failed',
-        description: 'Invalid email or password. Please try again.',
+        description: errorMessage,
         variant: 'destructive',
       });
     }
