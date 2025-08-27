@@ -104,7 +104,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
                            <CopyToClipboard text={order.consignmentNumber} />
                         </div>
                         <Button variant="outline" size="sm" asChild>
-                            <Link href="https://www.stcourier.com/" target="_blank">
+                            <Link href="https://stcourier.com/track/shipment" target="_blank">
                                 <Truck className="mr-2 h-4 w-4" />
                                 Track Shipment
                             </Link>
