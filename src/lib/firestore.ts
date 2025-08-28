@@ -120,7 +120,7 @@ export async function getCheckouts(userId?: string): Promise<Checkout[]> {
 
 export async function getCompletedCheckouts(): Promise<Checkout[]> {
     const checkoutsRef = collection(db, 'checkouts');
-    const q = query(checkoutsRef, where('status', 'in', ['packed', 'shipped', 'delivered']));
+    const q = query(checkoutsRef, where('status', 'in', ['packed', 'shipped', 'delivered', 'pending']));
     const snapshot = await getDocs(q);
     return getData<Checkout>(snapshot);
 }
