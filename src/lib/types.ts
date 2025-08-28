@@ -14,6 +14,7 @@ export type Product = {
   description?: string;
   price: number;
   compareAtPrice?: number;
+  revenuePerUnit?: number;
   onSale?: boolean;
   isFeatured?: boolean;
   images: string[];

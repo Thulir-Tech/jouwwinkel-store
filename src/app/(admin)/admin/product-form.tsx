@@ -31,6 +31,7 @@ import { addProduct, updateProduct } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { MediaUploader } from '../media-uploader';
 import { Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -47,6 +48,7 @@ const productFormSchema = z.object({
   description: z.string().optional(),
   price: z.coerce.number().min(0, { message: 'Price must be a positive number.' }),
   compareAtPrice: z.coerce.number().optional(),
+  revenuePerUnit: z.coerce.number().optional(),
   categoryId: z.string().optional(),
   active: z.boolean(),
   onSale: z.boolean(),
@@ -80,6 +82,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
       description: product?.description || '',
       price: product?.price || 0,
       compareAtPrice: product?.compareAtPrice,
+      revenuePerUnit: product?.revenuePerUnit,
       categoryId: product?.categoryId || '',
       active: product?.active ?? true,
       onSale: product?.onSale ?? false,
@@ -187,7 +190,23 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
                     <CardTitle className="text-base">Images</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {/* Placeholder for MediaUploader */}
+                    <FormField
+                        control={form.control}
+                        name="images"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Product Media</FormLabel>
+                                <FormControl>
+                                    <MediaUploader 
+                                        value={field.value || []} 
+                                        onChange={field.onChange}
+                                        fileTypes={['image']}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </CardContent>
             </Card>
             
@@ -436,6 +455,30 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
 
             <Card>
               <CardHeader>
+                <CardTitle className="text-base">Revenue</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="revenuePerUnit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Revenue Per Unit</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="0.00" {...field} value={field.value ?? ''} onChange={field.onChange} />
+                      </FormControl>
+                      <FormDescription>
+                        The revenue generated from selling one unit of this item. Used for analytics.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
                 <CardTitle className="text-base">General</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -590,5 +633,3 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
     </Form>
   );
 }
-
-    
