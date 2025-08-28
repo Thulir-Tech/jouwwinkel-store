@@ -3,7 +3,7 @@
 import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction, getDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo } from './types';
+import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon } from './types';
 import { getProductsByIds } from './firestore';
 
 function slugify(text: string) {
@@ -226,20 +226,20 @@ export async function addCheckout(checkout: {
 export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: CartItem[]) {
     await runTransaction(db, async (transaction) => {
         const orderRef = doc(db, 'checkouts', orderId);
+        
+        // Phase 1: All Reads
         const orderDoc = await transaction.get(orderRef);
-
         if (!orderDoc.exists()) {
             throw new Error("Order not found!");
         }
-
         if (orderDoc.data().status !== 'pending') {
             throw new Error("Order has already been processed.");
         }
 
-        const updates = [];
-
-        // Phase 1: All Reads
+        const productUpdates: { ref: any, data: any }[] = [];
         for (const item of itemsToUpdate) {
+            if (item.isCombo) continue; // Skip stock update for combos for now
+
             const productRef = doc(db, 'products', item.productId);
             const productDoc = await transaction.get(productRef);
 
@@ -264,11 +264,11 @@ export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: Ca
                 }
                 stockUpdate.stock = currentStock - item.quantity;
             }
-            updates.push({ ref: productRef, data: stockUpdate });
+            productUpdates.push({ ref: productRef, data: stockUpdate });
         }
 
         // Phase 2: All Writes
-        for (const update of updates) {
+        for (const update of productUpdates) {
             transaction.update(update.ref, update.data);
         }
 
@@ -312,6 +312,23 @@ export async function updateShippingPartner(id: string, partner: Partial<Omit<Sh
 
 export async function deleteShippingPartner(id: string) {
     await deleteDoc(doc(db, 'shippingPartners', id));
+}
+
+// Coupons
+export async function addCoupon(coupon: Omit<Coupon, 'id' | 'createdAt'>) {
+    await addDoc(collection(db, 'coupons'), {
+        ...coupon,
+        createdAt: Date.now(),
+    });
+}
+
+export async function updateCoupon(id: string, coupon: Partial<Omit<Coupon, 'id' | 'createdAt'>>) {
+    const couponRef = doc(db, 'coupons', id);
+    await updateDoc(couponRef, coupon);
+}
+
+export async function deleteCoupon(id: string) {
+    await deleteDoc(doc(db, 'coupons', id));
 }
 
 // UI Configuration

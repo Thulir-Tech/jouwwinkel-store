@@ -15,7 +15,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Package, Shapes, Home, ShoppingCart, Users, LineChart, Settings, Truck, Palette, ClipboardList, Gift } from 'lucide-react';
+import { Package, Shapes, Home, ShoppingCart, Users, LineChart, Settings, Truck, Palette, ClipboardList, Gift, Ticket } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { AuthGuard } from './auth-guard';
 import { useAuth } from '@/hooks/use-auth';
@@ -89,6 +89,18 @@ export default function AdminDashboardLayout({
                     <Link href="/admin/combos" onClick={handleLinkClick}>
                     <Gift />
                     <span>Combos</span>
+                    </Link>
+                </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                <SidebarMenuButton
+                    href="/admin/coupons"
+                    isActive={isActive('/admin/coupons')}
+                    asChild
+                >
+                    <Link href="/admin/coupons" onClick={handleLinkClick}>
+                    <Ticket />
+                    <span>Coupons</span>
                     </Link>
                 </SidebarMenuButton>
                 </SidebarMenuItem>

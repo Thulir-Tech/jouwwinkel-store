@@ -140,3 +140,18 @@ export type UiConfig = {
     ourStoryContent?: string;
     brandLogoUrl?: string;
 };
+
+export type Coupon = {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'flat';
+  discountValue: number;
+  active: boolean;
+  createdAt: number;
+  
+  // Rules
+  minOrderValue?: number;
+  maxDiscountAmount?: number; // For percentage discounts
+  firstOrderOnly?: boolean;
+  prepaidOnly?: boolean;
+};
