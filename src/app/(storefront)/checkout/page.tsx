@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import { useCartStore } from '@/lib/store';
@@ -36,6 +37,7 @@ import { addCheckout } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
+import { getProduct, getProductsByIds } from '@/lib/firestore';
 
 
 const checkoutFormSchema = z.object({
@@ -111,10 +113,9 @@ export default function CheckoutPage() {
 
     const onSubmit = async (data: CheckoutFormValues) => {
         try {
-            const itemsForCheckout = items.map(({ id, ...rest }) => rest);
             await addCheckout({
                 ...data,
-                items: itemsForCheckout,
+                items: items,
                 total,
                 userId: user?.uid,
             });

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -90,6 +91,8 @@ export default function AddToCartDialog({ product: initialProduct, open, onOpenC
       image: product.images[0],
       variantId,
       variantLabel,
+      revenuePerUnit: product.revenuePerUnit,
+      profitPerUnit: product.profitPerUnit,
     });
     toast({
       title: 'Added to cart',
@@ -139,4 +142,3 @@ export default function AddToCartDialog({ product: initialProduct, open, onOpenC
     </Dialog>
   );
 }
-

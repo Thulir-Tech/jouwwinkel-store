@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import Image from 'next/image';
@@ -37,6 +38,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             price: product.price,
             quantity: 1,
             image: product.images[0],
+            revenuePerUnit: product.revenuePerUnit,
+            profitPerUnit: product.profitPerUnit,
         });
         toast({
             title: "Added to cart",

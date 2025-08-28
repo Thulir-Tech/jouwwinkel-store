@@ -57,8 +57,13 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
     const productsRef = collection(db, 'products');
     const q = query(productsRef, where('__name__', 'in', ids));
     const snapshot = await getDocs(q);
-    return getData<Product>(snapshot);
+    const productData = getData<Product>(snapshot);
+    
+    // Firestore `in` query doesn't guarantee order, so we re-order based on the original IDs array
+    const orderedProducts = ids.map(id => productData.find(p => p.id === id)).filter(p => p) as Product[];
+    return orderedProducts;
 }
+
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const q = query(collection(db, "products"), where("slug", "==", slug), where('active', '==', true), firestoreLimit(1));
@@ -112,6 +117,14 @@ export async function getCheckouts(userId?: string): Promise<Checkout[]> {
     const snapshot = await getDocs(q);
     return getData<Checkout>(snapshot);
 }
+
+export async function getCompletedCheckouts(): Promise<Checkout[]> {
+    const checkoutsRef = collection(db, 'checkouts');
+    const q = query(checkoutsRef, where('status', 'in', ['packed', 'shipped', 'delivered']));
+    const snapshot = await getDocs(q);
+    return getData<Checkout>(snapshot);
+}
+
 
 export async function getShippingPartners(): Promise<ShippingPartner[]> {
     const partnersRef = collection(db, 'shippingPartners');

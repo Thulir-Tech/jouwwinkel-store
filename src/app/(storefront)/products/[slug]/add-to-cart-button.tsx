@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,9 @@ export default function AddToCartButton({ product, selectedVariants, isSelection
       quantity: 1,
       image: product.images[0],
       variantId,
-      variantLabel
+      variantLabel,
+      revenuePerUnit: product.revenuePerUnit,
+      profitPerUnit: product.profitPerUnit,
     });
     toast({
       title: 'Added to cart',

@@ -1,8 +1,10 @@
 
+
 import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant } from './types';
+import { getProductsByIds } from './firestore';
 
 function slugify(text: string) {
   return text
@@ -148,19 +150,27 @@ export async function addCheckout(checkout: {
 }) {
     const checkoutsRef = collection(db, 'checkouts');
     
-    const checkoutData: { [key: string]: any } = { ...checkout };
+    // Fetch full product data to include profit/revenue
+    const productIds = checkout.items.map(item => item.productId);
+    const productsData = await getProductsByIds(productIds);
+
+    const itemsWithFullData = checkout.items.map(item => {
+        const product = productsData.find(p => p.id === item.productId);
+        return {
+            ...item,
+            id: item.variantId ? `${item.productId}-${item.variantId}` : item.productId,
+            revenuePerUnit: product?.revenuePerUnit || 0,
+            profitPerUnit: product?.profitPerUnit || 0,
+        };
+    });
+
+    const checkoutData: { [key: string]: any } = { ...checkout, items: itemsWithFullData };
     Object.keys(checkoutData).forEach(key => {
         if (checkoutData[key] === undefined) {
             delete checkoutData[key];
         }
     });
 
-    // Remap items to include the composite ID
-    const itemsWithId = checkout.items.map(item => ({
-        ...item,
-        id: item.variantId ? `${item.productId}-${item.variantId}` : item.productId,
-    }))
-    
     // Also update the user's profile with their mobile number if available
     if (checkout.userId && checkout.mobile) {
         const userRef = doc(db, 'users', checkout.userId);
@@ -169,12 +179,12 @@ export async function addCheckout(checkout: {
 
     await addDoc(checkoutsRef, {
         ...checkoutData,
-        items: itemsWithId,
         orderId: generateOrderId(),
         createdAt: Date.now(),
         status: 'pending', // Initial status
     });
 }
+
 
 
 export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: CartItem[]) {

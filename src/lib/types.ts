@@ -59,6 +59,8 @@ export type CartItem = {
   image?: string;
   variantId?: string; // e.g. "red-small"
   variantLabel?: string;
+  revenuePerUnit?: number;
+  profitPerUnit?: number;
 };
 
 export type Checkout = {
