@@ -1,6 +1,6 @@
 
 import { getCombo, getProducts } from '@/lib/firestore';
-import { ComboForm } from '../../combo-form';
+import { ComboForm } from '../combo-form';
 import { notFound } from 'next/navigation';
 
 export default async function EditComboPage({ params }: { params: { id: string } }) {

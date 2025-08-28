@@ -1,6 +1,6 @@
 
 import { getProducts } from '@/lib/firestore';
-import { ComboForm } from '../../combo-form';
+import { ComboForm } from '../combo-form';
 
 export default async function NewComboPage() {
   const products = await getProducts();
