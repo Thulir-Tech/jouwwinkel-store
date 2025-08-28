@@ -1,7 +1,8 @@
 
+
 import { db } from './firebase.client';
 import { collection, getDocs, query, limit as firestoreLimit, orderBy, where, getDoc, doc } from 'firebase/firestore';
-import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant } from './types';
+import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant, Combo } from './types';
 
 // A helper function to safely get data from a snapshot
 function getData<T>(snapshot: any): T[] {
@@ -74,6 +75,29 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
   const doc = snapshot.docs[0];
   const product = { id: doc.id, ...doc.data() } as Product;
   return product;
+}
+
+// Combos
+export async function getCombos(limit?: number): Promise<Combo[]> {
+    const combosRef = collection(db, 'combos');
+    const q = limit
+      ? query(combosRef, orderBy('createdAt', 'desc'), firestoreLimit(limit))
+      : query(combosRef, orderBy('createdAt', 'desc'));
+    
+    const snapshot = await getDocs(q);
+    return getData<Combo>(snapshot);
+}
+
+export async function getCombo(id: string): Promise<Combo | null> {
+    const docRef = doc(db, "combos", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        const combo = { id: docSnap.id, ...docSnap.data() } as Combo;
+        return combo;
+    } else {
+        return null;
+    }
 }
 
 

@@ -36,6 +36,25 @@ export type Product = {
   highlights?: string[];
 };
 
+export type Combo = {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  price: number;
+  compareAtPrice?: number;
+  revenuePerUnit?: number;
+  profitPerUnit?: number;
+  onSale?: boolean;
+  isFeatured?: boolean;
+  images: string[];
+  active: boolean;
+  createdAt: number;
+  productIds: string[];
+  hasHighlights: boolean;
+  highlights?: string[];
+};
+
 export type Category = {
   id: string;
   name: string;

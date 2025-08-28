@@ -3,7 +3,7 @@
 import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant } from './types';
+import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo } from './types';
 import { getProductsByIds } from './firestore';
 
 function slugify(text: string) {
@@ -103,6 +103,42 @@ export async function updateProduct(id: string, product: Partial<{
 
     await updateDoc(productRef, productData);
 }
+
+
+export async function addCombo(combo: Omit<Combo, 'id' | 'createdAt' | 'slug'>) {
+    const combosRef = collection(db, 'combos');
+
+    const comboData: { [key: string]: any } = { ...combo };
+     Object.keys(comboData).forEach(key => {
+        if (comboData[key] === undefined) {
+            delete comboData[key];
+        }
+    });
+
+    await addDoc(combosRef, {
+        ...comboData,
+        slug: slugify(combo.title),
+        images: combo.images || [],
+        createdAt: Date.now(),
+    });
+}
+
+export async function updateCombo(id: string, combo: Partial<Omit<Combo, 'id' | 'createdAt' | 'slug'>>) {
+    const comboRef = doc(db, 'combos', id);
+
+    const comboData: { [key: string]: any } = { ...combo };
+    if (combo.title) {
+        comboData.slug = slugify(combo.title);
+    }
+    Object.keys(comboData).forEach(key => {
+        if (comboData[key] === undefined) {
+            delete comboData[key];
+        }
+    });
+
+    await updateDoc(comboRef, comboData);
+}
+
 
 export async function updateStock(productId: string, stockData: { stock?: number, variantStock?: { [key: string]: number }}) {
     const productRef = doc(db, 'products', productId);
