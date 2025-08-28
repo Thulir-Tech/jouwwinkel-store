@@ -166,7 +166,9 @@ export default function AdminPage() {
     useEffect(() => {
         if (!loading) {
             // Process stats
-            const totalRevenue = filteredCheckouts.reduce((acc, order) => acc + order.total, 0);
+            const totalRevenue = filteredCheckouts.reduce((acc, order) => {
+                return acc + order.items.reduce((itemAcc, item) => itemAcc + (item.revenuePerUnit || 0) * item.quantity, 0);
+            }, 0);
             const totalProfit = filteredCheckouts.reduce((acc, order) => {
                 const orderProfit = order.items.reduce((itemAcc, item) => itemAcc + (item.profitPerUnit || 0) * item.quantity, 0);
                 return acc + orderProfit;
@@ -215,27 +217,74 @@ export default function AdminPage() {
             date: undefined,
         });
     }
+    
+    const getProductInfo = (productId: string) => {
+        return allProducts.find(p => p.id === productId);
+    }
 
     const handleExport = () => {
         if (filteredCheckouts.length === 0) return;
 
-        const headers = ['Order ID', 'Date', 'Customer Name', 'Customer Email', 'Items', 'Total', 'Profit'];
-        const rows = filteredCheckouts.map(order => {
-            const orderProfit = order.items.reduce((acc, item) => acc + (item.profitPerUnit || 0) * item.quantity, 0);
-            const itemsString = order.items.map(item => `${item.title} (x${item.quantity})`).join(', ');
+        const escapeCsvCell = (cell: any) => {
+            if (cell === undefined || cell === null) return '';
+            const str = String(cell);
+            if (str.includes(',')) {
+                return `"${str}"`;
+            }
+            return str;
+        };
 
-            return [
+        const csvRows = [];
+        
+        // Report Header
+        csvRows.push('Jouwwinkel Store Dashboard Report');
+        csvRows.push(''); // Blank line
+
+        // Filter Details
+        csvRows.push('Filters Applied:');
+        if (filters.date?.from) {
+            const from = format(filters.date.from, "LLL dd, y");
+            const to = filters.date.to ? format(filters.date.to, "LLL dd, y") : 'Present';
+            csvRows.push(`Date Range:,${from} - ${to}`);
+        }
+        if (filters.categoryId !== 'all') {
+            const category = allCategories.find(c => c.id === filters.categoryId);
+            csvRows.push(`Category:,${category?.name || 'N/A'}`);
+        }
+        if (filters.productId !== 'all') {
+            const product = allProducts.find(p => p.id === filters.productId);
+            csvRows.push(`Product:,${product?.title || 'N/A'}`);
+        }
+        csvRows.push(''); // Blank line
+        
+
+        // Column Headers
+        const headers = ['Sl No.', 'Order ID', 'Products SKU', 'Products', 'Customer Name', 'Customer Mobile', 'Customer Email', 'Delivery Pincode', 'Revenue', 'Profit'];
+        csvRows.push(headers.join(','));
+
+        // Data Rows
+        filteredCheckouts.forEach((order, index) => {
+            const productSkus = order.items.map(item => getProductInfo(item.productId)?.sku || 'N/A').join(' | ');
+            const productTitles = order.items.map(item => `${item.title} (x${item.quantity})`).join(' | ');
+            const orderRevenue = order.items.reduce((acc, item) => acc + (item.revenuePerUnit || 0) * item.quantity, 0);
+            const orderProfit = order.items.reduce((acc, item) => acc + (item.profitPerUnit || 0) * item.quantity, 0);
+
+            const row = [
+                index + 1,
                 order.orderId,
-                new Date(order.createdAt).toISOString(),
+                productSkus,
+                productTitles,
                 order.shippingAddress.name,
+                order.mobile,
                 order.email,
-                `"${itemsString}"`,
-                order.total,
+                order.shippingAddress.zip,
+                orderRevenue,
                 orderProfit
-            ].join(',');
+            ].map(escapeCsvCell);
+            csvRows.push(row.join(','));
         });
 
-        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+        const csvContent = "data:text/csv;charset=utf-8," + csvRows.join('\n');
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -433,3 +482,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
