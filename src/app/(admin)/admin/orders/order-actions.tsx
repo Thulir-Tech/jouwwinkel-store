@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -169,7 +170,7 @@ function PackingDialog({ order, open, onOpenChange, isViewOnly = false, setCheck
                                     <div className="flex-grow">
                                         <p className="font-semibold">{item.title}</p>
                                         <p className="text-sm text-muted-foreground">SKU: {product?.sku || 'N/A'}</p>
-                                        {item.variantId && <p className="text-sm text-muted-foreground capitalize">Variant: {item.variantLabel}</p>}
+                                        {item.variantId && <p className="text-sm text-muted-foreground capitalize">{item.variantLabel}</p>}
                                         <p className="text-sm text-muted-foreground">Qty: <span className="font-bold">{item.quantity}</span></p>
                                     </div>
                                 </div>

@@ -1,7 +1,7 @@
 
 
 import { db, storage } from './firebase.client';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction, getDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo } from './types';
 import { getProductsByIds } from './firestore';
@@ -227,7 +227,7 @@ export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: Ca
     await runTransaction(db, async (transaction) => {
         const orderRef = doc(db, 'checkouts', orderId);
         const orderDoc = await transaction.get(orderRef);
-        
+
         if (!orderDoc.exists()) {
             throw new Error("Order not found!");
         }
@@ -236,37 +236,42 @@ export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: Ca
             throw new Error("Order has already been processed.");
         }
 
-        // Decrement stock for the checked items
-        if (itemsToUpdate.length > 0) {
-            for (const item of itemsToUpdate) {
-                const productRef = doc(db, 'products', item.productId);
-                const productDoc = await transaction.get(productRef);
-                if (!productDoc.exists()) {
-                    throw new Error(`Product with ID ${item.productId} not found.`);
-                }
+        const updates = [];
 
-                const productData = productDoc.data() as Product;
-                const stockUpdate: { [key: string]: any } = {};
+        // Phase 1: All Reads
+        for (const item of itemsToUpdate) {
+            const productRef = doc(db, 'products', item.productId);
+            const productDoc = await transaction.get(productRef);
 
-                if (productData.hasVariants && item.variantId) {
-                    const variantKey = `variantStock.${item.variantId}`;
-                    const currentVariantStock = productData.variantStock?.[item.variantId] ?? 0;
-                    if (currentVariantStock < item.quantity) {
-                        throw new Error(`Not enough stock for variant ${item.variantId} of product ${item.title}`);
-                    }
-                    stockUpdate[variantKey] = currentVariantStock - item.quantity;
-                } else {
-                    const currentStock = productData.stock ?? 0;
-                    if (currentStock < item.quantity) {
-                        throw new Error(`Not enough stock for product ${item.title}`);
-                    }
-                    stockUpdate.stock = currentStock - item.quantity;
-                }
-                transaction.update(productRef, stockUpdate);
+            if (!productDoc.exists()) {
+                throw new Error(`Product with ID ${item.productId} not found.`);
             }
+
+            const productData = productDoc.data() as Product;
+            const stockUpdate: { [key: string]: any } = {};
+
+            if (productData.hasVariants && item.variantId) {
+                const variantKey = `variantStock.${item.variantId}`;
+                const currentVariantStock = productData.variantStock?.[item.variantId] ?? 0;
+                if (currentVariantStock < item.quantity) {
+                    throw new Error(`Not enough stock for variant ${item.variantLabel} of product ${item.title}`);
+                }
+                stockUpdate[variantKey] = currentVariantStock - item.quantity;
+            } else {
+                const currentStock = productData.stock ?? 0;
+                if (currentStock < item.quantity) {
+                    throw new Error(`Not enough stock for product ${item.title}`);
+                }
+                stockUpdate.stock = currentStock - item.quantity;
+            }
+            updates.push({ ref: productRef, data: stockUpdate });
         }
-        
-        // Update order status to 'packed'
+
+        // Phase 2: All Writes
+        for (const update of updates) {
+            transaction.update(update.ref, update.data);
+        }
+
         transaction.update(orderRef, { status: 'packed' });
     });
 }
