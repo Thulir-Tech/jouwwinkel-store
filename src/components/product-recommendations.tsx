@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -51,7 +52,14 @@ export default function ProductRecommendations({ product }: ProductRecommendatio
   }, [product]);
 
   if (loading) {
-    return <RecommendationSkeleton />;
+    return (
+        <section className="bg-background/80 py-16 mt-12">
+            <div className="container mx-auto px-4">
+                <h2 className="text-3xl font-bold text-center mb-8 font-headline">You Might Also Like</h2>
+                <RecommendationSkeleton />
+            </div>
+        </section>
+    );
   }
 
   if (!recommendations.length) {
@@ -59,27 +67,32 @@ export default function ProductRecommendations({ product }: ProductRecommendatio
   }
 
   return (
-    <Carousel
-      opts={{
-        align: 'start',
-        loop: true,
-      }}
-      plugins={[
-        Autoplay({
-          delay: 3000,
-        }),
-      ]}
-      className="w-full"
-    >
-      <CarouselContent>
-        {recommendations.map((rec) => (
-          <CarouselItem key={rec.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-            <div className="p-1 h-full">
-              <ProductCard product={rec} />
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-    </Carousel>
+    <section className="bg-background/80 py-16 mt-12">
+        <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-bold text-center mb-8 font-headline">You Might Also Like</h2>
+            <Carousel
+            opts={{
+                align: 'start',
+                loop: true,
+            }}
+            plugins={[
+                Autoplay({
+                delay: 3000,
+                }),
+            ]}
+            className="w-full"
+            >
+            <CarouselContent>
+                {recommendations.map((rec) => (
+                <CarouselItem key={rec.id} className="md:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+                    <div className="p-1 h-full">
+                    <ProductCard product={rec} />
+                    </div>
+                </CarouselItem>
+                ))}
+            </CarouselContent>
+            </Carousel>
+        </div>
+    </section>
   );
 }

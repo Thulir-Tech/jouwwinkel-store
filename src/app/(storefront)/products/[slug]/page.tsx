@@ -212,14 +212,9 @@ export default function ProductPage() {
             </div>
         </div>
       </div>
-      <section className="bg-background/80 py-16 mt-12">
-         <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-8 font-headline">You Might Also Like</h2>
-            <Suspense fallback={<ProductGridSkeleton />}>
-              <ProductRecommendations product={product} />
-            </Suspense>
-         </div>
-      </section>
+      <Suspense fallback={<ProductGridSkeleton />}>
+        <ProductRecommendations product={product} />
+      </Suspense>
       <a href="#" className="fixed bottom-6 right-6 bg-green-500 text-white rounded-full p-3 shadow-lg hover:bg-green-600 transition-colors z-50">
         <FaWhatsapp size={32} />
       </a>
