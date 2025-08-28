@@ -88,6 +88,26 @@ export async function getCombos(limit?: number): Promise<Combo[]> {
     return getData<Combo>(snapshot);
 }
 
+export async function getActiveCombos(limit?: number): Promise<Combo[]> {
+    const combosRef = collection(db, 'combos');
+    // Removed orderBy('createdAt', 'desc') to avoid needing a composite index
+    const q = limit 
+      ? query(combosRef, where('active', '==', true), firestoreLimit(limit))
+      : query(combosRef, where('active', '==', true));
+    
+    const snapshot = await getDocs(q);
+    const combos = getData<Combo>(snapshot);
+    
+    // Perform sorting in-memory
+    return combos.sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export async function getFeaturedCombos(limit?: number): Promise<Combo[]> {
+    const allActiveCombos = await getActiveCombos();
+    const featuredCombos = allActiveCombos.filter(c => c.isFeatured);
+    return limit ? featuredCombos.slice(0, limit) : featuredCombos;
+}
+
 export async function getCombo(id: string): Promise<Combo | null> {
     const docRef = doc(db, "combos", id);
     const docSnap = await getDoc(docRef);
@@ -98,6 +118,17 @@ export async function getCombo(id: string): Promise<Combo | null> {
     } else {
         return null;
     }
+}
+
+export async function getComboBySlug(slug: string): Promise<Combo | null> {
+  const q = query(collection(db, "combos"), where("slug", "==", slug), where('active', '==', true), firestoreLimit(1));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) {
+    return null;
+  }
+  const doc = snapshot.docs[0];
+  const combo = { id: doc.id, ...doc.data() } as Combo;
+  return combo;
 }
 
 

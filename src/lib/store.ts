@@ -1,5 +1,4 @@
 
-
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { CartItem } from './types';
@@ -27,8 +26,8 @@ export const useCartStore = create<CartState>()(
       count: 0,
       total: 0,
       addToCart: (newItem) => {
-        // ID is now composite: product ID + variant ID
-        const id = newItem.variantId ? `${newItem.productId}-${newItem.variantId}` : newItem.productId;
+        // ID is composite: product ID + variant ID for products, or combo ID for combos
+        const id = newItem.isCombo ? newItem.productId : (newItem.variantId ? `${newItem.productId}-${newItem.variantId}` : newItem.productId);
         const existingItem = get().items.find(item => item.id === id);
         let updatedItems;
 

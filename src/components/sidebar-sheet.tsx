@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -48,6 +49,9 @@ export function SidebarSheet() {
           </Button>
           <Button variant="ghost" className="justify-start text-lg" asChild>
             <Link href="/products" onClick={closeSheet}>All Products</Link>
+          </Button>
+          <Button variant="ghost" className="justify-start text-lg" asChild>
+            <Link href="/combos" onClick={closeSheet}>Combos</Link>
           </Button>
           <Separator className="my-2" />
           <Accordion type="single" collapsible className="w-full">

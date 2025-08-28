@@ -1,10 +1,13 @@
 
+
 import HeaderCaption from '@/components/header-caption';
 import Hero from '@/components/hero';
 import ProductGrid from '@/components/product-grid';
-import { getFeaturedProducts, getUiConfig } from '@/lib/firestore';
+import { getFeaturedProducts, getUiConfig, getFeaturedCombos } from '@/lib/firestore';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import ComboGrid from '@/components/combo-grid';
+import { Separator } from '@/components/ui/separator';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 60;
@@ -25,6 +28,8 @@ function ProductGridSkeleton() {
 
 export default async function HomePage() {
   const config = await getUiConfig();
+  const combos = await getFeaturedCombos();
+
   return (
     <div>
       <HeaderCaption config={config} />
@@ -35,6 +40,18 @@ export default async function HomePage() {
           <ProductGridLoader />
         </Suspense>
       </section>
+
+      {combos.length > 0 && (
+        <>
+          <Separator />
+          <section className="container mx-auto px-4 py-12">
+            <h2 className="text-3xl font-bold text-center mb-8 font-headline">Featured Combos</h2>
+            <Suspense fallback={<ProductGridSkeleton />}>
+              <ComboGrid combos={combos} />
+            </Suspense>
+          </section>
+        </>
+      )}
     </div>
   );
 }

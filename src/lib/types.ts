@@ -70,8 +70,8 @@ export type Variant = {
 }
 
 export type CartItem = {
-  id: string; // This will be composite: product.id-variantId
-  productId: string;
+  id: string; // This will be composite: product.id-variantId or combo.id
+  productId: string; // Can be a product or combo ID
   quantity: number;
   price: number;
   title: string;
@@ -80,6 +80,7 @@ export type CartItem = {
   variantLabel?: string;
   revenuePerUnit?: number;
   profitPerUnit?: number;
+  isCombo?: boolean;
 };
 
 export type Checkout = {
