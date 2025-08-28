@@ -101,6 +101,7 @@ export type UiConfig = {
     headerCaptionStatic?: string;
     headerCaptionCarousel?: string[];
     footerHeading?: string;
+    footerCaption?: string;
     instagramLink?: string;
     whatsappLink?: string;
     storeAddress?: string;

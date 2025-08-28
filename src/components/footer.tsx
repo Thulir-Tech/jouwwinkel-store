@@ -19,7 +19,7 @@ export default async function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="text-xl font-bold font-headline mb-4">{config?.footerHeading || 'Jouwwinkel'}</h3>
-            <p className="text-muted-foreground">Elevate your style with our curated collection.</p>
+            <p className="text-muted-foreground">{config?.footerCaption || 'Elevate your style with our curated collection.'}</p>
           </div>
           <div>
             <h4 className="font-semibold mb-4">Shop</h4>

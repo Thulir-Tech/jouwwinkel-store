@@ -37,6 +37,7 @@ const configFormSchema = z.object({
   headerCaptionStatic: z.string().optional(),
   headerCaptionCarousel: z.array(z.string().min(1, 'Carousel item cannot be empty')).optional(),
   footerHeading: z.string().optional(),
+  footerCaption: z.string().optional(),
   instagramLink: z.string().url().or(z.literal('')).optional(),
   whatsappLink: z.string().url().or(z.literal('')).optional(),
   storeAddress: z.string().optional(),
@@ -68,6 +69,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       headerCaptionStatic: initialData?.headerCaptionStatic || '',
       headerCaptionCarousel: initialData?.headerCaptionCarousel || [],
       footerHeading: initialData?.footerHeading || '',
+      footerCaption: initialData?.footerCaption || '',
       instagramLink: initialData?.instagramLink || '',
       whatsappLink: initialData?.whatsappLink || '',
       storeAddress: initialData?.storeAddress || '',
@@ -241,6 +243,20 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                     <Input placeholder="e.g. Jouwwinkel" {...field} />
                 </FormControl>
                 <FormDescription>The main brand name displayed in the footer.</FormDescription>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+            <FormField
+            control={form.control}
+            name="footerCaption"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Footer Caption Text</FormLabel>
+                <FormControl>
+                    <Textarea placeholder="Elevate your style with our curated collection." {...field} />
+                </FormControl>
+                <FormDescription>A short description displayed below the footer heading.</FormDescription>
                 <FormMessage />
                 </FormItem>
             )}
@@ -452,4 +468,3 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
   );
 }
 
-    
