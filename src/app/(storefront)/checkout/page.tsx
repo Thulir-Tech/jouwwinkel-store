@@ -1,6 +1,4 @@
 
-
-
 'use client';
 
 import { useCartStore } from '@/lib/store';
@@ -74,7 +72,15 @@ function CheckoutSkeleton() {
 }
 
 export default function CheckoutPage() {
-    const { items, total, count, clearCart } = useCartStore();
+    const { 
+        items, 
+        total, 
+        count, 
+        clearCart,
+        couponCode,
+        discountAmount,
+        totalAfterDiscount,
+    } = useCartStore();
     const { user, loading } = useAuth();
     const router = useRouter();
     const { toast } = useToast();
@@ -101,6 +107,9 @@ export default function CheckoutPage() {
             if (user.displayName) {
                 form.setValue('shippingAddress.name', user.displayName);
             }
+            if(user.mobile) {
+                form.setValue('mobile', user.mobile);
+            }
         }
     }, [user, loading, form]);
     
@@ -118,6 +127,9 @@ export default function CheckoutPage() {
                 items: items,
                 total,
                 userId: user?.uid,
+                couponCode: couponCode || undefined,
+                discountAmount: discountAmount || undefined,
+                totalAfterDiscount: totalAfterDiscount,
             });
             toast({
                 title: 'Order placed successfully!',
@@ -276,6 +288,12 @@ export default function CheckoutPage() {
                                         <span>Subtotal</span>
                                         <span>₹{formatCurrency(total)}</span>
                                     </div>
+                                    {couponCode && (
+                                        <div className="flex justify-between text-green-600">
+                                            <span>Discount ({couponCode})</span>
+                                            <span>- ₹{formatCurrency(discountAmount)}</span>
+                                        </div>
+                                    )}
                                      <div className="flex justify-between">
                                         <span>Shipping</span>
                                         <span>Free</span>
@@ -283,7 +301,7 @@ export default function CheckoutPage() {
                                     <Separator className="my-2" />
                                     <div className="flex justify-between font-bold text-lg">
                                         <span>Total</span>
-                                        <span>₹{formatCurrency(total)}</span>
+                                        <span>₹{formatCurrency(totalAfterDiscount)}</span>
                                     </div>
                                 </div>
                                 <Button type="submit" className="w-full mt-6" size="lg">Place Order</Button>

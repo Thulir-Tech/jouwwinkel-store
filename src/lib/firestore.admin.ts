@@ -1,5 +1,4 @@
 
-
 import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction, getDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -175,15 +174,7 @@ export async function addVariant(variant: { name: string, options: string[] }) {
     });
 }
 
-export async function addCheckout(checkout: {
-    email: string;
-    mobile: string;
-    shippingAddress: object;
-    paymentMethod: 'cod' | 'upi';
-    items: Omit<CartItem, 'id'>[];
-    total: number;
-    userId?: string;
-}) {
+export async function addCheckout(checkout: Omit<Checkout, 'id' | 'createdAt' | 'status' | 'orderId'>) {
     const checkoutsRef = collection(db, 'checkouts');
     
     // Fetch full product data to include profit/revenue
@@ -236,14 +227,20 @@ export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: Ca
             throw new Error("Order has already been processed.");
         }
 
+        const productReads = itemsToUpdate.map(item => {
+            if (item.isCombo) return null;
+            return transaction.get(doc(db, 'products', item.productId));
+        }).filter(Boolean);
+
+        const productDocs = await Promise.all(productReads);
+        
         const productUpdates: { ref: any, data: any }[] = [];
-        for (const item of itemsToUpdate) {
-            if (item.isCombo) continue; // Skip stock update for combos for now
+        for (let i = 0; i < itemsToUpdate.length; i++) {
+            const item = itemsToUpdate[i];
+            if (item.isCombo) continue;
 
-            const productRef = doc(db, 'products', item.productId);
-            const productDoc = await transaction.get(productRef);
-
-            if (!productDoc.exists()) {
+            const productDoc = productDocs.shift();
+            if (!productDoc || !productDoc.exists()) {
                 throw new Error(`Product with ID ${item.productId} not found.`);
             }
 
@@ -264,7 +261,7 @@ export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: Ca
                 }
                 stockUpdate.stock = currentStock - item.quantity;
             }
-            productUpdates.push({ ref: productRef, data: stockUpdate });
+            productUpdates.push({ ref: productDoc.ref, data: stockUpdate });
         }
 
         // Phase 2: All Writes

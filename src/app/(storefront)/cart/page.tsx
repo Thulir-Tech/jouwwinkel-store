@@ -1,19 +1,57 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useCartStore } from '@/lib/store';
 import { formatCurrency } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, Minus, ShoppingBag, Info } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, Info, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/use-auth';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { validateAndApplyCoupon } from '@/lib/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CartPage() {
-  const { items, removeFromCart, updateQuantity, total, count } = useCartStore();
+  const { 
+    items, 
+    removeFromCart, 
+    updateQuantity, 
+    total, 
+    count, 
+    applyCoupon, 
+    removeCoupon,
+    couponCode,
+    discountAmount,
+    totalAfterDiscount
+  } = useCartStore();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [couponInput, setCouponInput] = useState('');
+  const [loadingCoupon, setLoadingCoupon] = useState(false);
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput) return;
+    setLoadingCoupon(true);
+    try {
+        const { coupon, discountAmount } = await validateAndApplyCoupon(couponInput, total, user?.uid);
+        applyCoupon(coupon, discountAmount);
+        toast({ title: "Success", description: `Coupon "${coupon.code}" applied.`});
+        setCouponInput('');
+    } catch(error: any) {
+        toast({ title: "Error", description: error.message, variant: 'destructive'});
+    } finally {
+        setLoadingCoupon(false);
+    }
+  }
+
+  const handleRemoveCoupon = () => {
+    removeCoupon();
+    toast({ title: "Coupon removed." });
+  }
 
   if (count === 0) {
     return (
@@ -84,19 +122,51 @@ export default function CartPage() {
         <div className="lg:col-span-1">
           <div className="p-6 border rounded-lg bg-card sticky top-24">
             <h2 className="text-xl font-bold mb-4 font-headline">Order Summary</h2>
-            <div className="flex justify-between mb-2 font-sans">
-              <span>Subtotal ({count} items)</span>
-              <span>₹{formatCurrency(total)}</span>
+            <div className="space-y-2">
+                <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span className="font-sans">₹{formatCurrency(total)}</span>
+                </div>
+                <div className="flex justify-between">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                </div>
+                 {couponCode && (
+                    <div className="flex justify-between text-green-600">
+                        <span>Discount ({couponCode})</span>
+                        <span className="font-sans">- ₹{formatCurrency(discountAmount)}</span>
+                    </div>
+                )}
             </div>
-            <div className="flex justify-between mb-2">
-              <span>Shipping</span>
-              <span>Free</span>
-            </div>
-            <hr className="my-4" />
-            <div className="flex justify-between font-bold text-lg mb-4 font-sans">
+            
+            <Separator className="my-4" />
+            
+            <div className="flex justify-between font-bold text-lg mb-4">
               <span>Total</span>
-              <span>₹{formatCurrency(total)}</span>
+              <span className="font-sans">₹{formatCurrency(totalAfterDiscount)}</span>
             </div>
+            
+            {!couponCode ? (
+                 <div className="flex items-center gap-2 mb-4">
+                    <Input 
+                        placeholder="Coupon Code"
+                        value={couponInput}
+                        onChange={(e) => setCouponInput(e.target.value)}
+                        className="flex-grow"
+                    />
+                    <Button onClick={handleApplyCoupon} disabled={loadingCoupon}>
+                        {loadingCoupon ? 'Applying...' : 'Apply'}
+                    </Button>
+                </div>
+            ) : (
+                <div className="flex items-center justify-between p-2 rounded-md bg-green-50 text-green-700 border border-green-200 mb-4">
+                    <p className="text-sm font-medium">Coupon "{couponCode}" applied!</p>
+                     <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleRemoveCoupon}>
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
+            )}
+
             <Button className="w-full" size="lg" asChild>
               <Link href="/checkout">Proceed to Checkout</Link>
             </Button>

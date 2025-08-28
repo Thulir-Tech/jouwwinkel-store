@@ -105,6 +105,9 @@ export type Checkout = {
     consignmentNumber?: string;
     shippingPartnerId?: string;
     shippingPartnerName?: string;
+    couponCode?: string;
+    discountAmount?: number;
+    totalAfterDiscount?: number;
 }
 
 export interface User extends FirebaseUser {

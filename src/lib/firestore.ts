@@ -1,5 +1,4 @@
 
-
 import { db } from './firebase.client';
 import { collection, getDocs, query, limit as firestoreLimit, orderBy, where, getDoc, doc } from 'firebase/firestore';
 import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant, Combo, Coupon } from './types';
@@ -31,9 +30,6 @@ export async function getActiveProducts(limit?: number): Promise<Product[]> {
 }
 
 export async function getFeaturedProducts(limit?: number): Promise<Product[]> {
-    // This query was causing an index error.
-    // We'll fetch all active products and filter in code.
-    // For larger datasets, creating the composite index in Firebase is recommended.
     const allActiveProducts = await getActiveProducts();
     const featuredProducts = allActiveProducts.filter(p => p.isFeatured);
     return limit ? featuredProducts.slice(0, limit) : featuredProducts;
@@ -60,7 +56,6 @@ export async function getProductsByIds(ids: string[]): Promise<Product[]> {
     const snapshot = await getDocs(q);
     const productData = getData<Product>(snapshot);
     
-    // Firestore `in` query doesn't guarantee order, so we re-order based on the original IDs array
     const orderedProducts = ids.map(id => productData.find(p => p.id === id)).filter(p => p) as Product[];
     return orderedProducts;
 }
@@ -90,7 +85,6 @@ export async function getCombos(limit?: number): Promise<Combo[]> {
 
 export async function getActiveCombos(limit?: number): Promise<Combo[]> {
     const combosRef = collection(db, 'combos');
-    // Removed orderBy('createdAt', 'desc') to avoid needing a composite index
     const q = limit 
       ? query(combosRef, where('active', '==', true), firestoreLimit(limit))
       : query(combosRef, where('active', '==', true));
@@ -98,7 +92,7 @@ export async function getActiveCombos(limit?: number): Promise<Combo[]> {
     const snapshot = await getDocs(q);
     const combos = getData<Combo>(snapshot);
     
-    // Perform sorting in-memory
+    // Sort manually to avoid needing a composite index
     return combos.sort((a, b) => b.createdAt - a.createdAt);
 }
 
@@ -224,4 +218,64 @@ export async function getCoupon(id: string): Promise<Coupon | null> {
         return { id: docSnap.id, ...docSnap.data() } as Coupon;
     }
     return null;
+}
+
+export async function getCouponByCode(code: string): Promise<Coupon | null> {
+    const q = query(collection(db, "coupons"), where("code", "==", code.toUpperCase()), firestoreLimit(1));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+        return null;
+    }
+    return { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Coupon;
+}
+
+
+export async function validateAndApplyCoupon(
+    code: string, 
+    cartTotal: number, 
+    userId?: string, 
+    paymentMethod?: 'cod' | 'upi'
+): Promise<{ coupon: Coupon, discountAmount: number }> {
+    const coupon = await getCouponByCode(code);
+  
+    if (!coupon || !coupon.active) {
+      throw new Error('Invalid or expired coupon code.');
+    }
+  
+    // Rule: Minimum order value
+    if (coupon.minOrderValue && cartTotal < coupon.minOrderValue) {
+      throw new Error(`Minimum order of ₹${coupon.minOrderValue} required.`);
+    }
+  
+    // Rule: Prepaid only
+    if (coupon.prepaidOnly && paymentMethod === 'cod') {
+        throw new Error('This coupon is only valid for prepaid orders.');
+    }
+
+    // Rule: First order only
+    if (coupon.firstOrderOnly) {
+        if (!userId) {
+            throw new Error('You must be logged in to use this coupon.');
+        }
+        const userOrders = await getCheckouts(userId);
+        if (userOrders.length > 0) {
+            throw new Error('This coupon is for first-time customers only.');
+        }
+    }
+  
+    let discountAmount = 0;
+    if (coupon.discountType === 'flat') {
+      discountAmount = coupon.discountValue;
+    } else if (coupon.discountType === 'percentage') {
+      discountAmount = (cartTotal * coupon.discountValue) / 100;
+      // Rule: Max discount amount for percentage
+      if (coupon.maxDiscountAmount && discountAmount > coupon.maxDiscountAmount) {
+        discountAmount = coupon.maxDiscountAmount;
+      }
+    }
+  
+    // Ensure discount doesn't exceed total
+    discountAmount = Math.min(discountAmount, cartTotal);
+  
+    return { coupon, discountAmount: Math.round(discountAmount) };
 }
