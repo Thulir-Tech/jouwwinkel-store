@@ -1,7 +1,7 @@
 
 'use client';
 
-import { DollarSign, Users, CreditCard, Activity, CalendarIcon, X, ChevronsUpDown } from 'lucide-react';
+import { DollarSign, Users, CreditCard, Activity, CalendarIcon, X, ChevronsUpDown, Download } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -66,6 +66,7 @@ function DashboardSkeleton() {
     return (
         <div className="space-y-4">
              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
@@ -215,6 +216,35 @@ export default function AdminPage() {
         });
     }
 
+    const handleExport = () => {
+        if (filteredCheckouts.length === 0) return;
+
+        const headers = ['Order ID', 'Date', 'Customer Name', 'Customer Email', 'Items', 'Total', 'Profit'];
+        const rows = filteredCheckouts.map(order => {
+            const orderProfit = order.items.reduce((acc, item) => acc + (item.profitPerUnit || 0) * item.quantity, 0);
+            const itemsString = order.items.map(item => `${item.title} (x${item.quantity})`).join(', ');
+
+            return [
+                order.orderId,
+                new Date(order.createdAt).toISOString(),
+                order.shippingAddress.name,
+                order.email,
+                `"${itemsString}"`,
+                order.total,
+                orderProfit
+            ].join(',');
+        });
+
+        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `dashboard_report_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
 
     if (loading) {
         return <DashboardSkeleton />;
@@ -323,6 +353,10 @@ export default function AdminPage() {
             <Button variant="ghost" onClick={resetFilters}>
                 <X className="mr-2 h-4 w-4" />
                 Reset Filters
+            </Button>
+            <Button onClick={handleExport} disabled={filteredCheckouts.length === 0}>
+                <Download className="mr-2 h-4 w-4" />
+                Export Report
             </Button>
         </div>
 
