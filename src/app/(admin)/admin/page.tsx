@@ -1,7 +1,7 @@
 
 'use client';
 
-import { DollarSign, Users, CreditCard, Activity, CalendarIcon, X } from 'lucide-react';
+import { DollarSign, Users, CreditCard, Activity, CalendarIcon, X, ChevronsUpDown } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -31,6 +31,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 
 interface DashboardStats {
@@ -108,6 +110,7 @@ export default function AdminPage() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [salesData, setSalesData] = useState<SalesData[]>([]);
     const [loading, setLoading] = useState(true);
+    const [productFilterOpen, setProductFilterOpen] = useState(false);
 
     const [filters, setFilters] = useState({
         productId: 'all',
@@ -242,17 +245,51 @@ export default function AdminPage() {
                 </SelectContent>
             </Select>
 
-            <Select value={filters.productId} onValueChange={(value) => handleFilterChange('productId', value)}>
-                <SelectTrigger>
-                    <SelectValue placeholder="Filter by Product" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All Products</SelectItem>
-                    {allProducts.map(prod => (
-                        <SelectItem key={prod.id} value={prod.id}>{prod.title}</SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+            <Popover open={productFilterOpen} onOpenChange={setProductFilterOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={productFilterOpen}
+                        className="w-full justify-between"
+                    >
+                        {filters.productId !== 'all'
+                        ? allProducts.find((product) => product.id === filters.productId)?.title
+                        : "Filter by Product..."}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                    <Command>
+                    <CommandInput placeholder="Search product..." />
+                    <CommandList>
+                        <CommandEmpty>No product found.</CommandEmpty>
+                        <CommandGroup>
+                        <CommandItem
+                            onSelect={() => {
+                                handleFilterChange('productId', 'all');
+                                setProductFilterOpen(false);
+                            }}
+                        >
+                            All Products
+                        </CommandItem>
+                        {allProducts.map((product) => (
+                            <CommandItem
+                                key={product.id}
+                                value={product.title}
+                                onSelect={(currentValue) => {
+                                    handleFilterChange('productId', product.id);
+                                    setProductFilterOpen(false);
+                                }}
+                            >
+                                {product.title}
+                            </CommandItem>
+                        ))}
+                        </CommandGroup>
+                    </CommandList>
+                    </Command>
+                </PopoverContent>
+            </Popover>
             
              <Popover>
                 <PopoverTrigger asChild>
