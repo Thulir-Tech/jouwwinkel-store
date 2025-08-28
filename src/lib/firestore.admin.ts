@@ -29,6 +29,7 @@ export async function addProduct(product: {
     price: number;
     compareAtPrice?: number;
     revenuePerUnit?: number;
+    profitPerUnit?: number;
     onSale?: boolean;
     isFeatured?: boolean;
     categoryId?: string;
@@ -72,6 +73,7 @@ export async function updateProduct(id: string, product: Partial<{
     price: number;
     compareAtPrice?: number;
     revenuePerUnit?: number;
+    profitPerUnit?: number;
     onSale?: boolean;
     isFeatured?: boolean;
     categoryId?: string;

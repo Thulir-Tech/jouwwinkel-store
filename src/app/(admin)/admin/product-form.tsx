@@ -49,6 +49,7 @@ const productFormSchema = z.object({
   price: z.coerce.number().min(0, { message: 'Price must be a positive number.' }),
   compareAtPrice: z.coerce.number().optional(),
   revenuePerUnit: z.coerce.number().optional(),
+  profitPerUnit: z.coerce.number().optional(),
   categoryId: z.string().optional(),
   active: z.boolean(),
   onSale: z.boolean(),
@@ -83,6 +84,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
       price: product?.price || 0,
       compareAtPrice: product?.compareAtPrice,
       revenuePerUnit: product?.revenuePerUnit,
+      profitPerUnit: product?.profitPerUnit,
       categoryId: product?.categoryId || '',
       active: product?.active ?? true,
       onSale: product?.onSale ?? false,
@@ -455,9 +457,9 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Revenue</CardTitle>
+                <CardTitle className="text-base">Financials</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-4">
                 <FormField
                   control={form.control}
                   name="revenuePerUnit"
@@ -469,6 +471,22 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
                       </FormControl>
                       <FormDescription>
                         The revenue generated from selling one unit of this item. Used for analytics.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="profitPerUnit"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Profit Per Unit</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="0.00" {...field} value={field.value ?? ''} onChange={field.onChange} />
+                      </FormControl>
+                      <FormDescription>
+                        The profit generated from selling one unit of this item. Used for analytics.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -633,5 +651,3 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
     </Form>
   );
 }
-
-    
