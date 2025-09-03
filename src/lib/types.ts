@@ -124,6 +124,7 @@ export type ShippingPartner = {
 };
 
 export type UiConfig = {
+    browserTitle?: string;
     headerCaptionType?: 'static' | 'carousel';
     headerCaptionStatic?: string;
     headerCaptionCarousel?: string[];

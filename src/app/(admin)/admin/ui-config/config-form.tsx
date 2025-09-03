@@ -33,6 +33,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MediaUploader } from '../media-uploader';
 
 const configFormSchema = z.object({
+  browserTitle: z.string().optional(),
   headerCaptionType: z.enum(['static', 'carousel']).optional(),
   headerCaptionStatic: z.string().optional(),
   headerCaptionCarousel: z.array(z.string().min(1, 'Carousel item cannot be empty')).optional(),
@@ -65,6 +66,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
   const form = useForm<ConfigFormValues>({
     resolver: zodResolver(configFormSchema),
     defaultValues: {
+      browserTitle: initialData?.browserTitle || '',
       headerCaptionType: initialData?.headerCaptionType || 'static',
       headerCaptionStatic: initialData?.headerCaptionStatic || '',
       headerCaptionCarousel: initialData?.headerCaptionCarousel || [],
@@ -128,13 +130,28 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Card>
-            <CardHeader><CardTitle>Brand Logo</CardTitle></CardHeader>
-            <CardContent>
+            <CardHeader><CardTitle>General</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+                 <FormField
+                    control={form.control}
+                    name="browserTitle"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Browser Title</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g. My Awesome Store" {...field} />
+                        </FormControl>
+                        <FormDescription>The text displayed in the browser tab.</FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
                 <FormField
                     control={form.control}
                     name="brandLogoUrl"
                     render={({ field }) => (
                         <FormItem>
+                             <FormLabel>Brand Logo</FormLabel>
                              <FormDescription>Upload your store logo. Recommended size: 200x100 pixels.</FormDescription>
                             <FormControl>
                                 <MediaUploader 
@@ -151,7 +168,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
             </CardContent>
         </Card>
         <div className="space-y-4">
-            <h3 className="text-lg font-medium">General</h3>
+            <h3 className="text-lg font-medium">Header &amp; Footer</h3>
             <FormField
               control={form.control}
               name="headerCaptionType"

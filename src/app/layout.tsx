@@ -1,12 +1,20 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/hooks/use-auth';
+import { getUiConfig } from '@/lib/firestore';
 
-export const metadata: Metadata = {
-  title: 'Jouwwinkel – Elevate your style',
-  description: 'A production-ready e-commerce web app built with Next.js, Firebase, and Tailwind CSS.',
-};
+const defaultTitle = 'Jouwwinkel – Elevate your style';
+const defaultDescription = 'A production-ready e-commerce web app built with Next.js, Firebase, and Tailwind CSS.';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await getUiConfig();
+  return {
+    title: config?.browserTitle || defaultTitle,
+    description: defaultDescription,
+  };
+}
 
 export default function RootLayout({
   children,
