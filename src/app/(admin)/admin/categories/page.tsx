@@ -1,3 +1,6 @@
+
+'use client';
+
 import {
     Card,
     CardContent,
@@ -5,63 +8,107 @@ import {
     CardHeader,
     CardTitle,
   } from '@/components/ui/card';
-  import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-  } from '@/components/ui/table';
-  import { Badge } from '@/components/ui/badge';
-  import { getCategories, getVariants } from '@/lib/firestore';
   import { CategoryForm } from './category-form';
   import { VariantForm } from './variant-form';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
+import { CategoryList } from './category-list';
+import { VariantList } from './variant-list';
+import { getCategories, getVariants } from '@/lib/firestore';
+import type { Category, Variant } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function PageSkeleton() {
+    return (
+        <div className="space-y-8">
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-6 w-1/3" />
+                    <Skeleton className="h-4 w-2/3" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-40 w-full" />
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-6 w-1/3" />
+                    <Skeleton className="h-4 w-2/3" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-40 w-full" />
+                </CardContent>
+            </Card>
+        </div>
+    )
+}
   
-  export default async function CategoriesAndVariantsPage() {
-    const [categories, variants] = await Promise.all([
-      getCategories({ activeOnly: false }),
-      getVariants()
-    ]);
+  export default function CategoriesAndVariantsPage() {
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+    const [isVariantModalOpen, setIsVariantModalOpen] = useState(false);
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [variants, setVariants] = useState<Variant[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchData = async () => {
+        try {
+             const [catData, varData] = await Promise.all([
+                getCategories({ activeOnly: false }),
+                getVariants()
+            ]);
+            setCategories(catData);
+            setVariants(varData);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const onDataChange = () => {
+        // Refetch data when changes are made in modals
+        fetchData();
+    }
+    
+    if (loading) {
+        return <PageSkeleton />;
+    }
   
     return (
       <div>
+        <CategoryList 
+            open={isCategoryModalOpen} 
+            onOpenChange={setIsCategoryModalOpen} 
+            categories={categories}
+            onCategoryUpdate={onDataChange}
+        />
+        <VariantList
+            open={isVariantModalOpen}
+            onOpenChange={setIsVariantModalOpen}
+            variants={variants}
+            onVariantUpdate={onDataChange}
+        />
+
         <h1 className="text-2xl font-bold mb-4">Categories & Variants</h1>
         <div className="grid gap-8">
           <Card>
             <CardHeader>
               <CardTitle>Manage Categories</CardTitle>
-              <CardDescription>Add, edit, and organize your product categories.</CardDescription>
+              <CardDescription>Add new product categories.</CardDescription>
             </CardHeader>
             <CardContent className="grid md:grid-cols-2 gap-8">
               <div>
-                <CategoryForm />
+                <CategoryForm onCategoryAdded={onDataChange} />
               </div>
-              <div>
-                <h3 className="font-semibold mb-4">Existing Categories</h3>
-                <div className="border rounded-md">
-                    <Table>
-                    <TableHeader>
-                        <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Status</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {categories.map((cat) => (
-                        <TableRow key={cat.id}>
-                            <TableCell className="font-medium">{cat.name}</TableCell>
-                            <TableCell>
-                            <Badge variant={cat.active ? 'default' : 'outline'}>
-                                {cat.active ? 'Active' : 'Inactive'}
-                            </Badge>
-                            </TableCell>
-                        </TableRow>
-                        ))}
-                    </TableBody>
-                    </Table>
-                </div>
+              <div className="flex flex-col items-start justify-center border-l pl-8">
+                 <h3 className="font-semibold mb-2">Manage Existing</h3>
+                 <p className="text-sm text-muted-foreground mb-4">Edit names or toggle the status of your existing categories.</p>
+                 <Button variant="outline" onClick={() => setIsCategoryModalOpen(true)}>Manage Categories ({categories.length})</Button>
               </div>
             </CardContent>
           </Card>
@@ -71,38 +118,16 @@ import { Separator } from '@/components/ui/separator';
           <Card>
              <CardHeader>
               <CardTitle>Manage Variants</CardTitle>
-              <CardDescription>Create and manage product variants like Size or Color.</CardDescription>
+              <CardDescription>Create new product variants like Size or Color.</CardDescription>
             </CardHeader>
             <CardContent className="grid md:grid-cols-2 gap-8">
                <div>
-                <VariantForm />
+                <VariantForm onVariantAdded={onDataChange} />
               </div>
-              <div>
-                <h3 className="font-semibold mb-4">Existing Variants</h3>
-                <div className="border rounded-md">
-                    <Table>
-                    <TableHeader>
-                        <TableRow>
-                        <TableHead>Name</TableHead>
-                        <TableHead>Options</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {variants.map((variant) => (
-                        <TableRow key={variant.id}>
-                            <TableCell className="font-medium">{variant.name}</TableCell>
-                            <TableCell>
-                                <div className="flex flex-wrap gap-1">
-                                    {variant.options.map(option => (
-                                        <Badge key={option} variant="secondary">{option}</Badge>
-                                    ))}
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                        ))}
-                    </TableBody>
-                    </Table>
-                </div>
+               <div className="flex flex-col items-start justify-center border-l pl-8">
+                 <h3 className="font-semibold mb-2">Manage Existing</h3>
+                 <p className="text-sm text-muted-foreground mb-4">Edit names, options, or delete existing variants.</p>
+                 <Button variant="outline" onClick={() => setIsVariantModalOpen(true)}>Manage Variants ({variants.length})</Button>
               </div>
             </CardContent>
           </Card>

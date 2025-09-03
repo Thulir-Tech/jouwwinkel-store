@@ -2,7 +2,7 @@
 import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction, getDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon } from './types';
+import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon, Category } from './types';
 import { getProductsByIds } from './firestore';
 
 function slugify(text: string) {
@@ -167,6 +167,15 @@ export async function addCategory(category: { name: string }) {
     });
 }
 
+export async function updateCategory(id: string, data: Partial<Omit<Category, 'id' | 'slug'>>) {
+    const categoryRef = doc(db, 'categories', id);
+    const updateData: Partial<Category> = { ...data };
+    if (data.name) {
+        updateData.slug = slugify(data.name);
+    }
+    await updateDoc(categoryRef, updateData);
+}
+
 export async function addVariant(variant: { name: string, options: string[] }) {
     await addDoc(collection(db, 'variants'), {
         name: variant.name,
@@ -174,13 +183,22 @@ export async function addVariant(variant: { name: string, options: string[] }) {
     });
 }
 
-export async function addCheckout(checkout: Omit<Checkout, 'id' | 'createdAt' | 'status' | 'orderId'>) {
+export async function updateVariant(id: string, data: Partial<Omit<Variant, 'id'>>) {
+    const variantRef = doc(db, 'variants', id);
+    await updateDoc(variantRef, data);
+}
+
+export async function deleteVariant(id: string) {
+    await deleteDoc(doc(db, 'variants', id));
+}
+
+export async function addCheckout(checkoutData: Omit<Checkout, 'id' | 'createdAt' | 'status' | 'orderId'>) {
     const checkoutsRef = collection(db, 'checkouts');
     
-    const productIds = checkout.items.map(item => item.productId);
+    const productIds = checkoutData.items.map(item => item.productId);
     const productsData = await getProductsByIds(productIds);
 
-    const itemsWithFullData = checkout.items.map(item => {
+    const itemsWithFullData = checkoutData.items.map(item => {
         const product = productsData.find(p => p.id === item.productId);
         return {
             ...item,
@@ -190,27 +208,37 @@ export async function addCheckout(checkout: Omit<Checkout, 'id' | 'createdAt' | 
         };
     });
 
-    if (checkout.userId && checkout.mobile) {
-        const userRef = doc(db, 'users', checkout.userId);
-        await setDoc(userRef, { mobile: checkout.mobile }, { merge: true });
+    if (checkoutData.userId && checkoutData.mobile) {
+        const userRef = doc(db, 'users', checkoutData.userId);
+        await setDoc(userRef, { mobile: checkoutData.mobile }, { merge: true });
     }
-
-    const baseCheckoutData = {
-        ...checkout,
+    
+    // Construct the checkout data carefully to avoid undefined fields
+    const finalCheckoutData: any = {
+        ...checkoutData,
         items: itemsWithFullData,
         orderId: generateOrderId(),
         createdAt: Date.now(),
-        status: 'pending' as const,
+        status: 'pending',
     };
-    
-    const sanitizedCheckoutData: { [key: string]: any } = {};
-    for (const key in baseCheckoutData) {
-        if (baseCheckoutData[key as keyof typeof baseCheckoutData] !== undefined) {
-            sanitizedCheckoutData[key] = baseCheckoutData[key as keyof typeof baseCheckoutData];
-        }
-    }
 
-    await addDoc(checkoutsRef, sanitizedCheckoutData);
+    // Only add coupon fields if a coupon is applied
+    if (checkoutData.couponCode) {
+        finalCheckoutData.couponCode = checkoutData.couponCode;
+        finalCheckoutData.discountAmount = checkoutData.discountAmount;
+        finalCheckoutData.totalAfterDiscount = checkoutData.totalAfterDiscount;
+    } else {
+        finalCheckoutData.totalAfterDiscount = checkoutData.total;
+    }
+    
+    // Remove any top-level undefined fields as a final safeguard
+    Object.keys(finalCheckoutData).forEach(key => {
+        if (finalCheckoutData[key] === undefined) {
+            delete finalCheckoutData[key];
+        }
+    });
+
+    await addDoc(checkoutsRef, finalCheckoutData);
 }
 
 

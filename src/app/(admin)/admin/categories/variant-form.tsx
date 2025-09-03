@@ -15,9 +15,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { addVariant } from '@/lib/firestore.admin';
+import { addVariant, updateVariant } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import type { Variant } from '@/lib/types';
+import { useEffect } from 'react';
 
 const variantFormSchema = z.object({
   name: z.string().min(1, {
@@ -30,9 +31,14 @@ const variantFormSchema = z.object({
 
 type VariantFormValues = z.infer<typeof variantFormSchema>;
 
-export function VariantForm() {
+interface VariantFormProps {
+    variant?: Variant;
+    onVariantAdded?: () => void;
+    onVariantUpdated?: () => void;
+}
+
+export function VariantForm({ variant, onVariantAdded, onVariantUpdated }: VariantFormProps) {
   const { toast } = useToast();
-  const router = useRouter();
   const form = useForm<VariantFormValues>({
     resolver: zodResolver(variantFormSchema),
     defaultValues: {
@@ -41,6 +47,15 @@ export function VariantForm() {
     },
   });
 
+  useEffect(() => {
+    if (variant) {
+        form.reset({
+            name: variant.name,
+            options: variant.options.join(', ')
+        });
+    }
+  }, [variant, form]);
+
   const onSubmit = async (data: VariantFormValues) => {
     try {
       const optionsArray = data.options.split(',').map(opt => opt.trim()).filter(Boolean);
@@ -48,16 +63,25 @@ export function VariantForm() {
         form.setError('options', { message: 'Please enter at least one option.' });
         return;
       }
+      
+      const payload = { name: data.name, options: optionsArray };
 
-      await addVariant({ name: data.name, options: optionsArray });
-      toast({ title: 'Variant added successfully' });
-      form.reset();
-      router.refresh();
+      if (variant) {
+        await updateVariant(variant.id, payload);
+        toast({ title: 'Variant updated successfully' });
+        if (onVariantUpdated) onVariantUpdated();
+      } else {
+        await addVariant(payload);
+        toast({ title: 'Variant added successfully' });
+        form.reset();
+        if (onVariantAdded) onVariantAdded();
+      }
+
     } catch (error) {
       console.error(error);
       toast({
         title: 'Error',
-        description: 'An error occurred while adding the variant.',
+        description: 'An error occurred while saving the variant.',
         variant: 'destructive',
       });
     }
@@ -66,7 +90,7 @@ export function VariantForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <h3 className="font-semibold">Add New Variant Type</h3>
+        <h3 className="font-semibold">{variant ? 'Edit Variant' : 'Add New Variant Type'}</h3>
         <FormField
           control={form.control}
           name="name"
@@ -95,7 +119,7 @@ export function VariantForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Add Variant</Button>
+        <Button type="submit">{variant ? 'Save Changes' : 'Add Variant'}</Button>
       </form>
     </Form>
   );
