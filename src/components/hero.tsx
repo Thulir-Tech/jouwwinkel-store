@@ -30,7 +30,7 @@ const DefaultHero = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig
               <Link href="/products">Shop All</Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link href="/products?tag=combo">View Combos</Link>
+              <Link href="/combos">View Combos</Link>
             </Button>
           </div>
         </div>
