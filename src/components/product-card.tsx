@@ -1,6 +1,5 @@
 
 
-
 'use client';
 
 import Image from 'next/image';
@@ -65,7 +64,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   alt={product.title}
                   width={400}
                   height={400}
-                  className="h-64 w-full object-cover"
+                  className="aspect-square w-full object-cover"
                   data-ai-hint="product photo"
                 />
               {product.onSale && (
@@ -74,12 +73,12 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </Badge>
               )}
             </CardHeader>
-            <CardContent className="flex-grow p-4">
-              <CardTitle className="mb-2 h-14 text-lg font-semibold leading-tight line-clamp-2 font-headline">
+            <CardContent className="flex-grow p-4 space-y-1">
+              <CardTitle className="text-lg font-semibold leading-tight line-clamp-2 font-headline">
                 {product.title}
               </CardTitle>
               {product.rating && (
-                <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   <div className="flex text-yellow-500">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className={`h-4 w-4 ${i < (product.rating || 0) ? 'fill-current' : ''}`} />
