@@ -122,15 +122,18 @@ export default function CheckoutPage() {
 
     const onSubmit = async (data: CheckoutFormValues) => {
         try {
-            await addCheckout({
+            const checkoutData = {
                 ...data,
                 items: items,
                 total,
                 userId: user?.uid,
-                couponCode: couponCode || undefined,
-                discountAmount: discountAmount || undefined,
-                totalAfterDiscount: totalAfterDiscount,
-            });
+                ...(couponCode && { couponCode }),
+                ...(discountAmount && { discountAmount }),
+                ...(totalAfterDiscount && { totalAfterDiscount }),
+            };
+            
+            await addCheckout(checkoutData);
+
             toast({
                 title: 'Order placed successfully!',
                 description: 'Thank you for your purchase.',

@@ -177,7 +177,6 @@ export async function addVariant(variant: { name: string, options: string[] }) {
 export async function addCheckout(checkout: Omit<Checkout, 'id' | 'createdAt' | 'status' | 'orderId'>) {
     const checkoutsRef = collection(db, 'checkouts');
     
-    // Fetch full product data to include profit/revenue
     const productIds = checkout.items.map(item => item.productId);
     const productsData = await getProductsByIds(productIds);
 
@@ -191,29 +190,27 @@ export async function addCheckout(checkout: Omit<Checkout, 'id' | 'createdAt' | 
         };
     });
 
-    const checkoutData: { [key: string]: any } = { ...checkout, items: itemsWithFullData };
-
-    // Also update the user's profile with their mobile number if available
     if (checkout.userId && checkout.mobile) {
         const userRef = doc(db, 'users', checkout.userId);
         await setDoc(userRef, { mobile: checkout.mobile }, { merge: true });
     }
 
-    const finalCheckoutData = {
-        ...checkoutData,
+    const baseCheckoutData = {
+        ...checkout,
+        items: itemsWithFullData,
         orderId: generateOrderId(),
         createdAt: Date.now(),
-        status: 'pending', // Initial status
+        status: 'pending' as const,
     };
-
-    // Sanitize the final object to remove any undefined fields before writing to Firestore
-    Object.keys(finalCheckoutData).forEach(key => {
-        if (finalCheckoutData[key] === undefined) {
-            delete finalCheckoutData[key];
+    
+    const sanitizedCheckoutData: { [key: string]: any } = {};
+    for (const key in baseCheckoutData) {
+        if (baseCheckoutData[key as keyof typeof baseCheckoutData] !== undefined) {
+            sanitizedCheckoutData[key] = baseCheckoutData[key as keyof typeof baseCheckoutData];
         }
-    });
+    }
 
-    await addDoc(checkoutsRef, finalCheckoutData);
+    await addDoc(checkoutsRef, sanitizedCheckoutData);
 }
 
 
