@@ -192,11 +192,6 @@ export async function addCheckout(checkout: Omit<Checkout, 'id' | 'createdAt' | 
     });
 
     const checkoutData: { [key: string]: any } = { ...checkout, items: itemsWithFullData };
-    Object.keys(checkoutData).forEach(key => {
-        if (checkoutData[key] === undefined) {
-            delete checkoutData[key];
-        }
-    });
 
     // Also update the user's profile with their mobile number if available
     if (checkout.userId && checkout.mobile) {
@@ -204,12 +199,21 @@ export async function addCheckout(checkout: Omit<Checkout, 'id' | 'createdAt' | 
         await setDoc(userRef, { mobile: checkout.mobile }, { merge: true });
     }
 
-    await addDoc(checkoutsRef, {
+    const finalCheckoutData = {
         ...checkoutData,
         orderId: generateOrderId(),
         createdAt: Date.now(),
         status: 'pending', // Initial status
+    };
+
+    // Sanitize the final object to remove any undefined fields before writing to Firestore
+    Object.keys(finalCheckoutData).forEach(key => {
+        if (finalCheckoutData[key] === undefined) {
+            delete finalCheckoutData[key];
+        }
     });
+
+    await addDoc(checkoutsRef, finalCheckoutData);
 }
 
 
@@ -368,5 +372,3 @@ export function uploadFile(
       );
     });
 }
-
-    
