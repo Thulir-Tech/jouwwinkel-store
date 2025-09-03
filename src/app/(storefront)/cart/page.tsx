@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { validateAndApplyCoupon } from '@/lib/firestore';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export default function CartPage() {
   const { 
@@ -28,7 +29,7 @@ export default function CartPage() {
     discountAmount,
     totalAfterDiscount
   } = useCartStore();
-  const { user } = useAuth();
+  const { user, uiConfig } = useAuth();
   const { toast } = useToast();
   const [couponInput, setCouponInput] = useState('');
   const [loadingCoupon, setLoadingCoupon] = useState(false);
@@ -52,6 +53,8 @@ export default function CartPage() {
     removeCoupon();
     toast({ title: "Coupon removed." });
   }
+
+  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
 
   if (count === 0) {
     return (
@@ -83,7 +86,7 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {items.map(item => (
-            <div key={item.id} className="flex items-center gap-4 p-4 border rounded-lg bg-card">
+            <div key={item.id} className={cn("flex items-center gap-4 p-4 border rounded-lg", cardColorClass)}>
               <Image
                 src={item.image || 'https://placehold.co/100x100.png'}
                 alt={item.title}
@@ -120,7 +123,7 @@ export default function CartPage() {
           ))}
         </div>
         <div className="lg:col-span-1">
-          <div className="p-6 border rounded-lg bg-card sticky top-24">
+          <div className={cn("p-6 border rounded-lg sticky top-24", cardColorClass)}>
             <h2 className="text-xl font-bold mb-4 font-headline">Order Summary</h2>
             <div className="space-y-2">
                 <div className="flex justify-between">

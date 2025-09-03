@@ -4,12 +4,14 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, sendPasswordResetEmail, User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase.client';
-import type { User } from '@/lib/types';
+import type { User, UiConfig } from '@/lib/types';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { getUiConfig } from '@/lib/firestore';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  uiConfig: UiConfig | null;
   signInWithEmail: (email: string, password: string) => Promise<any>;
   signUpWithEmail: (name: string, email: string, password: string) => Promise<any>;
   signInWithGoogle: () => Promise<any>;
@@ -46,6 +48,7 @@ const updateUserProfile = async (firebaseUser: FirebaseUser) => {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uiConfig, setUiConfig] = useState<UiConfig | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -57,6 +60,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setLoading(false);
     });
+
+    async function fetchConfig() {
+        const config = await getUiConfig();
+        setUiConfig(config);
+    }
+    fetchConfig();
 
     return () => unsubscribe();
   }, []);
@@ -97,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     user,
     loading,
+    uiConfig,
     signInWithEmail,
     signUpWithEmail,
     signInWithGoogle,

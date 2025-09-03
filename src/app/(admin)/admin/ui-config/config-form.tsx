@@ -34,6 +34,7 @@ import { MediaUploader } from '../media-uploader';
 
 const configFormSchema = z.object({
   browserTitle: z.string().optional(),
+  cardColor: z.enum(['white', 'theme']).optional(),
   headerCaptionType: z.enum(['static', 'carousel']).optional(),
   headerCaptionStatic: z.string().optional(),
   headerCaptionCarousel: z.array(z.string().min(1, 'Carousel item cannot be empty')).optional(),
@@ -67,6 +68,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     resolver: zodResolver(configFormSchema),
     defaultValues: {
       browserTitle: initialData?.browserTitle || '',
+      cardColor: initialData?.cardColor || 'white',
       headerCaptionType: initialData?.headerCaptionType || 'static',
       headerCaptionStatic: initialData?.headerCaptionStatic || '',
       headerCaptionCarousel: initialData?.headerCaptionCarousel || [],
@@ -143,6 +145,28 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                         </FormControl>
                         <FormDescription>The text displayed in the browser tab.</FormDescription>
                         <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="cardColor"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Storefront Card Color</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select card color" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                    <SelectItem value="white">White</SelectItem>
+                                    <SelectItem value="theme">Theme Background</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormDescription>The background color for product and login cards on your site.</FormDescription>
+                            <FormMessage />
                         </FormItem>
                     )}
                 />

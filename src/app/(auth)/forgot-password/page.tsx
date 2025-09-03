@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +18,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
@@ -25,7 +27,7 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
-  const { sendPasswordReset } = useAuth();
+  const { sendPasswordReset, uiConfig } = useAuth();
   const { toast } = useToast();
 
   const form = useForm<ForgotPasswordFormValues>({
@@ -57,9 +59,11 @@ export default function ForgotPasswordPage() {
     }
   };
 
+  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-background';
+
   return (
     <div className="flex min-h-[calc(100vh-128px)] items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md bg-white">
+      <Card className={cn("w-full max-w-md", cardColorClass)}>
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold font-headline">Forgot Your Password?</CardTitle>
           <CardDescription>No worries. Enter your email and we'll send you a reset link.</CardDescription>

@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { useCartStore } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
+import { cn } from '@/lib/utils';
 
 interface ComboCardProps {
   combo: Combo;
@@ -19,6 +21,7 @@ interface ComboCardProps {
 export default function ComboCard({ combo }: ComboCardProps) {
   const { addToCart } = useCartStore();
   const { toast } = useToast();
+  const { uiConfig } = useAuth();
   
   const showCompareAtPrice = combo.compareAtPrice && combo.compareAtPrice > combo.price;
 
@@ -40,8 +43,10 @@ export default function ComboCard({ combo }: ComboCardProps) {
     });
   };
 
+  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+
   return (
-    <Card className="flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl">
+    <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl", cardColorClass)}>
       <Link href={`/combos/${combo.slug}`} className="block h-full">
           <CardHeader className="p-0 relative">
               <Image

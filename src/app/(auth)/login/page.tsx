@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
@@ -35,7 +37,7 @@ const GoogleIcon = () => (
 
 
 export default function CustomerLoginPage() {
-  const { signInWithEmail, signInWithGoogle } = useAuth();
+  const { signInWithEmail, signInWithGoogle, uiConfig } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -81,9 +83,11 @@ export default function CustomerLoginPage() {
     }
   }
 
+  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-background';
+
   return (
     <div className="flex min-h-[calc(100vh-128px)] items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md bg-white">
+      <Card className={cn("w-full max-w-md", cardColorClass)}>
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold font-headline">Welcome Back</CardTitle>
           <CardDescription>Sign in to continue to your account.</CardDescription>
@@ -132,7 +136,7 @@ export default function CustomerLoginPage() {
                 <Separator />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">Or continue with</span>
+                <span className={cn("px-2 text-muted-foreground", cardColorClass)}>Or continue with</span>
             </div>
           </div>
           <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>

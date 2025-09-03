@@ -125,6 +125,7 @@ export type ShippingPartner = {
 
 export type UiConfig = {
     browserTitle?: string;
+    cardColor?: 'white' | 'theme';
     headerCaptionType?: 'static' | 'carousel';
     headerCaptionStatic?: string;
     headerCaptionCarousel?: string[];

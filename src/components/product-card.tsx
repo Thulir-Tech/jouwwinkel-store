@@ -14,6 +14,8 @@ import { useState } from 'react';
 import AddToCartDialog from './add-to-cart-dialog';
 import { useCartStore } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
+import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
   product: Product;
@@ -23,6 +25,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { addToCart } = useCartStore();
   const { toast } = useToast();
+  const { uiConfig } = useAuth();
   
   const showCompareAtPrice = product.compareAtPrice && product.compareAtPrice > product.price;
 
@@ -47,6 +50,8 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   };
 
+  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+
   return (
     <>
       {product.hasVariants && (
@@ -56,7 +61,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           onOpenChange={setIsDialogOpen}
         />
       )}
-      <Card className="flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl">
+      <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl", cardColorClass)}>
         <Link href={`/products/${product.slug}`} className="block h-full">
             <CardHeader className="p-0 relative">
                 <Image
@@ -73,7 +78,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </Badge>
               )}
             </CardHeader>
-            <CardContent className="flex-grow p-4 space-y-1">
+            <CardContent className="flex-grow p-4 space-y-2">
               <CardTitle className="text-lg font-semibold leading-tight line-clamp-2 font-headline">
                 {product.title}
               </CardTitle>

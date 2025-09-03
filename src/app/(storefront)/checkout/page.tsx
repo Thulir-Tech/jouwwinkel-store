@@ -36,6 +36,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { getProduct, getProductsByIds } from '@/lib/firestore';
+import { cn } from '@/lib/utils';
 
 
 const checkoutFormSchema = z.object({
@@ -81,7 +82,7 @@ export default function CheckoutPage() {
         discountAmount,
         totalAfterDiscount,
     } = useCartStore();
-    const { user, loading } = useAuth();
+    const { user, loading, uiConfig } = useAuth();
     const router = useRouter();
     const { toast } = useToast();
 
@@ -158,6 +159,8 @@ export default function CheckoutPage() {
         }
     };
 
+    const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+
     if (loading || count === 0) {
         return (
             <div className="container mx-auto px-4 py-12">
@@ -174,7 +177,7 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                         <div className="space-y-8">
                            {/* Contact Information */}
-                            <Card>
+                            <Card className={cardColorClass}>
                                 <CardContent className="pt-6">
                                     <h2 className="text-xl font-semibold mb-4 font-headline">Contact Information</h2>
                                     <div className="space-y-4">
@@ -209,7 +212,7 @@ export default function CheckoutPage() {
                             </Card>
 
                             {/* Shipping Address */}
-                             <Card>
+                             <Card className={cardColorClass}>
                                 <CardContent className="pt-6">
                                     <h2 className="text-xl font-semibold mb-4 font-headline">Shipping Address</h2>
                                     <div className="space-y-4">
@@ -248,7 +251,7 @@ export default function CheckoutPage() {
                             </Card>
 
                              {/* Payment Method */}
-                            <Card>
+                            <Card className={cardColorClass}>
                                 <CardContent className="pt-6">
                                     <h2 className="text-xl font-semibold mb-4 font-headline">Payment Method</h2>
                                     <FormField
@@ -276,7 +279,7 @@ export default function CheckoutPage() {
                             </Card>
                         </div>
                         <div className="lg:col-span-1">
-                            <Card className="sticky top-24">
+                            <Card className={cn("sticky top-24", cardColorClass)}>
                                <CardContent className="pt-6">
                                 <h2 className="text-xl font-semibold mb-4 font-headline">Order Summary</h2>
                                 <div className="space-y-4">
@@ -324,5 +327,3 @@ export default function CheckoutPage() {
         </div>
     )
 }
-
-    
