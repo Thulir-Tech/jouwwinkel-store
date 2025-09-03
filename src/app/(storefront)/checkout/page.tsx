@@ -122,15 +122,22 @@ export default function CheckoutPage() {
 
     const onSubmit = async (data: CheckoutFormValues) => {
         try {
-            const checkoutData = {
+            // Construct the checkout data carefully to avoid undefined fields
+            const checkoutData: any = {
                 ...data,
-                items: items,
+                items,
                 total,
                 userId: user?.uid,
-                ...(couponCode && { couponCode }),
-                ...(discountAmount && { discountAmount }),
-                ...(totalAfterDiscount && { totalAfterDiscount }),
             };
+
+            // Only add coupon fields if a coupon is applied
+            if (couponCode) {
+                checkoutData.couponCode = couponCode;
+                checkoutData.discountAmount = discountAmount;
+                checkoutData.totalAfterDiscount = totalAfterDiscount;
+            } else {
+                 checkoutData.totalAfterDiscount = total;
+            }
             
             await addCheckout(checkoutData);
 
@@ -317,3 +324,5 @@ export default function CheckoutPage() {
         </div>
     )
 }
+
+    
