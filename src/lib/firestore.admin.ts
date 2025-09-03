@@ -232,7 +232,7 @@ export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: Ca
             return transaction.get(doc(db, 'products', item.productId));
         }).filter(Boolean);
 
-        const productDocs = await Promise.all(productReads);
+        const productDocs = await Promise.all(productReads as Promise<any>[]);
         
         const productUpdates: { ref: any, data: any }[] = [];
         for (let i = 0; i < itemsToUpdate.length; i++) {
@@ -368,3 +368,5 @@ export function uploadFile(
       );
     });
 }
+
+    
