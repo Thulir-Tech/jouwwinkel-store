@@ -35,8 +35,9 @@ import { addCheckout } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
-import { getProduct, getProductsByIds } from '@/lib/firestore';
+import { getUser, getProduct, getProductsByIds } from '@/lib/firestore';
 import { cn } from '@/lib/utils';
+import type { ShippingAddress } from '@/lib/types';
 
 
 const checkoutFormSchema = z.object({
@@ -105,11 +106,10 @@ export default function CheckoutPage() {
     useEffect(() => {
         if (!loading && user) {
             form.setValue('email', user.email || '');
-            if (user.displayName) {
-                form.setValue('shippingAddress.name', user.displayName);
-            }
-            if(user.mobile) {
-                form.setValue('mobile', user.mobile);
+            form.setValue('shippingAddress.name', user.displayName || '');
+            form.setValue('mobile', user.mobile || '');
+            if (user.shippingAddress) {
+                form.setValue('shippingAddress', user.shippingAddress);
             }
         }
     }, [user, loading, form]);
@@ -123,7 +123,6 @@ export default function CheckoutPage() {
 
     const onSubmit = async (data: CheckoutFormValues) => {
         try {
-            // Construct the checkout data carefully to avoid undefined fields
             const checkoutData: any = {
                 ...data,
                 items,

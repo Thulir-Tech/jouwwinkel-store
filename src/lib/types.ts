@@ -83,19 +83,22 @@ export type CartItem = {
   isCombo?: boolean;
 };
 
+export type ShippingAddress = {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+};
+
+
 export type Checkout = {
     id: string;
     orderId: string;
     email: string;
     mobile: string;
-    shippingAddress: {
-        name: string;
-        address: string;
-        city: string;
-        state: string;
-        zip: string;
-        country: string;
-    };
+    shippingAddress: ShippingAddress;
     paymentMethod: 'cod' | 'upi';
     items: CartItem[];
     total: number;
@@ -113,7 +116,8 @@ export type Checkout = {
 export interface User extends FirebaseUser {
     uid: string; // Ensure uid is not nullable
     isAdmin: boolean;
-    mobile?: string; // Add mobile to user type
+    mobile?: string;
+    shippingAddress?: ShippingAddress;
     createdAt: number;
 }
 

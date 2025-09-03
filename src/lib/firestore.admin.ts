@@ -2,7 +2,7 @@
 import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction, getDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon, Category } from './types';
+import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon, Category, ShippingAddress } from './types';
 import { getProductsByIds } from './firestore';
 
 function slugify(text: string) {
@@ -195,10 +195,18 @@ export async function deleteVariant(id: string) {
 export async function addCheckout(checkoutData: Omit<Checkout, 'id' | 'createdAt' | 'status' | 'orderId'>) {
     const checkoutsRef = collection(db, 'checkouts');
     
-    const productIds = checkoutData.items.map(item => item.productId);
+    // Sanitize the incoming data to remove any top-level undefined fields
+    const finalCheckoutData: { [key: string]: any } = {};
+    for (const key in checkoutData) {
+        if ((checkoutData as any)[key] !== undefined) {
+            (finalCheckoutData as any)[key] = (checkoutData as any)[key];
+        }
+    }
+
+    const productIds = finalCheckoutData.items.map((item: CartItem) => item.productId);
     const productsData = await getProductsByIds(productIds);
 
-    const itemsWithFullData = checkoutData.items.map(item => {
+    const itemsWithFullData = finalCheckoutData.items.map((item: CartItem) => {
         const product = productsData.find(p => p.id === item.productId);
         return {
             ...item,
@@ -208,35 +216,22 @@ export async function addCheckout(checkoutData: Omit<Checkout, 'id' | 'createdAt
         };
     });
 
-    if (checkoutData.userId && checkoutData.mobile) {
-        const userRef = doc(db, 'users', checkoutData.userId);
-        await setDoc(userRef, { mobile: checkoutData.mobile }, { merge: true });
-    }
-    
-    // Construct the checkout data carefully to avoid undefined fields
-    const finalCheckoutData: any = {
-        ...checkoutData,
-        items: itemsWithFullData,
-        orderId: generateOrderId(),
-        createdAt: Date.now(),
-        status: 'pending',
-    };
+    finalCheckoutData.items = itemsWithFullData;
+    finalCheckoutData.orderId = generateOrderId();
+    finalCheckoutData.createdAt = Date.now();
+    finalCheckoutData.status = 'pending';
 
-    // Only add coupon fields if a coupon is applied
-    if (checkoutData.couponCode) {
-        finalCheckoutData.couponCode = checkoutData.couponCode;
-        finalCheckoutData.discountAmount = checkoutData.discountAmount;
-        finalCheckoutData.totalAfterDiscount = checkoutData.totalAfterDiscount;
-    } else {
-        finalCheckoutData.totalAfterDiscount = checkoutData.total;
+    if (finalCheckoutData.userId && finalCheckoutData.mobile) {
+        const userRef = doc(db, 'users', finalCheckoutData.userId);
+        await setDoc(userRef, { mobile: finalCheckoutData.mobile }, { merge: true });
     }
     
-    // Remove any top-level undefined fields as a final safeguard
-    Object.keys(finalCheckoutData).forEach(key => {
-        if (finalCheckoutData[key] === undefined) {
-            delete finalCheckoutData[key];
-        }
-    });
+    // Only add coupon fields if a coupon is applied
+    if (!finalCheckoutData.couponCode) {
+        finalCheckoutData.totalAfterDiscount = finalCheckoutData.total;
+        delete finalCheckoutData.couponCode;
+        delete finalCheckoutData.discountAmount;
+    }
 
     await addDoc(checkoutsRef, finalCheckoutData);
 }
@@ -363,12 +358,23 @@ export async function updateUiConfig(config: Partial<UiConfig>) {
     await setDoc(configRef, config, { merge: true });
 }
 
-// Get all users
+// Users
 export async function getUsers(): Promise<User[]> {
     const usersRef = collection(db, 'users');
     const q = query(usersRef, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => ({ ...doc.data() } as User));
+}
+
+export async function updateUserProfile(userId: string, data: { displayName?: string, mobile?: string, shippingAddress?: ShippingAddress }) {
+    const userRef = doc(db, 'users', userId);
+    const updateData: { [key: string]: any } = {};
+
+    if (data.displayName) updateData.displayName = data.displayName;
+    if (data.mobile) updateData.mobile = data.mobile;
+    if (data.shippingAddress) updateData.shippingAddress = data.shippingAddress;
+    
+    await updateDoc(userRef, updateData);
 }
 
 // File Upload

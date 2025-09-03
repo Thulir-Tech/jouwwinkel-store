@@ -1,7 +1,7 @@
 
 import { db } from './firebase.client';
 import { collection, getDocs, query, limit as firestoreLimit, orderBy, where, getDoc, doc } from 'firebase/firestore';
-import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant, Combo, Coupon } from './types';
+import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant, Combo, Coupon, User } from './types';
 
 // A helper function to safely get data from a snapshot
 function getData<T>(snapshot: any): T[] {
@@ -198,6 +198,16 @@ export async function getUiConfig(): Promise<UiConfig | null> {
 
     if (docSnap.exists()) {
         return docSnap.data() as UiConfig;
+    }
+    return null;
+}
+
+export async function getUser(id: string): Promise<User | null> {
+    const docRef = doc(db, "users", id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        return { ...docSnap.data() } as User;
     }
     return null;
 }
