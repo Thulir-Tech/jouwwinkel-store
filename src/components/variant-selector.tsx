@@ -5,6 +5,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import type { Product } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { useAuth } from '@/hooks/use-auth';
+import { cn } from '@/lib/utils';
 
 interface VariantSelectorProps {
   product: Product;
@@ -13,6 +15,8 @@ interface VariantSelectorProps {
 }
 
 export default function VariantSelector({ product, selectedVariants, onVariantChange }: VariantSelectorProps) {
+  const { uiConfig } = useAuth();
+  
   if (!product.hasVariants) {
     return null;
   }
@@ -23,11 +27,13 @@ export default function VariantSelector({ product, selectedVariants, onVariantCh
       [variantName]: option,
     });
   };
+  
+  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
 
   return (
     <div className="space-y-4">
       {product.variants.map((variant) => (
-        <Card key={variant.variantId} className="bg-primary/5 border-primary/20">
+        <Card key={variant.variantId} className={cn(cardColorClass, "border-primary/20")}>
             <CardHeader className="p-4">
                 <CardTitle className="text-base font-semibold">Select {variant.variantName}</CardTitle>
             </CardHeader>
