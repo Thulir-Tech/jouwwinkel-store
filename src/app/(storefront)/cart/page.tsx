@@ -86,13 +86,13 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {items.map(item => (
-            <div key={item.id} className={cn("flex items-center gap-4 p-4 border rounded-lg", cardColorClass)}>
+            <div key={item.id} className={cn("flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 border rounded-lg", cardColorClass)}>
               <Image
                 src={item.image || 'https://placehold.co/100x100.png'}
                 alt={item.title}
                 width={100}
                 height={100}
-                className="rounded-md object-cover"
+                className="rounded-md object-cover flex-shrink-0"
                 data-ai-hint="product image"
               />
               <div className="flex-grow">
@@ -100,25 +100,29 @@ export default function CartPage() {
                 {item.variantLabel && <p className="text-sm text-muted-foreground capitalize">{item.variantLabel}</p>}
                 <p className="text-sm text-muted-foreground font-sans">₹{formatCurrency(item.price)}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <Input
-                  type="number"
-                  value={item.quantity}
-                  onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
-                  className="h-8 w-14 text-center"
-                  min="1"
-                />
-                <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
-                  <Plus className="h-4 w-4" />
-                </Button>
+              <div className="flex items-center gap-4 ml-auto">
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                    <Minus className="h-4 w-4" />
+                    </Button>
+                    <Input
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
+                    className="h-8 w-14 text-center"
+                    min="1"
+                    />
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                    <Plus className="h-4 w-4" />
+                    </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                    <p className="font-semibold w-20 text-right font-sans">₹{formatCurrency(item.price * item.quantity)}</p>
+                    <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)} aria-label="Remove item">
+                        <Trash2 className="h-5 w-5 text-destructive" />
+                    </Button>
+                </div>
               </div>
-              <p className="font-semibold w-24 text-right font-sans">₹{formatCurrency(item.price * item.quantity)}</p>
-              <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.id)} aria-label="Remove item">
-                <Trash2 className="h-5 w-5 text-destructive" />
-              </Button>
             </div>
           ))}
         </div>
