@@ -41,7 +41,7 @@ export default function VariantSelector({ product, selectedVariants, onVariantCh
                  <RadioGroup
                     value={selectedVariants[variant.variantName] || ''}
                     onValueChange={(value) => handleSelection(variant.variantName, value)}
-                    className="flex flex-wrap gap-2"
+                    className="flex flex-wrap gap-x-2 gap-y-3"
                 >
                     {variant.options.map((option) => (
                     <div key={option}>
