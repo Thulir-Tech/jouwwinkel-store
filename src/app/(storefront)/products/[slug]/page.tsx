@@ -14,15 +14,22 @@ import { Skeleton } from '@/components/ui/skeleton';
 import AddToCartButton from './add-to-cart-button';
 import { FaWhatsapp } from 'react-icons/fa';
 import { FaCheckCircle } from 'react-icons/fa';
-import { ShoppingBag, Truck, MapPin } from 'lucide-react';
+import { ShoppingBag, Truck, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import VariantSelector from '@/components/variant-selector';
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
+import { cn } from '@/lib/utils';
 
 function ProductPageSkeleton() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
             <div>
                 <Skeleton className="w-full h-[400px] md:h-[600px] rounded-lg" />
+                 <div className="flex gap-2 mt-4">
+                    <Skeleton className="w-20 h-20 rounded-lg" />
+                    <Skeleton className="w-20 h-20 rounded-lg" />
+                    <Skeleton className="w-20 h-20 rounded-lg" />
+                </div>
             </div>
             <div className="flex flex-col space-y-4">
                 <Skeleton className="h-10 w-3/4" />
@@ -122,6 +129,79 @@ function DeliveryInfo() {
     )
 }
 
+function ProductImageCarousel({ images }: { images: string[] }) {
+    const [api, setApi] = useState<CarouselApi>();
+    const [current, setCurrent] = useState(0);
+
+    useEffect(() => {
+        if (!api) return;
+        setCurrent(api.selectedScrollSnap());
+        api.on("select", () => {
+            setCurrent(api.selectedScrollSnap());
+        });
+    }, [api]);
+
+    const handleThumbClick = (index: number) => {
+        api?.scrollTo(index);
+    }
+    
+    return (
+         <div>
+            <Carousel setApi={setApi} className="group relative">
+                <CarouselContent>
+                    {images.map((img, index) => (
+                        <CarouselItem key={index}>
+                            <Image
+                                src={img || 'https://placehold.co/600x600.png'}
+                                alt={`Product image ${index + 1}`}
+                                width={600}
+                                height={600}
+                                className="w-full h-auto aspect-square object-cover rounded-lg"
+                                data-ai-hint="product photo"
+                            />
+                        </CarouselItem>
+                    ))}
+                </CarouselContent>
+                 <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/50 text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => api?.scrollPrev()}
+                    disabled={!api?.canScrollPrev()}
+                >
+                    <ChevronLeft />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/50 text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => api?.scrollNext()}
+                    disabled={!api?.canScrollNext()}
+                >
+                    <ChevronRight />
+                </Button>
+            </Carousel>
+             <div className="flex gap-2 mt-4">
+                {images.map((img, index) => (
+                    <button key={index} onClick={() => handleThumbClick(index)}>
+                        <Image
+                            src={img || 'https://placehold.co/100x100.png'}
+                            alt={`Thumbnail ${index + 1}`}
+                            width={100}
+                            height={100}
+                            className={cn(
+                                'w-20 h-20 object-cover rounded-lg border-2 transition-all',
+                                index === current ? 'border-primary' : 'border-transparent opacity-60'
+                            )}
+                            data-ai-hint="product photo"
+                        />
+                    </button>
+                ))}
+            </div>
+        </div>
+    )
+}
+
 export default function ProductPage() {
   const params = useParams();
   const slug = params.slug as string;
@@ -159,16 +239,7 @@ export default function ProductPage() {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-        <div>
-          <Image
-            src={product.images[0] || 'https://placehold.co/300x300.png'}
-            alt={product.title}
-            width={300}
-            height={300}
-            className="w-full rounded-lg object-cover"
-            data-ai-hint="product photo"
-          />
-        </div>
+        <ProductImageCarousel images={product.images.length > 0 ? product.images : ['https://placehold.co/600x600.png']} />
         <div className="flex flex-col">
             <h1 className="text-2xl lg:text-3xl font-bold font-headline mb-2">{product.title}</h1>
             
@@ -221,3 +292,5 @@ export default function ProductPage() {
     </div>
   );
 }
+
+    

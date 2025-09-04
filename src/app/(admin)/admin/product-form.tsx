@@ -651,3 +651,5 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
     </Form>
   );
 }
+
+    
