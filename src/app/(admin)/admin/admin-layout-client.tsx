@@ -72,6 +72,7 @@ export function AdminLayoutClient({
                 <SidebarMenuButton
                     href="/admin/products"
                     isActive={isActive('/admin/products')}
+                    tooltip="Products"
                     asChild
                 >
                     <Link href="/admin/products" onClick={handleLinkClick}>
@@ -84,6 +85,7 @@ export function AdminLayoutClient({
                 <SidebarMenuButton
                     href="/admin/combos"
                     isActive={isActive('/admin/combos')}
+                    tooltip="Combos"
                     asChild
                 >
                     <Link href="/admin/combos" onClick={handleLinkClick}>
@@ -96,6 +98,7 @@ export function AdminLayoutClient({
                 <SidebarMenuButton
                     href="/admin/coupons"
                     isActive={isActive('/admin/coupons')}
+                    tooltip="Coupons"
                     asChild
                 >
                     <Link href="/admin/coupons" onClick={handleLinkClick}>
@@ -108,6 +111,7 @@ export function AdminLayoutClient({
                 <SidebarMenuButton
                     href="/admin/inventory"
                     isActive={isActive('/admin/inventory')}
+                    tooltip="Inventory"
                     asChild
                 >
                     <Link href="/admin/inventory" onClick={handleLinkClick}>
@@ -120,6 +124,7 @@ export function AdminLayoutClient({
                 <SidebarMenuButton
                     href="/admin/categories"
                     isActive={isActive('/admin/categories')}
+                    tooltip="Categories & Variants"
                     asChild
                 >
                     <Link href="/admin/categories" onClick={handleLinkClick}>
@@ -132,6 +137,7 @@ export function AdminLayoutClient({
                 <SidebarMenuButton
                     href="/admin/orders"
                     isActive={isActive('/admin/orders')}
+                    tooltip="Orders"
                     asChild
                 >
                     <Link href="/admin/orders" onClick={handleLinkClick}>
@@ -144,6 +150,7 @@ export function AdminLayoutClient({
                 <SidebarMenuButton
                     href="/admin/shipping-partners"
                     isActive={isActive('/admin/shipping-partners')}
+                    tooltip="Shipping Partners"
                     asChild
                 >
                     <Link href="/admin/shipping-partners" onClick={handleLinkClick}>
@@ -156,6 +163,7 @@ export function AdminLayoutClient({
                 <SidebarMenuButton
                     href="/admin/reviews"
                     isActive={isActive('/admin/reviews')}
+                    tooltip="Reviews"
                     asChild
                 >
                     <Link href="/admin/reviews" onClick={handleLinkClick}>
@@ -168,6 +176,7 @@ export function AdminLayoutClient({
                 <SidebarMenuButton
                     href="/admin/customers"
                     isActive={isActive('/admin/customers')}
+                    tooltip="Customers"
                     asChild
                 >
                     <Link href="/admin/customers" onClick={handleLinkClick}>
@@ -180,6 +189,7 @@ export function AdminLayoutClient({
                 <SidebarMenuButton
                     href="/admin/analytics"
                     isActive={isActive('/admin/analytics')}
+                    tooltip="Analytics"
                     asChild
                 >
                     <Link href="/admin/analytics" onClick={handleLinkClick}>
@@ -193,6 +203,7 @@ export function AdminLayoutClient({
                     <SidebarMenuButton
                         href="/admin/ui-config"
                         isActive={isActive('/admin/ui-config')}
+                        tooltip="UI Configuration"
                         asChild
                     >
                         <Link href="/admin/ui-config" onClick={handleLinkClick}>
@@ -205,6 +216,7 @@ export function AdminLayoutClient({
                     <SidebarMenuButton
                         href="/admin/settings"
                         isActive={isActive('/admin/settings')}
+                        tooltip="Settings"
                         asChild
                     >
                         <Link href="/admin/settings" onClick={handleLinkClick}>
