@@ -29,7 +29,7 @@ export default async function Footer() {
             <h4 className="font-semibold mb-4">Shop</h4>
             <ul className="space-y-2">
               <li><Link href="/products" className="text-muted-foreground hover:text-primary">All Products</Link></li>
-              <li><Link href="#" className="text-muted-foreground hover:text-primary">Combos</Link></li>
+              <li><Link href="/combos" className="text-muted-foreground hover:text-primary">Combos</Link></li>
             </ul>
           </div>
           <div>
@@ -48,13 +48,10 @@ export default async function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          {devConfig?.developedByName ? (
-             <p className="mt-2">
-                Developed by <a href={devConfig.developedByLink || '#'} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">{devConfig.developedByName}</a>
-                {devConfig.developedByYear && ` - ${devConfig.developedByYear}`}
+           {devConfig?.developedByName && (
+             <p>
+                Copyright &copy; {devConfig.developedByYear || new Date().getFullYear()} | Developed by <a href={devConfig.developedByLink || '#'} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">{devConfig.developedByName}</a>
             </p>
-          ) : (
-             <p>&copy; {new Date().getFullYear()} {uiConfig?.footerHeading || ''}. All rights reserved.</p>
           )}
         </div>
       </div>
