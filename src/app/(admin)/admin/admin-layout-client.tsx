@@ -15,7 +15,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Package, Shapes, Home, ShoppingCart, Users, LineChart, Settings, Truck, Palette, ClipboardList, Gift, Ticket, Star } from 'lucide-react';
+import { Package, Shapes, Home, ShoppingCart, Users, Settings, Truck, Palette, ClipboardList, Gift, Ticket, Star, Code } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { AuthGuard } from './auth-guard';
 import { useAuth } from '@/hooks/use-auth';
@@ -69,134 +69,122 @@ export function AdminLayoutClient({
             <SidebarContent>
             <SidebarMenu className="pl-2">
                 <SidebarMenuItem>
-                <SidebarMenuButton
-                    href="/admin/products"
-                    isActive={isActive('/admin/products')}
-                    tooltip="Products"
-                    asChild
-                >
-                    <Link href="/admin/products" onClick={handleLinkClick}>
-                    <ClipboardList />
-                    <span>Products</span>
-                    </Link>
-                </SidebarMenuButton>
+                    <SidebarMenuButton
+                        href="/admin/orders"
+                        isActive={isActive('/admin/orders')}
+                        tooltip="Orders"
+                        asChild
+                    >
+                        <Link href="/admin/orders" onClick={handleLinkClick}>
+                        <ShoppingCart />
+                        <span>Orders</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/reviews"
+                        isActive={isActive('/admin/reviews')}
+                        tooltip="Reviews"
+                        asChild
+                    >
+                        <Link href="/admin/reviews" onClick={handleLinkClick}>
+                        <Star />
+                        <span>Reviews</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/customers"
+                        isActive={isActive('/admin/customers')}
+                        tooltip="Customers"
+                        asChild
+                    >
+                        <Link href="/admin/customers" onClick={handleLinkClick}>
+                        <Users />
+                        <span>Customers</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarSeparator />
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/products"
+                        isActive={isActive('/admin/products')}
+                        tooltip="Products"
+                        asChild
+                    >
+                        <Link href="/admin/products" onClick={handleLinkClick}>
+                        <ClipboardList />
+                        <span>Products</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/combos"
+                        isActive={isActive('/admin/combos')}
+                        tooltip="Combos"
+                        asChild
+                    >
+                        <Link href="/admin/combos" onClick={handleLinkClick}>
+                        <Gift />
+                        <span>Combos</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/inventory"
+                        isActive={isActive('/admin/inventory')}
+                        tooltip="Inventory"
+                        asChild
+                    >
+                        <Link href="/admin/inventory" onClick={handleLinkClick}>
+                        <Package />
+                        <span>Inventory</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/categories"
+                        isActive={isActive('/admin/categories')}
+                        tooltip="Categories & Variants"
+                        asChild
+                    >
+                        <Link href="/admin/categories" onClick={handleLinkClick}>
+                        <Shapes />
+                        <span>Categories & Variants</span>
+                        </Link>
+                    </SidebarMenuButton>
                 </SidebarMenuItem>
                  <SidebarMenuItem>
-                <SidebarMenuButton
-                    href="/admin/combos"
-                    isActive={isActive('/admin/combos')}
-                    tooltip="Combos"
-                    asChild
-                >
-                    <Link href="/admin/combos" onClick={handleLinkClick}>
-                    <Gift />
-                    <span>Combos</span>
-                    </Link>
-                </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                <SidebarMenuButton
-                    href="/admin/coupons"
-                    isActive={isActive('/admin/coupons')}
-                    tooltip="Coupons"
-                    asChild
-                >
-                    <Link href="/admin/coupons" onClick={handleLinkClick}>
-                    <Ticket />
-                    <span>Coupons</span>
-                    </Link>
-                </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                <SidebarMenuButton
-                    href="/admin/inventory"
-                    isActive={isActive('/admin/inventory')}
-                    tooltip="Inventory"
-                    asChild
-                >
-                    <Link href="/admin/inventory" onClick={handleLinkClick}>
-                    <Package />
-                    <span>Inventory</span>
-                    </Link>
-                </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                <SidebarMenuButton
-                    href="/admin/categories"
-                    isActive={isActive('/admin/categories')}
-                    tooltip="Categories & Variants"
-                    asChild
-                >
-                    <Link href="/admin/categories" onClick={handleLinkClick}>
-                    <Shapes />
-                    <span>Categories & Variants</span>
-                    </Link>
-                </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                <SidebarMenuButton
-                    href="/admin/orders"
-                    isActive={isActive('/admin/orders')}
-                    tooltip="Orders"
-                    asChild
-                >
-                    <Link href="/admin/orders" onClick={handleLinkClick}>
-                    <ShoppingCart />
-                    <span>Orders</span>
-                    </Link>
-                </SidebarMenuButton>
+                    <SidebarMenuButton
+                        href="/admin/coupons"
+                        isActive={isActive('/admin/coupons')}
+                        tooltip="Coupons"
+                        asChild
+                    >
+                        <Link href="/admin/coupons" onClick={handleLinkClick}>
+                        <Ticket />
+                        <span>Coupons</span>
+                        </Link>
+                    </SidebarMenuButton>
                 </SidebarMenuItem>
                  <SidebarMenuItem>
-                <SidebarMenuButton
-                    href="/admin/shipping-partners"
-                    isActive={isActive('/admin/shipping-partners')}
-                    tooltip="Shipping Partners"
-                    asChild
-                >
-                    <Link href="/admin/shipping-partners" onClick={handleLinkClick}>
-                    <Truck />
-                    <span>Shipping Partners</span>
-                    </Link>
-                </SidebarMenuButton>
-                </SidebarMenuItem>
-                 <SidebarMenuItem>
-                <SidebarMenuButton
-                    href="/admin/reviews"
-                    isActive={isActive('/admin/reviews')}
-                    tooltip="Reviews"
-                    asChild
-                >
-                    <Link href="/admin/reviews" onClick={handleLinkClick}>
-                    <Star />
-                    <span>Reviews</span>
-                    </Link>
-                </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                <SidebarMenuButton
-                    href="/admin/customers"
-                    isActive={isActive('/admin/customers')}
-                    tooltip="Customers"
-                    asChild
-                >
-                    <Link href="/admin/customers" onClick={handleLinkClick}>
-                    <Users />
-                    <span>Customers</span>
-                    </Link>
-                </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                <SidebarMenuButton
-                    href="/admin/analytics"
-                    isActive={isActive('/admin/analytics')}
-                    tooltip="Analytics"
-                    asChild
-                >
-                    <Link href="/admin/analytics" onClick={handleLinkClick}>
-                    <LineChart />
-                    <span>Analytics</span>
-                    </Link>
-                </SidebarMenuButton>
+                    <SidebarMenuButton
+                        href="/admin/shipping-partners"
+                        isActive={isActive('/admin/shipping-partners')}
+                        tooltip="Shipping Partners"
+                        asChild
+                    >
+                        <Link href="/admin/shipping-partners" onClick={handleLinkClick}>
+                        <Truck />
+                        <span>Shipping Partners</span>
+                        </Link>
+                    </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarSeparator />
                 <SidebarMenuItem>
@@ -222,6 +210,19 @@ export function AdminLayoutClient({
                         <Link href="/admin/settings" onClick={handleLinkClick}>
                             <Settings />
                             <span>Settings</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/developer"
+                        isActive={isActive('/admin/developer')}
+                        tooltip="Developer Configuration"
+                        asChild
+                    >
+                        <Link href="/admin/developer" onClick={handleLinkClick}>
+                            <Code />
+                            <span>Developer Configuration</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
