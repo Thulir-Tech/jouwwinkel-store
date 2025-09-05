@@ -54,7 +54,7 @@ export default function ComboCard({ combo }: ComboCardProps) {
                 alt={combo.title}
                 width={400}
                 height={400}
-                className="h-64 w-full object-cover"
+                className="aspect-square w-full object-cover"
                 data-ai-hint="combo photo"
               />
             {combo.onSale && (
@@ -63,8 +63,8 @@ export default function ComboCard({ combo }: ComboCardProps) {
               </Badge>
             )}
           </CardHeader>
-          <CardContent className="flex-grow p-4">
-            <CardTitle className="mb-2 h-14 text-lg font-semibold leading-tight line-clamp-2 font-headline">
+          <CardContent className="flex-grow p-4 space-y-2">
+            <CardTitle className="text-lg font-semibold leading-tight line-clamp-2 font-headline">
               {combo.title}
             </CardTitle>
             <div className="flex items-baseline gap-2 font-sans">
