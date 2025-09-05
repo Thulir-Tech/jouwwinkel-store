@@ -34,6 +34,7 @@ export default function ComboCard({ combo }: ComboCardProps) {
       quantity: 1,
       image: combo.images[0],
       isCombo: true,
+      productIds: combo.productIds,
       revenuePerUnit: combo.revenuePerUnit,
       profitPerUnit: combo.profitPerUnit,
     });

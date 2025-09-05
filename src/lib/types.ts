@@ -82,6 +82,7 @@ export type CartItem = {
   revenuePerUnit?: number;
   profitPerUnit?: number;
   isCombo?: boolean;
+  productIds?: string[];
 };
 
 export type ShippingAddress = {

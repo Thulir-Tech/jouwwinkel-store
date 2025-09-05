@@ -2,8 +2,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCheckouts, getReviewsForUserAndProducts } from '@/lib/firestore';
-import type { Checkout, ShippingPartner, Review, CartItem } from '@/lib/types';
+import { getCheckouts, getProductsByIds, getReviewsForUserAndProducts, getShippingPartner } from '@/lib/firestore';
+import type { Checkout, ShippingPartner, Review, CartItem, Product } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import ReviewDialog from './review-dialog'; 
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
+import { FaCheckCircle } from 'react-icons/fa';
 
 interface UserOrdersProps {
   userId: string;
@@ -57,6 +58,108 @@ function TrackShipmentButton({ order }: { order: Checkout }) {
   );
 }
 
+function OrderItem({ item, orderStatus, onOpenReviewDialog, hasReview, uiConfig }: { item: CartItem, orderStatus: string, onOpenReviewDialog: (productId: string, productTitle: string) => void, hasReview: (productId: string) => boolean, uiConfig: any }) {
+    const [comboProducts, setComboProducts] = useState<Product[]>([]);
+    
+    useEffect(() => {
+        async function fetchComboProducts() {
+            if (item.isCombo && item.productIds) {
+                const products = await getProductsByIds(item.productIds);
+                setComboProducts(products);
+            }
+        }
+        fetchComboProducts();
+    }, [item]);
+
+    const isItemReviewable = (orderStatus: string) => {
+        return orderStatus === 'delivered' && !item.isCombo;
+    };
+
+    const isComboProductReviewable = (orderStatus: string) => {
+        return orderStatus === 'delivered';
+    }
+    
+    if (item.isCombo) {
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center gap-4 p-2 rounded-md bg-muted/50">
+                    <Image
+                        src={item.image || 'https://placehold.co/100x100.png'}
+                        alt={item.title}
+                        width={60}
+                        height={60}
+                        className="rounded-md object-cover w-16 h-16"
+                        data-ai-hint="product image"
+                    />
+                    <div className="flex-grow">
+                        <p className="font-semibold">{item.title} (Combo)</p>
+                        <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                    </div>
+                     <p className="font-semibold font-sans self-start">₹{formatCurrency(item.price * item.quantity)}</p>
+                </div>
+                <div className="pl-8 space-y-3">
+                    <h4 className="text-sm font-semibold text-muted-foreground">Items in this combo:</h4>
+                    {comboProducts.map(p => (
+                         <div key={p.id} className="flex items-center gap-4">
+                             <Image
+                                src={p.images[0] || 'https://placehold.co/100x100.png'}
+                                alt={p.title}
+                                width={40}
+                                height={40}
+                                className="rounded-md object-cover w-10 h-10"
+                                data-ai-hint="product image"
+                            />
+                            <div className="flex-grow">
+                                <p className="font-medium text-sm">{p.title}</p>
+                                {isComboProductReviewable(orderStatus) && (
+                                     <Button 
+                                        variant="link" 
+                                        size="sm" 
+                                        className="p-0 h-auto text-primary text-xs"
+                                        onClick={() => onOpenReviewDialog(p.id, p.title)}
+                                        disabled={hasReview(p.id)}
+                                      >
+                                        {hasReview(p.id) ? 'Review Submitted' : 'Write a review'}
+                                      </Button>
+                                )}
+                            </div>
+                         </div>
+                    ))}
+                </div>
+            </div>
+        )
+    }
+
+    return (
+        <div key={item.id} className="flex items-center gap-4">
+            <Image
+            src={item.image || 'https://placehold.co/100x100.png'}
+            alt={item.title}
+            width={80}
+            height={80}
+            className="rounded-md object-cover w-20 h-20"
+            data-ai-hint="product image"
+            />
+            <div className="flex-grow">
+            <p className="font-semibold">{item.title}</p>
+            <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                {isItemReviewable(orderStatus) && (
+                <Button 
+                    variant="link" 
+                    size="sm" 
+                    className="p-0 h-auto text-primary"
+                    onClick={() => onOpenReviewDialog(item.productId, item.title)}
+                    disabled={hasReview(item.productId)}
+                >
+                    {hasReview(item.productId) ? 'Review Submitted' : 'Write a review'}
+                </Button>
+            )}
+            </div>
+            <p className="font-semibold font-sans self-start">₹{formatCurrency(item.price * item.quantity)}</p>
+        </div>
+    )
+}
+
 
 export default function UserOrders({ userId }: UserOrdersProps) {
   const [orders, setOrders] = useState<Checkout[]>([]);
@@ -73,8 +176,9 @@ export default function UserOrders({ userId }: UserOrdersProps) {
       setOrders(userOrders);
 
       if (userOrders.length > 0) {
-        const productIds = userOrders.flatMap(o => o.items.map(i => i.productId));
-        const userReviews = await getReviewsForUserAndProducts(userId, productIds);
+        const productIds = userOrders.flatMap(o => o.items.map(i => i.isCombo ? i.productIds : i.productId)).flat().filter(Boolean) as string[];
+        const uniqueProductIds = [...new Set(productIds)];
+        const userReviews = await getReviewsForUserAndProducts(userId, uniqueProductIds);
         setReviews(userReviews);
       }
     } catch (error) {
@@ -96,10 +200,6 @@ export default function UserOrders({ userId }: UserOrdersProps) {
     setSelectedProduct({ productId, productTitle });
     setReviewDialogOpen(true);
   };
-  
-  const isItemReviewable = (item: CartItem, orderStatus: string) => {
-    return orderStatus === 'delivered' && !item.isCombo;
-  }
   
   const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
 
@@ -131,8 +231,8 @@ export default function UserOrders({ userId }: UserOrdersProps) {
       )}
       <div className="space-y-6 max-w-4xl mx-auto">
         {orders.map(order => (
-          <Card key={order.id} className={cardColorClass}>
-            <CardHeader className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 md:p-6">
+          <Card key={order.id} className={cn("overflow-hidden", cardColorClass)}>
+            <CardHeader className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 md:p-6 bg-muted/50">
               <div>
                 <p className="text-sm font-semibold">Order Placed</p>
                 <p className="text-sm text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()}</p>
@@ -153,7 +253,8 @@ export default function UserOrders({ userId }: UserOrdersProps) {
             <Separator />
             <CardContent className="p-4 md:p-6 space-y-4">
                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <h3 className="text-lg font-semibold capitalize">
+                  <h3 className="text-lg font-semibold capitalize flex items-center gap-2">
+                      {order.status === 'delivered' ? <FaCheckCircle className="text-green-500"/> : null}
                       Status: <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>{order.status}</Badge>
                   </h3>
                   {order.status === 'shipped' && (
@@ -161,32 +262,14 @@ export default function UserOrders({ userId }: UserOrdersProps) {
                   )}
               </div>
               {order.items.map(item => (
-                <div key={item.id} className="flex items-center gap-4">
-                  <Image
-                    src={item.image || 'https://placehold.co/100x100.png'}
-                    alt={item.title}
-                    width={80}
-                    height={80}
-                    className="rounded-md object-cover w-20 h-20"
-                    data-ai-hint="product image"
-                  />
-                  <div className="flex-grow">
-                    <p className="font-semibold">{item.title}</p>
-                    <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                     {isItemReviewable(item, order.status) && (
-                       <Button 
-                          variant="link" 
-                          size="sm" 
-                          className="p-0 h-auto text-primary"
-                          onClick={() => handleOpenReviewDialog(item.productId, item.title)}
-                          disabled={hasReview(item.productId)}
-                        >
-                          {hasReview(item.productId) ? 'Review Submitted' : 'Write a review'}
-                        </Button>
-                    )}
-                  </div>
-                  <p className="font-semibold font-sans self-start">₹{formatCurrency(item.price * item.quantity)}</p>
-                </div>
+                <OrderItem 
+                    key={item.id}
+                    item={item}
+                    orderStatus={order.status}
+                    onOpenReviewDialog={handleOpenReviewDialog}
+                    hasReview={hasReview}
+                    uiConfig={uiConfig}
+                />
               ))}
             </CardContent>
           </Card>
