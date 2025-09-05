@@ -137,14 +137,10 @@ export default async function Hero() {
   }
 
   return (
-    <div className={cn(
-        "relative w-full flex items-center justify-center",
-        hasMobileMedia ? "aspect-square" : "",
-        hasDesktopMedia ? "md:aspect-video" : ""
-    )}>
+    <div className="relative w-full flex items-center justify-center">
         <div className="absolute inset-0 z-0">
             {/* Desktop Hero */}
-            <div className="hidden md:block w-full h-full">
+            <div className={cn("hidden w-full h-full", hasDesktopMedia && "md:block md:aspect-video")}>
                 {hasDesktopMedia ? (
                     <MediaHero mediaConfig={config!.heroDesktop!} className="w-full h-full" />
                 ) : (
@@ -152,7 +148,7 @@ export default async function Hero() {
                 )}
             </div>
             {/* Mobile Hero */}
-            <div className="block md:hidden w-full h-full">
+            <div className={cn("w-full h-full", hasMobileMedia ? "block aspect-square" : "hidden", "md:hidden")}>
                 {hasMobileMedia ? (
                     <MediaHero mediaConfig={config!.heroMobile!} className="w-full h-full" />
                 ) : (
@@ -162,10 +158,10 @@ export default async function Hero() {
         </div>
 
         {/* Content Overlay */}
-        <div className="hidden md:block w-full h-full">
+        <div className={cn("w-full h-full", hasDesktopMedia ? "hidden md:block" : "hidden")}>
             {hasDesktopMedia && <HeroContent config={config} />}
         </div>
-         <div className="block md:hidden w-full h-full">
+         <div className={cn("w-full h-full", hasMobileMedia ? "block md:hidden" : "hidden")}>
             {hasMobileMedia && <HeroContent config={config} />}
         </div>
     </div>
