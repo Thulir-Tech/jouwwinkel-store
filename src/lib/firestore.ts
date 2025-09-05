@@ -1,7 +1,8 @@
 
+
 import { db } from './firebase.client';
 import { collection, getDocs, query, limit as firestoreLimit, orderBy, where, getDoc, doc } from 'firebase/firestore';
-import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant, Combo, Coupon, User } from './types';
+import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant, Combo, Coupon, User, Review } from './types';
 
 // A helper function to safely get data from a snapshot
 function getData<T>(snapshot: any): T[] {
@@ -288,4 +289,32 @@ export async function validateAndApplyCoupon(
     discountAmount = Math.min(discountAmount, cartTotal);
   
     return { coupon, discountAmount: Math.round(discountAmount) };
+}
+
+// Reviews
+export async function getApprovedReviewsForProduct(productId: string): Promise<Review[]> {
+    const reviewsRef = collection(db, 'reviews');
+    const q = query(
+      reviewsRef,
+      where('productId', '==', productId),
+      where('approved', '==', true),
+      orderBy('createdAt', 'desc')
+    );
+    const snapshot = await getDocs(q);
+    return getData<Review>(snapshot);
+}
+
+export async function getReviewsForUserAndProducts(userId: string, productIds: string[]): Promise<Review[]> {
+    if (!productIds.length) return [];
+    const reviewsRef = collection(db, 'reviews');
+    // Firestore 'in' queries are limited to 10 items. If you expect more, you'd need multiple queries.
+    // For this use case, fetching all user reviews and filtering locally is simpler.
+    const q = query(
+      reviewsRef,
+      where('userId', '==', userId)
+    );
+    const snapshot = await getDocs(q);
+    const allUserReviews = getData<Review>(snapshot);
+    // Filter for the specific products in the orders
+    return allUserReviews.filter(review => productIds.includes(review.productId));
 }

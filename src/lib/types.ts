@@ -1,4 +1,5 @@
 
+
 import type { User as FirebaseUser } from "firebase/auth";
 
 export type ProductVariant = {
@@ -125,6 +126,18 @@ export type ShippingPartner = {
     id: string;
     name: string;
     trackingUrl: string;
+};
+
+export type Review = {
+    id: string;
+    userId: string;
+    userName: string;
+    productId: string;
+    productTitle: string;
+    rating: number;
+    comment: string;
+    createdAt: number;
+    approved: boolean;
 };
 
 export type HeroMediaConfig = {

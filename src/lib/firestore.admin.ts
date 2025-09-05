@@ -1,8 +1,9 @@
 
+
 import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction, getDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon, Category, ShippingAddress } from './types';
+import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon, Category, ShippingAddress, Review } from './types';
 import { getProductsByIds } from './firestore';
 
 function slugify(text: string) {
@@ -402,4 +403,31 @@ export function uploadFile(
         }
       );
     });
+}
+
+// Reviews
+export async function addReview(review: Omit<Review, 'id' | 'createdAt' | 'approved'>) {
+    const reviewRef = collection(db, 'reviews');
+    await addDoc(reviewRef, {
+        ...review,
+        createdAt: Date.now(),
+        approved: false // Reviews are not approved by default
+    });
+}
+
+export async function getReviews(): Promise<Review[]> {
+    const reviewsRef = collection(db, 'reviews');
+    const q = query(reviewsRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    const reviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Review[];
+    return reviews;
+}
+
+export async function updateReview(id: string, data: Partial<Review>) {
+    const reviewRef = doc(db, 'reviews', id);
+    await updateDoc(reviewRef, data);
+}
+
+export async function deleteReview(id: string) {
+    await deleteDoc(doc(db, 'reviews', id));
 }

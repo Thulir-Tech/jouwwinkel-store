@@ -2,7 +2,7 @@
 
 'use client';
 
-import { getProductBySlug } from '@/lib/firestore';
+import { getProductBySlug, getApprovedReviewsForProduct } from '@/lib/firestore';
 import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -12,13 +12,14 @@ import ProductRecommendations from '@/components/product-recommendations';
 import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import AddToCartButton from './add-to-cart-button';
-import { FaWhatsapp } from 'react-icons/fa';
-import { FaCheckCircle } from 'react-icons/fa';
-import { ShoppingBag, Truck, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
-import type { Product } from '@/lib/types';
+import { FaWhatsapp, FaCheckCircle } from 'react-icons/fa';
+import { ShoppingBag, Truck, MapPin, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import type { Product, Review } from '@/lib/types';
 import VariantSelector from '@/components/variant-selector';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 function ProductPageSkeleton() {
     return (
@@ -202,16 +203,59 @@ function ProductImageCarousel({ images }: { images: string[] }) {
     )
 }
 
+function ReviewsSection({ reviews }: { reviews: Review[] }) {
+    if (reviews.length === 0) {
+      return null;
+    }
+  
+    return (
+      <section className="mt-12">
+        <Separator />
+        <div className="py-12">
+            <h2 className="text-3xl font-bold text-center mb-8 font-headline">Customer Reviews</h2>
+            <div className="space-y-8 max-w-3xl mx-auto">
+            {reviews.map((review) => (
+                <div key={review.id} className="flex gap-4">
+                <Avatar>
+                    <AvatarFallback>{review.userName.charAt(0).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                        <p className="font-semibold">{review.userName}</p>
+                        <div className="flex items-center">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                key={i}
+                                className={`h-4 w-4 ${
+                                    i < review.rating
+                                    ? 'text-yellow-400 fill-yellow-400'
+                                    : 'text-gray-300'
+                                }`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">{review.comment}</p>
+                </div>
+                </div>
+            ))}
+            </div>
+        </div>
+      </section>
+    );
+  }
+
 export default function ProductPage() {
   const params = useParams();
   const slug = params.slug as string;
 
   const [product, setProduct] = useState<Product | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   
   useEffect(() => {
-    async function fetchProduct() {
+    async function fetchProductData() {
       if (!slug) return;
       setLoading(true);
       const fetchedProduct = await getProductBySlug(slug);
@@ -219,9 +263,11 @@ export default function ProductPage() {
         notFound();
       }
       setProduct(fetchedProduct);
+      const fetchedReviews = await getApprovedReviewsForProduct(fetchedProduct.id);
+      setReviews(fetchedReviews);
       setLoading(false);
     }
-    fetchProduct();
+    fetchProductData();
   }, [slug]);
 
 
@@ -283,6 +329,9 @@ export default function ProductPage() {
             </div>
         </div>
       </div>
+
+      <ReviewsSection reviews={reviews} />
+      
       <Suspense fallback={<ProductGridSkeleton />}>
         <ProductRecommendations product={product} />
       </Suspense>
@@ -292,5 +341,3 @@ export default function ProductPage() {
     </div>
   );
 }
-
-    
