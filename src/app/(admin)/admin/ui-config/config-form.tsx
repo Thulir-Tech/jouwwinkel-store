@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -28,9 +29,11 @@ import { useRouter } from 'next/navigation';
 import type { UiConfig } from '@/lib/types';
 import { updateUiConfig } from '@/lib/firestore.admin';
 import { Separator } from '@/components/ui/separator';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Link as LinkIcon, Upload } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MediaUploader } from '../media-uploader';
+import { useState } from 'react';
+import Image from 'next/image';
 
 const configFormSchema = z.object({
   browserTitle: z.string().optional(),
@@ -64,6 +67,9 @@ interface ConfigFormProps {
 export function ConfigForm({ initialData }: ConfigFormProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const [addMethod, setAddMethod] = useState<'upload' | 'link'>('upload');
+  const [newMediaUrl, setNewMediaUrl] = useState('');
+
   const form = useForm<ConfigFormValues>({
     resolver: zodResolver(configFormSchema),
     defaultValues: {
@@ -95,7 +101,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     name: "headerCaptionCarousel",
   });
   
-  const { fields: heroMediaFields, append: appendHeroMedia, remove: removeHeroMedia, replace: replaceHeroMedia } = useFieldArray({
+  const { fields: heroMediaFields, append: appendHeroMedia, remove: removeHeroMedia } = useFieldArray({
     control: form.control,
     name: "heroMediaItems",
   });
@@ -103,6 +109,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
   const captionType = form.watch('headerCaptionType');
   const heroViewType = form.watch('heroViewType');
   const heroFileType = form.watch('heroFileType');
+  const heroMediaItems = form.watch('heroMediaItems') || [];
 
   const onSubmit = async (data: ConfigFormValues) => {
     try {
@@ -127,6 +134,27 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       });
     }
   };
+
+  const handleAddFromLink = () => {
+    if (!newMediaUrl || !newMediaUrl.startsWith('http')) {
+        toast({ title: "Invalid URL", description: "Please enter a valid media URL.", variant: "destructive" });
+        return;
+    }
+    if (heroViewType === 'static' && heroMediaItems.length >= 1) {
+        toast({ title: "Limit reached", description: "You can only add one media item for the static view.", variant: "destructive" });
+        return;
+    }
+    appendHeroMedia(newMediaUrl);
+    setNewMediaUrl('');
+  };
+
+  const handleAddFromUploader = (urls: string[]) => {
+     if (heroViewType === 'static' && heroMediaItems.length + urls.length > 1) {
+        toast({ title: "Limit reached", description: "You can only add one media item for the static view.", variant: "destructive" });
+        return;
+    }
+    urls.forEach(url => appendHeroMedia(url));
+  }
 
   return (
     <Form {...form}>
@@ -356,45 +384,58 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                         />
                         <Separator />
 
-                        {heroViewType === 'static' && (
-                             <FormField
-                                control={form.control}
-                                name="heroMediaItems"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Media</FormLabel>
-                                        <FormControl>
-                                            <MediaUploader 
-                                                value={field.value || []} 
-                                                onChange={field.onChange}
-                                                fileTypes={[heroFileType === 'motion' ? 'video' : 'image']}
-                                                maxFiles={1}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        )}
+                        <div className="space-y-4">
+                            <FormLabel>Add Media</FormLabel>
+                            <RadioGroup value={addMethod} onValueChange={(value) => setAddMethod(value as 'upload' | 'link')} className="flex gap-4">
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="upload" id="upload" />
+                                    <Label htmlFor="upload" className="flex items-center gap-2"><Upload className="h-4 w-4"/>Upload</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="link" id="link" />
+                                    <Label htmlFor="link" className="flex items-center gap-2"><LinkIcon className="h-4 w-4" />Link</Label>
+                                </div>
+                            </RadioGroup>
 
-                        {heroViewType === 'carousel' && (
-                           <FormField
-                                control={form.control}
-                                name="heroMediaItems"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Carousel Media</FormLabel>
-                                        <FormControl>
-                                            <MediaUploader 
-                                                value={field.value || []} 
-                                                onChange={field.onChange}
-                                                fileTypes={[heroFileType === 'motion' ? 'video' : 'image']}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            {addMethod === 'upload' ? (
+                                <MediaUploader 
+                                    value={[]}
+                                    onChange={handleAddFromUploader}
+                                    fileTypes={[heroFileType === 'motion' ? 'video' : 'image']}
+                                    maxFiles={heroViewType === 'static' ? 1 : 0}
+                                />
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <Input
+                                        type="url"
+                                        placeholder="https://example.com/media.jpg"
+                                        value={newMediaUrl}
+                                        onChange={(e) => setNewMediaUrl(e.target.value)}
+                                    />
+                                    <Button type="button" onClick={handleAddFromLink}>Add Media</Button>
+                                </div>
+                            )}
+                        </div>
+
+                         {heroMediaItems.length > 0 && (
+                            <div className="space-y-2">
+                                <FormLabel>Current Media</FormLabel>
+                                {heroMediaFields.map((field, index) => (
+                                    <div key={field.id} className="flex items-center gap-2 p-2 border rounded-lg bg-muted/50">
+                                        <Image src={heroMediaItems[index]} alt={`Media item ${index}`} width={40} height={40} className="rounded-md object-cover" />
+                                        <p className="flex-grow text-xs text-muted-foreground truncate">{heroMediaItems[index]}</p>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-destructive"
+                                            onClick={() => removeHeroMedia(index)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
                 )}
