@@ -2,7 +2,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, useWatch, Control } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -73,7 +73,7 @@ interface ConfigFormProps {
   initialData: UiConfig | null;
 }
 
-function HeroMediaManager({ control, namePrefix }: { control: any, namePrefix: 'heroDesktop' | 'heroMobile' }) {
+function HeroMediaManager({ control, namePrefix }: { control: Control<ConfigFormValues>, namePrefix: 'heroDesktop' | 'heroMobile' }) {
     const { toast } = useToast();
     const [addMethod, setAddMethod] = useState<'upload' | 'link'>('upload');
     const [newMediaUrl, setNewMediaUrl] = useState('');
@@ -82,10 +82,9 @@ function HeroMediaManager({ control, namePrefix }: { control: any, namePrefix: '
         name: `${namePrefix}.mediaItems`,
     });
 
-    const form = useForm();
-    const viewType = form.watch(`${namePrefix}.viewType`);
-    const fileType = form.watch(`${namePrefix}.fileType`);
-    const mediaItems = form.watch(`${namePrefix}.mediaItems`) || [];
+    const viewType = useWatch({ control, name: `${namePrefix}.viewType` });
+    const fileType = useWatch({ control, name: `${namePrefix}.fileType` });
+    const mediaItems = useWatch({ control, name: `${namePrefix}.mediaItems` }) || [];
 
     const handleAddFromLink = () => {
         if (!newMediaUrl || !newMediaUrl.startsWith('http')) {
