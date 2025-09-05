@@ -138,15 +138,23 @@ export default async function Hero() {
   }
 
   return (
-    <div className="relative w-full aspect-square md:aspect-video flex items-center justify-center">
-        {(!hasDesktopMedia || !hasMobileMedia) && (
-            <div className="absolute inset-0 z-0 bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950"/>
-        )}
+    <div className="relative w-full flex items-center justify-center aspect-square md:aspect-video">
         <div className="absolute inset-0 z-0">
              {hasDesktopMedia && <MediaHero mediaConfig={config!.heroDesktop!} className="hidden md:block w-full h-full" />}
              {hasMobileMedia && <MediaHero mediaConfig={config!.heroMobile!} className="block md:hidden w-full h-full" />}
+             
+             {/* Fallback for when only one view has media */}
+             {hasDesktopMedia && !hasMobileMedia && <div className="absolute inset-0 z-0 bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950 md:hidden"/>}
+             {!hasDesktopMedia && hasMobileMedia && <div className="absolute inset-0 z-0 bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950 hidden md:block"/>}
         </div>
-        <HeroContent config={config} />
+
+        {/* Render dark text for default viewports, white text for media viewports */}
+        <div className="hidden md:block">
+            {hasDesktopMedia ? <HeroContent config={config} /> : <DefaultHero config={config}><div/></DefaultHero>}
+        </div>
+         <div className="block md:hidden">
+            {hasMobileMedia ? <HeroContent config={config} /> : <DefaultHero config={config}><div/></DefaultHero>}
+        </div>
     </div>
   )
 }
