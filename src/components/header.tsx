@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { getUiConfig } from '@/lib/firestore';
 import type { UiConfig } from '@/lib/types';
 import Image from 'next/image';
+import HeaderCaption from './header-caption';
 
 
 function UserNav() {
@@ -95,7 +96,8 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b bg-background shadow-sm">
+      <HeaderCaption config={config} />
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-2">
           <SidebarSheet />

@@ -1,6 +1,4 @@
 
-
-import HeaderCaption from '@/components/header-caption';
 import Hero from '@/components/hero';
 import ProductGrid from '@/components/product-grid';
 import { getFeaturedProducts, getUiConfig, getFeaturedCombos } from '@/lib/firestore';
@@ -27,12 +25,10 @@ function ProductGridSkeleton() {
 }
 
 export default async function HomePage() {
-  const config = await getUiConfig();
   const combos = await getFeaturedCombos();
 
   return (
     <div>
-      <HeaderCaption config={config} />
       <Hero />
       <section className="container mx-auto px-4 py-12">
         <h2 className="text-3xl font-bold text-center mb-8 font-headline">Featured Products</h2>

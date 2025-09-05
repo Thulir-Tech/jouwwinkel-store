@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCheckouts, getProductsByIds, getReviewsForUserAndProducts, getShippingPartner } from '@/lib/firestore';
+import Link from 'next/link';
+import { getCheckouts, getProductsByIds, getReviewsForUserAndProducts, getShippingPartner, getProduct } from '@/lib/firestore';
 import type { Checkout, ShippingPartner, Review, CartItem, Product } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
@@ -58,42 +59,55 @@ function TrackShipmentButton({ order }: { order: Checkout }) {
   );
 }
 
-function OrderItem({ item, orderStatus, onOpenReviewDialog, hasReview }: { item: CartItem | Product, orderStatus: string, onOpenReviewDialog: (productId: string, productTitle: string) => void, hasReview: (productId: string) => boolean }) {
-    const isProduct = 'slug' in item; // Check if it's a full Product object
-    const id = isProduct ? item.id : item.id;
-    const image = isProduct ? item.images?.[0] : item.image;
-    const title = item.title;
-    const quantity = isProduct ? 1 : item.quantity;
-    const price = item.price;
+function OrderItem({ item, orderStatus, onOpenReviewDialog, hasReview }: { item: CartItem, orderStatus: string, onOpenReviewDialog: (productId: string, productTitle: string) => void, hasReview: (productId: string) => boolean }) {
+    const [productSlug, setProductSlug] = useState<string | null>(null);
 
-    const isReviewable = orderStatus === 'delivered' && !('isCombo' in item && item.isCombo);
+    useEffect(() => {
+        async function fetchProductSlug() {
+            const product = await getProduct(item.productId);
+            if (product) {
+                setProductSlug(product.slug);
+            }
+        }
+        if (!item.isCombo) {
+            fetchProductSlug();
+        }
+    }, [item.productId, item.isCombo]);
+
+
+    const isReviewable = orderStatus === 'delivered' && !item.isCombo;
 
     return (
-        <div key={id} className="flex items-center gap-4">
-            <Image
-                src={image || 'https://placehold.co/100x100.png'}
-                alt={title}
-                width={80}
-                height={80}
-                className="rounded-md object-cover w-20 h-20"
-                data-ai-hint="product image"
-            />
-            <div className="flex-grow">
-                <p className="font-semibold">{title}</p>
-                <p className="text-sm text-muted-foreground">Qty: {quantity}</p>
-                {isReviewable && (
-                    <Button 
-                        variant="link" 
-                        size="sm" 
-                        className="p-0 h-auto text-primary"
-                        onClick={() => onOpenReviewDialog(id, title)}
-                        disabled={hasReview(id)}
-                    >
-                        {hasReview(id) ? 'Review Submitted' : 'Write a review'}
-                    </Button>
-                )}
-            </div>
-            <p className="font-semibold font-sans self-start">₹{formatCurrency(price * quantity)}</p>
+        <div className="flex items-center gap-4">
+            <Link href={!item.isCombo && productSlug ? `/products/${productSlug}` : '#'} className={cn("flex items-center gap-4 group flex-grow", item.isCombo && "pointer-events-none")}>
+                <Image
+                    src={item.image || 'https://placehold.co/100x100.png'}
+                    alt={item.title}
+                    width={80}
+                    height={80}
+                    className="rounded-md object-cover w-20 h-20"
+                    data-ai-hint="product image"
+                />
+                <div className="flex-grow">
+                    <p className="font-semibold group-hover:underline">{item.title}</p>
+                    <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                    {isReviewable && (
+                        <Button 
+                            variant="link" 
+                            size="sm" 
+                            className="p-0 h-auto text-primary"
+                            onClick={(e) => {
+                                e.preventDefault(); // prevent navigation
+                                onOpenReviewDialog(item.productId, item.title)
+                            }}
+                            disabled={hasReview(item.productId)}
+                        >
+                            {hasReview(item.productId) ? 'Review Submitted' : 'Write a review'}
+                        </Button>
+                    )}
+                </div>
+            </Link>
+            <p className="font-semibold font-sans self-start">₹{formatCurrency(item.price * item.quantity)}</p>
         </div>
     );
 }
@@ -126,15 +140,25 @@ function ExpandedComboItems({ item, orderStatus, onOpenReviewDialog, hasReview }
 
     return (
         <div className="pl-4 border-l ml-4 space-y-4">
-            {products.map(product => (
-                <OrderItem 
-                    key={product.id}
-                    item={product}
-                    orderStatus={orderStatus}
-                    onOpenReviewDialog={onOpenReviewDialog}
-                    hasReview={hasReview}
-                />
-            ))}
+             {products.map(product => {
+                const cartItem: CartItem = {
+                    id: product.id,
+                    productId: product.id,
+                    title: product.title,
+                    price: product.price, // Note: this might not reflect the price paid in combo
+                    quantity: item.quantity,
+                    image: product.images?.[0]
+                };
+                return (
+                    <OrderItem 
+                        key={product.id}
+                        item={cartItem}
+                        orderStatus={orderStatus}
+                        onOpenReviewDialog={onOpenReviewDialog}
+                        hasReview={hasReview}
+                    />
+                )
+             })}
         </div>
     )
 }
