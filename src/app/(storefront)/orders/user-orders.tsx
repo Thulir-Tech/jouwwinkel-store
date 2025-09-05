@@ -59,11 +59,6 @@ function TrackShipmentButton({ order }: { order: Checkout }) {
 }
 
 function OrderItem({ item, orderStatus, onOpenReviewDialog, hasReview, uiConfig }: { item: CartItem, orderStatus: string, onOpenReviewDialog: (productId: string, productTitle: string) => void, hasReview: (productId: string) => boolean, uiConfig: any }) {
-
-    const isItemReviewable = (orderStatus: string) => {
-        return orderStatus === 'delivered' && !item.isCombo;
-    };
-
     return (
         <div key={item.id} className="flex items-center gap-4">
             <Image
@@ -77,17 +72,17 @@ function OrderItem({ item, orderStatus, onOpenReviewDialog, hasReview, uiConfig 
             <div className="flex-grow">
             <p className="font-semibold">{item.title} {item.isCombo ? '(Combo)' : ''}</p>
             <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                {isItemReviewable(orderStatus) && (
-                <Button 
-                    variant="link" 
-                    size="sm" 
-                    className="p-0 h-auto text-primary"
-                    onClick={() => onOpenReviewDialog(item.productId, item.title)}
-                    disabled={hasReview(item.productId)}
-                >
-                    {hasReview(item.productId) ? 'Review Submitted' : 'Write a review'}
-                </Button>
-            )}
+                {orderStatus === 'delivered' && !item.isCombo && (
+                    <Button 
+                        variant="link" 
+                        size="sm" 
+                        className="p-0 h-auto text-primary"
+                        onClick={() => onOpenReviewDialog(item.productId, item.title)}
+                        disabled={hasReview(item.productId)}
+                    >
+                        {hasReview(item.productId) ? 'Review Submitted' : 'Write a review'}
+                    </Button>
+                )}
             </div>
             <p className="font-semibold font-sans self-start">₹{formatCurrency(item.price * item.quantity)}</p>
         </div>
