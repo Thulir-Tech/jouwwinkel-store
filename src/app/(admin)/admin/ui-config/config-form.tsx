@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -388,12 +389,12 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                             <FormLabel>Add Media</FormLabel>
                             <RadioGroup value={addMethod} onValueChange={(value) => setAddMethod(value as 'upload' | 'link')} className="flex gap-4">
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="upload" id="upload" />
-                                    <Label htmlFor="upload" className="flex items-center gap-2"><Upload className="h-4 w-4"/>Upload</Label>
+                                    <RadioGroupItem value="upload" id="hero-upload" />
+                                    <Label htmlFor="hero-upload" className="flex items-center gap-2"><Upload className="h-4 w-4"/>Upload</Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="link" id="link" />
-                                    <Label htmlFor="link" className="flex items-center gap-2"><LinkIcon className="h-4 w-4" />Link</Label>
+                                    <RadioGroupItem value="link" id="hero-link" />
+                                    <Label htmlFor="hero-link" className="flex items-center gap-2"><LinkIcon className="h-4 w-4" />Link</Label>
                                 </div>
                             </RadioGroup>
 
@@ -549,3 +550,5 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     </Form>
   );
 }
+
+    
