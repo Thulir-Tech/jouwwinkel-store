@@ -22,8 +22,8 @@ export default async function Footer() {
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-xl font-bold font-headline mb-4">{uiConfig?.footerHeading || 'Jouwwinkel'}</h3>
-            <p className="text-muted-foreground">{uiConfig?.footerCaption || 'Elevate your style with our curated collection.'}</p>
+            <h3 className="text-xl font-bold font-headline mb-4">{uiConfig?.footerHeading}</h3>
+            <p className="text-muted-foreground">{uiConfig?.footerCaption}</p>
           </div>
           <div>
             <h4 className="font-semibold mb-4">Shop</h4>
@@ -48,12 +48,13 @@ export default async function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} {uiConfig?.footerHeading || 'Jouwwinkel'}. All rights reserved.</p>
-          {devConfig?.developedByName && (
-            <p className="mt-2">
+          {devConfig?.developedByName ? (
+             <p className="mt-2">
                 Developed by <a href={devConfig.developedByLink || '#'} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">{devConfig.developedByName}</a>
                 {devConfig.developedByYear && ` - ${devConfig.developedByYear}`}
             </p>
+          ) : (
+             <p>&copy; {new Date().getFullYear()} {uiConfig?.footerHeading || ''}. All rights reserved.</p>
           )}
         </div>
       </div>
