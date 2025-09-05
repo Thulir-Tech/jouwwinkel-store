@@ -253,8 +253,10 @@ export default function ProductPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+  const [isClient, setIsClient] = useState(false);
   
   useEffect(() => {
+    setIsClient(true);
     async function fetchProductData() {
       if (!slug) return;
       setLoading(true);
@@ -312,7 +314,7 @@ export default function ProductPage() {
                 </ul>
             )}
             
-            <DeliveryInfo />
+            {isClient && <DeliveryInfo />}
 
             <VariantSelector 
                 product={product}
