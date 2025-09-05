@@ -40,7 +40,7 @@ const HeroContent = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig
   </div>
 );
 
-const DefaultHero = ({ config, children }: { config: Awaited<ReturnType<typeof getUiConfig>>, children: React.ReactNode }) => (
+const DefaultHero = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig>>}) => (
   <div className="relative bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950">
      <div className="container mx-auto px-4 py-16 sm:py-20 text-center">
       <div className="max-w-3xl mx-auto">
@@ -69,7 +69,6 @@ const DefaultHero = ({ config, children }: { config: Awaited<ReturnType<typeof g
         </div>
       </div>
     </div>
-    {children}
   </div>
 );
 
@@ -134,14 +133,14 @@ export default async function Hero() {
   const hasMobileMedia = config?.heroMobile?.viewType !== 'default' && config?.heroMobile?.mediaItems && config.heroMobile.mediaItems.length > 0;
 
   if (!hasDesktopMedia && !hasMobileMedia) {
-    return <DefaultHero config={config}><div/></DefaultHero>;
+    return <DefaultHero config={config} />;
   }
 
   return (
     <div className={cn(
         "relative w-full flex items-center justify-center",
-        hasMobileMedia && "aspect-square",
-        hasDesktopMedia && "md:aspect-video"
+        hasMobileMedia ? "aspect-square" : "",
+        hasDesktopMedia ? "md:aspect-video" : ""
     )}>
         <div className="absolute inset-0 z-0">
             {/* Desktop Hero */}
@@ -149,7 +148,7 @@ export default async function Hero() {
                 {hasDesktopMedia ? (
                     <MediaHero mediaConfig={config!.heroDesktop!} className="w-full h-full" />
                 ) : (
-                    <DefaultHero config={config}><div/></DefaultHero>
+                    <DefaultHero config={config}/>
                 )}
             </div>
             {/* Mobile Hero */}
@@ -157,7 +156,7 @@ export default async function Hero() {
                 {hasMobileMedia ? (
                     <MediaHero mediaConfig={config!.heroMobile!} className="w-full h-full" />
                 ) : (
-                    <DefaultHero config={config}><div/></DefaultHero>
+                    <DefaultHero config={config}/>
                 )}
             </div>
         </div>
