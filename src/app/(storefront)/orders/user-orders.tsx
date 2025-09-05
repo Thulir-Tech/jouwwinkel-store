@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCheckouts, getShippingPartner, getReviewsForUserAndProducts } from '@/lib/firestore';
+import { getCheckouts, getReviewsForUserAndProducts } from '@/lib/firestore';
 import type { Checkout, ShippingPartner, Review, CartItem } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,8 @@ import { Truck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import ReviewDialog from './review-dialog'; 
+import { useAuth } from '@/hooks/use-auth';
+import { cn } from '@/lib/utils';
 
 interface UserOrdersProps {
   userId: string;
@@ -62,6 +64,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
   const [loading, setLoading] = useState(true);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<{ productId: string; productTitle: string } | null>(null);
+  const { uiConfig } = useAuth();
 
   const fetchOrderData = async () => {
     try {
@@ -98,6 +101,8 @@ export default function UserOrders({ userId }: UserOrdersProps) {
     return orderStatus === 'delivered' && !item.isCombo;
   }
   
+  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+
   if (loading) {
     return (
         <div className="space-y-4">
@@ -126,7 +131,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
       )}
       <div className="space-y-6 max-w-4xl mx-auto">
         {orders.map(order => (
-          <Card key={order.id}>
+          <Card key={order.id} className={cardColorClass}>
             <CardHeader className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 md:p-6">
               <div>
                 <p className="text-sm font-semibold">Order Placed</p>
