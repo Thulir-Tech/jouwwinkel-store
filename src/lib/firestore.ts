@@ -2,7 +2,7 @@
 
 import { db } from './firebase.client';
 import { collection, getDocs, query, limit as firestoreLimit, orderBy, where, getDoc, doc } from 'firebase/firestore';
-import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant, Combo, Coupon, User, Review } from './types';
+import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant, Combo, Coupon, User, Review, DeveloperConfig } from './types';
 
 // A helper function to safely get data from a snapshot
 function getData<T>(snapshot: any): T[] {
@@ -199,6 +199,16 @@ export async function getUiConfig(): Promise<UiConfig | null> {
 
     if (docSnap.exists()) {
         return docSnap.data() as UiConfig;
+    }
+    return null;
+}
+
+export async function getDeveloperConfig(): Promise<DeveloperConfig | null> {
+    const docRef = doc(db, 'developerConfig', 'main');
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        return docSnap.data() as DeveloperConfig;
     }
     return null;
 }

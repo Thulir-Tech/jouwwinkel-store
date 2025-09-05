@@ -3,7 +3,7 @@
 import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction, getDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon, Category, ShippingAddress, Review } from './types';
+import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon, Category, ShippingAddress, Review, DeveloperConfig } from './types';
 import { getProductsByIds } from './firestore';
 
 function slugify(text: string) {
@@ -362,6 +362,12 @@ export async function deleteCoupon(id: string) {
 // UI Configuration
 export async function updateUiConfig(config: Partial<UiConfig>) {
     const configRef = doc(db, 'uiConfig', 'main');
+    await setDoc(configRef, config, { merge: true });
+}
+
+// Developer Configuration
+export async function updateDeveloperConfig(config: Partial<DeveloperConfig>) {
+    const configRef = doc(db, 'developerConfig', 'main');
     await setDoc(configRef, config, { merge: true });
 }
 

@@ -183,3 +183,21 @@ export type Coupon = {
   firstOrderOnly?: boolean;
   prepaidOnly?: boolean;
 };
+
+export type DeveloperConfig = {
+  customerName?: string;
+  customerNumber?: string;
+  customerEmail?: string;
+  customerAddress?: string;
+  
+  productCode?: string;
+  productName?: string;
+  buildDate?: string;
+  lastUpdatedDate?: string;
+  licenseGeneratedDate?: string;
+  licenseValidUpto?: string;
+
+  developedByName?: string;
+  developedByYear?: string;
+  developedByLink?: string;
+}
