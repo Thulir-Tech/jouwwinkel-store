@@ -297,11 +297,12 @@ export async function getApprovedReviewsForProduct(productId: string): Promise<R
     const q = query(
       reviewsRef,
       where('productId', '==', productId),
-      where('approved', '==', true),
-      orderBy('createdAt', 'desc')
+      where('approved', '==', true)
     );
     const snapshot = await getDocs(q);
-    return getData<Review>(snapshot);
+    const reviews = getData<Review>(snapshot);
+    // Sort by creation date descending
+    return reviews.sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export async function getReviewsForUserAndProducts(userId: string, productIds: string[]): Promise<Review[]> {
