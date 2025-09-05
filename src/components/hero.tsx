@@ -68,9 +68,11 @@ const MediaHero = ({ mediaConfig, className }: { mediaConfig: HeroMediaConfig, c
         return null;
     }
 
+    const heroHeightClass = "h-[50vh] md:h-[60vh]";
+
     if (mediaConfig.viewType === 'carousel') {
         return (
-             <div className={`relative w-full h-[60vh] bg-black ${className}`}>
+             <div className={`relative w-full bg-black ${heroHeightClass} ${className}`}>
                 <Carousel
                     opts={{ loop: true }}
                     plugins={[Autoplay({ delay: 5000 })]}
@@ -90,7 +92,7 @@ const MediaHero = ({ mediaConfig, className }: { mediaConfig: HeroMediaConfig, c
 
     if (mediaConfig.viewType === 'static') {
         return (
-            <div className={`relative w-full h-[60vh] bg-black ${className}`}>
+            <div className={`relative w-full bg-black ${heroHeightClass} ${className}`}>
                 <MediaBackground url={mediaConfig.mediaItems[0]} fileType={mediaConfig.fileType || 'image'} />
             </div>
         )
@@ -110,7 +112,7 @@ export default async function Hero() {
   }
 
   return (
-    <div className="relative text-white">
+    <div className="relative text-white flex items-center justify-center">
         <div className="absolute inset-0 z-0">
              {hasDesktopMedia && <MediaHero mediaConfig={config!.heroDesktop!} className="hidden md:block" />}
              {hasMobileMedia && <MediaHero mediaConfig={config!.heroMobile!} className="block md:hidden" />}
