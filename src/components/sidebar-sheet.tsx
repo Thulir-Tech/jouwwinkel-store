@@ -34,7 +34,7 @@ export function SidebarSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className="hover:bg-primary/80">
           <Menu className="h-6 w-6" />
           <span className="sr-only">Open menu</span>
         </Button>
