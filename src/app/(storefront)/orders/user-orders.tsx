@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { getCheckouts, getShippingPartner, getReviewsForUserAndProducts } from '@/lib/firestore';
-import type { Checkout, ShippingPartner, Review } from '@/lib/types';
+import type { Checkout, ShippingPartner, Review, CartItem } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Truck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
-import ReviewDialog from './review-dialog'; // We will create this component
+import ReviewDialog from './review-dialog'; 
 
 interface UserOrdersProps {
   userId: string;
@@ -94,6 +94,10 @@ export default function UserOrders({ userId }: UserOrdersProps) {
     setReviewDialogOpen(true);
   };
   
+  const isItemReviewable = (item: CartItem, orderStatus: string) => {
+    return orderStatus === 'delivered' && !item.isCombo;
+  }
+  
   if (loading) {
     return (
         <div className="space-y-4">
@@ -164,7 +168,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
                   <div className="flex-grow">
                     <p className="font-semibold">{item.title}</p>
                     <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                    {order.status === 'delivered' && !item.isCombo && (
+                     {isItemReviewable(item, order.status) && (
                        <Button 
                           variant="link" 
                           size="sm" 
