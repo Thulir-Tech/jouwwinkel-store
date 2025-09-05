@@ -9,16 +9,16 @@ import type { HeroMediaConfig } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 const HeroContent = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig>> }) => (
-  <div className="relative z-10 text-white">
+  <div className="relative z-10">
     <div className="container mx-auto px-4 py-24 sm:py-32 lg:py-40 text-center">
       <div className="max-w-3xl mx-auto">
         {config?.heroText1 && (
-          <p className="text-base font-semibold uppercase tracking-wider">
+          <p className="text-base font-semibold uppercase tracking-wider text-white">
             {config.heroText1}
           </p>
         )}
         {config?.heroText2 && (
-          <h1 className="mt-2 text-4xl font-extrabold font-headline tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="mt-2 text-4xl font-extrabold font-headline tracking-tight text-white sm:text-5xl lg:text-6xl">
             {config.heroText2}
           </h1>
         )}
@@ -42,7 +42,7 @@ const HeroContent = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig
 
 const DefaultHero = ({ config, children }: { config: Awaited<ReturnType<typeof getUiConfig>>, children: React.ReactNode }) => (
   <div className="relative bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950">
-     <div className="container mx-auto px-4 py-16 sm:py-20 lg:py-24 text-center">
+     <div className="container mx-auto px-4 py-16 sm:py-20 text-center">
       <div className="max-w-3xl mx-auto">
         {config?.heroText1 && (
           <p className="text-base font-semibold uppercase tracking-wider text-primary">
@@ -138,25 +138,35 @@ export default async function Hero() {
   }
 
   return (
-    <div className="relative w-full flex items-center justify-center aspect-square md:aspect-video">
+    <div className={cn(
+        "relative w-full flex items-center justify-center",
+        hasMobileMedia && "aspect-square",
+        hasDesktopMedia && "md:aspect-video"
+    )}>
         <div className="absolute inset-0 z-0">
-             {hasDesktopMedia && <MediaHero mediaConfig={config!.heroDesktop!} className="hidden md:block w-full h-full" />}
-             {hasMobileMedia && <MediaHero mediaConfig={config!.heroMobile!} className="block md:hidden w-full h-full" />}
-             
-             {/* Render the default hero with dark text if one of the views is set to default */}
-             <div className="hidden md:block">
-                {!hasDesktopMedia && <DefaultHero config={config}><div/></DefaultHero>}
-             </div>
-             <div className="block md:hidden">
-                {!hasMobileMedia && <DefaultHero config={config}><div/></DefaultHero>}
+            {/* Desktop Hero */}
+            <div className="hidden md:block w-full h-full">
+                {hasDesktopMedia ? (
+                    <MediaHero mediaConfig={config!.heroDesktop!} className="w-full h-full" />
+                ) : (
+                    <DefaultHero config={config}><div/></DefaultHero>
+                )}
+            </div>
+            {/* Mobile Hero */}
+            <div className="block md:hidden w-full h-full">
+                {hasMobileMedia ? (
+                    <MediaHero mediaConfig={config!.heroMobile!} className="w-full h-full" />
+                ) : (
+                    <DefaultHero config={config}><div/></DefaultHero>
+                )}
             </div>
         </div>
 
-        {/* Render the content with white text if media is present */}
-        <div className="hidden md:block">
+        {/* Content Overlay */}
+        <div className="hidden md:block w-full h-full">
             {hasDesktopMedia && <HeroContent config={config} />}
         </div>
-         <div className="block md:hidden">
+         <div className="block md:hidden w-full h-full">
             {hasMobileMedia && <HeroContent config={config} />}
         </div>
     </div>
