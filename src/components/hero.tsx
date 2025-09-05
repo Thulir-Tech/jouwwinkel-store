@@ -41,7 +41,7 @@ const HeroContent = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig
 );
 
 const DefaultHero = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig>>}) => (
-  <div className="relative bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950">
+    <div className="relative bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950">
      <div className="container mx-auto px-4 py-16 sm:py-20 text-center">
       <div className="max-w-3xl mx-auto">
         {config?.heroText1 && (
@@ -90,14 +90,14 @@ const MediaBackground = ({ url, fileType }: { url: string; fileType: 'image' | '
   </>
 );
 
-const MediaHero = ({ mediaConfig, className }: { mediaConfig: HeroMediaConfig, className?: string }) => {
+const MediaHero = ({ mediaConfig }: { mediaConfig: HeroMediaConfig }) => {
     if (!mediaConfig || !mediaConfig.mediaItems || mediaConfig.mediaItems.length === 0) {
         return null;
     }
 
     if (mediaConfig.viewType === 'carousel') {
         return (
-             <div className={cn("relative w-full h-full bg-black", className)}>
+             <div className="relative w-full h-full bg-black">
                 <Carousel
                     opts={{ loop: true }}
                     plugins={[Autoplay({ delay: 5000 })]}
@@ -117,7 +117,7 @@ const MediaHero = ({ mediaConfig, className }: { mediaConfig: HeroMediaConfig, c
 
     if (mediaConfig.viewType === 'static') {
         return (
-            <div className={cn("relative w-full h-full bg-black", className)}>
+            <div className="relative w-full h-full bg-black">
                 <MediaBackground url={mediaConfig.mediaItems[0]} fileType={mediaConfig.fileType || 'image'} />
             </div>
         )
@@ -132,38 +132,40 @@ export default async function Hero() {
   const hasDesktopMedia = config?.heroDesktop?.viewType !== 'default' && config?.heroDesktop?.mediaItems && config.heroDesktop.mediaItems.length > 0;
   const hasMobileMedia = config?.heroMobile?.viewType !== 'default' && config?.heroMobile?.mediaItems && config.heroMobile.mediaItems.length > 0;
 
-  if (!hasDesktopMedia && !hasMobileMedia) {
-    return <DefaultHero config={config} />;
-  }
-
   return (
     <div className="relative w-full flex items-center justify-center">
-        <div className="absolute inset-0 z-0">
-            {/* Desktop Hero */}
-            <div className={cn("hidden w-full h-full", hasDesktopMedia && "md:block md:aspect-video")}>
-                {hasDesktopMedia ? (
-                    <MediaHero mediaConfig={config!.heroDesktop!} className="w-full h-full" />
-                ) : (
-                    <DefaultHero config={config}/>
-                )}
-            </div>
-            {/* Mobile Hero */}
-            <div className={cn("w-full h-full", hasMobileMedia ? "block aspect-square" : "hidden", "md:hidden")}>
-                {hasMobileMedia ? (
-                    <MediaHero mediaConfig={config!.heroMobile!} className="w-full h-full" />
-                ) : (
-                    <DefaultHero config={config}/>
-                )}
-            </div>
+        {/* Desktop View */}
+        <div className={cn("hidden w-full", hasDesktopMedia ? 'md:block md:aspect-video' : 'md:block')}>
+            {hasDesktopMedia ? (
+                 <div className="absolute inset-0 z-0">
+                    <MediaHero mediaConfig={config!.heroDesktop!} />
+                 </div>
+            ) : (
+                <DefaultHero config={config} />
+            )}
         </div>
 
-        {/* Content Overlay */}
-        <div className={cn("w-full h-full", hasDesktopMedia ? "hidden md:block" : "hidden")}>
-            {hasDesktopMedia && <HeroContent config={config} />}
+         {/* Mobile View */}
+        <div className={cn("w-full", hasMobileMedia ? 'block aspect-square md:hidden' : 'block md:hidden')}>
+             {hasMobileMedia ? (
+                 <div className="absolute inset-0 z-0">
+                    <MediaHero mediaConfig={config!.heroMobile!} />
+                 </div>
+             ) : (
+                <DefaultHero config={config} />
+             )}
         </div>
-         <div className={cn("w-full h-full", hasMobileMedia ? "block md:hidden" : "hidden")}>
-            {hasMobileMedia && <HeroContent config={config} />}
-        </div>
+
+        {/* Content Overlay - renders if either view has media */}
+        {(hasDesktopMedia || hasMobileMedia) && (
+             <div className={cn(
+                 "absolute inset-0 flex items-center justify-center",
+                 !hasDesktopMedia && "md:hidden", // hide on desktop if no desktop media
+                 !hasMobileMedia && "hidden md:block" // hide on mobile if no mobile media
+             )}>
+                <HeroContent config={config} />
+            </div>
+        )}
     </div>
   )
 }
