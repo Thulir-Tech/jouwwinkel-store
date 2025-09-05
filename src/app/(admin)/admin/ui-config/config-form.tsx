@@ -30,7 +30,7 @@ import { useRouter } from 'next/navigation';
 import type { HeroMediaConfig, UiConfig } from '@/lib/types';
 import { updateUiConfig } from '@/lib/firestore.admin';
 import { Separator } from '@/components/ui/separator';
-import { Trash2, Link as LinkIcon, Upload } from 'lucide-react';
+import { Trash2, Link as LinkIcon, Upload, Video } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MediaUploader } from '../media-uploader';
 import { useState } from 'react';
@@ -82,9 +82,10 @@ function HeroMediaManager({ control, namePrefix }: { control: any, namePrefix: '
         name: `${namePrefix}.mediaItems`,
     });
 
-    const viewType = useForm().watch(`${namePrefix}.viewType`);
-    const fileType = useForm().watch(`${namePrefix}.fileType`);
-    const mediaItems = useForm().watch(`${namePrefix}.mediaItems`) || [];
+    const form = useForm();
+    const viewType = form.watch(`${namePrefix}.viewType`);
+    const fileType = form.watch(`${namePrefix}.fileType`);
+    const mediaItems = form.watch(`${namePrefix}.mediaItems`) || [];
 
     const handleAddFromLink = () => {
         if (!newMediaUrl || !newMediaUrl.startsWith('http')) {
@@ -172,7 +173,13 @@ function HeroMediaManager({ control, namePrefix }: { control: any, namePrefix: '
                     <FormLabel>Current Media</FormLabel>
                     {mediaFields.map((field, index) => (
                         <div key={field.id} className="flex items-center gap-2 p-2 border rounded-lg bg-muted/50">
-                            <Image src={mediaItems[index]} alt={`Media item ${index}`} width={40} height={40} className="rounded-md object-cover" />
+                            {fileType === 'video' ? (
+                                <div className="h-10 w-10 bg-black rounded-md flex items-center justify-center">
+                                    <Video className="h-6 w-6 text-white" />
+                                </div>
+                            ) : (
+                                <Image src={mediaItems[index]} alt={`Media item ${index}`} width={40} height={40} className="rounded-md object-cover" />
+                            )}
                             <p className="flex-grow text-xs text-muted-foreground truncate">{mediaItems[index]}</p>
                             <Button
                                 type="button"
