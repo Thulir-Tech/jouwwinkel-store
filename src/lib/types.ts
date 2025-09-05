@@ -127,6 +127,12 @@ export type ShippingPartner = {
     trackingUrl: string;
 };
 
+export type HeroMediaConfig = {
+  viewType?: 'default' | 'static' | 'carousel';
+  fileType?: 'image' | 'video';
+  mediaItems?: string[];
+}
+
 export type UiConfig = {
     browserTitle?: string;
     cardColor?: 'white' | 'theme';
@@ -139,9 +145,8 @@ export type UiConfig = {
     whatsappLink?: string;
     storeAddress?: string;
 
-    heroViewType?: 'default' | 'static' | 'carousel';
-    heroFileType?: 'stable' | 'motion';
-    heroMediaItems?: string[];
+    heroDesktop?: HeroMediaConfig;
+    heroMobile?: HeroMediaConfig;
 
     heroText1?: string;
     heroText2?: string;

@@ -27,7 +27,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import type { UiConfig } from '@/lib/types';
+import type { HeroMediaConfig, UiConfig } from '@/lib/types';
 import { updateUiConfig } from '@/lib/firestore.admin';
 import { Separator } from '@/components/ui/separator';
 import { Trash2, Link as LinkIcon, Upload } from 'lucide-react';
@@ -35,6 +35,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MediaUploader } from '../media-uploader';
 import { useState } from 'react';
 import Image from 'next/image';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+
+const heroMediaConfigSchema = z.object({
+    viewType: z.enum(['default', 'static', 'carousel']).optional(),
+    fileType: z.enum(['image', 'video']).optional(),
+    mediaItems: z.array(z.string()).optional(),
+}).optional();
+
 
 const configFormSchema = z.object({
   browserTitle: z.string().optional(),
@@ -48,9 +57,8 @@ const configFormSchema = z.object({
   whatsappLink: z.string().url().or(z.literal('')).optional(),
   storeAddress: z.string().optional(),
   
-  heroViewType: z.enum(['default', 'static', 'carousel']).optional(),
-  heroFileType: z.enum(['stable', 'motion']).optional(),
-  heroMediaItems: z.array(z.string()).optional(),
+  heroDesktop: heroMediaConfigSchema,
+  heroMobile: heroMediaConfigSchema,
 
   heroText1: z.string().optional(),
   heroText2: z.string().optional(),
@@ -65,11 +73,127 @@ interface ConfigFormProps {
   initialData: UiConfig | null;
 }
 
+function HeroMediaManager({ control, namePrefix }: { control: any, namePrefix: 'heroDesktop' | 'heroMobile' }) {
+    const { toast } = useToast();
+    const [addMethod, setAddMethod] = useState<'upload' | 'link'>('upload');
+    const [newMediaUrl, setNewMediaUrl] = useState('');
+    const { fields: mediaFields, append, remove } = useFieldArray({
+        control,
+        name: `${namePrefix}.mediaItems`,
+    });
+
+    const viewType = useForm().watch(`${namePrefix}.viewType`);
+    const fileType = useForm().watch(`${namePrefix}.fileType`);
+    const mediaItems = useForm().watch(`${namePrefix}.mediaItems`) || [];
+
+    const handleAddFromLink = () => {
+        if (!newMediaUrl || !newMediaUrl.startsWith('http')) {
+            toast({ title: "Invalid URL", description: "Please enter a valid media URL.", variant: "destructive" });
+            return;
+        }
+        if (viewType === 'static' && mediaItems.length >= 1) {
+            toast({ title: "Limit reached", description: "You can only add one media item for the static view.", variant: "destructive" });
+            return;
+        }
+        append(newMediaUrl);
+        setNewMediaUrl('');
+    };
+
+    const handleAddFromUploader = (urls: string[]) => {
+        if (viewType === 'static' && mediaItems.length + urls.length > 1) {
+            toast({ title: "Limit reached", description: "You can only add one media item for the static view.", variant: "destructive" });
+            return;
+        }
+        urls.forEach(url => append(url));
+    }
+
+    if (viewType === 'default') return null;
+
+    return (
+        <div className="space-y-4 p-4 border rounded-md">
+            <FormField
+                control={control}
+                name={`${namePrefix}.fileType`}
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>File Type</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select file type" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="image">Image</SelectItem>
+                                <SelectItem value="video">Video</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <Separator />
+
+            <div className="space-y-4">
+                <FormLabel>Add Media</FormLabel>
+                <RadioGroup value={addMethod} onValueChange={(value) => setAddMethod(value as 'upload' | 'link')} className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="upload" id={`${namePrefix}-upload`} />
+                        <Label htmlFor={`${namePrefix}-upload`} className="flex items-center gap-2"><Upload className="h-4 w-4"/>Upload</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="link" id={`${namePrefix}-link`} />
+                        <Label htmlFor={`${namePrefix}-link`} className="flex items-center gap-2"><LinkIcon className="h-4 w-4" />Link</Label>
+                    </div>
+                </RadioGroup>
+
+                {addMethod === 'upload' ? (
+                    <MediaUploader 
+                        value={[]}
+                        onChange={handleAddFromUploader}
+                        fileTypes={[fileType === 'video' ? 'video' : 'image']}
+                        maxFiles={viewType === 'static' ? 1 : 0}
+                    />
+                ) : (
+                    <div className="flex items-center gap-2">
+                        <Input
+                            type="url"
+                            placeholder="https://example.com/media.jpg"
+                            value={newMediaUrl}
+                            onChange={(e) => setNewMediaUrl(e.target.value)}
+                        />
+                        <Button type="button" onClick={handleAddFromLink}>Add Media</Button>
+                    </div>
+                )}
+            </div>
+
+                {mediaItems.length > 0 && (
+                <div className="space-y-2">
+                    <FormLabel>Current Media</FormLabel>
+                    {mediaFields.map((field, index) => (
+                        <div key={field.id} className="flex items-center gap-2 p-2 border rounded-lg bg-muted/50">
+                            <Image src={mediaItems[index]} alt={`Media item ${index}`} width={40} height={40} className="rounded-md object-cover" />
+                            <p className="flex-grow text-xs text-muted-foreground truncate">{mediaItems[index]}</p>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive"
+                                onClick={() => remove(index)}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
 export function ConfigForm({ initialData }: ConfigFormProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const [addMethod, setAddMethod] = useState<'upload' | 'link'>('upload');
-  const [newMediaUrl, setNewMediaUrl] = useState('');
 
   const form = useForm<ConfigFormValues>({
     resolver: zodResolver(configFormSchema),
@@ -85,9 +209,16 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       whatsappLink: initialData?.whatsappLink || '',
       storeAddress: initialData?.storeAddress || '',
 
-      heroViewType: initialData?.heroViewType || 'default',
-      heroFileType: initialData?.heroFileType || 'stable',
-      heroMediaItems: initialData?.heroMediaItems || [],
+      heroDesktop: {
+        viewType: initialData?.heroDesktop?.viewType || 'default',
+        fileType: initialData?.heroDesktop?.fileType || 'image',
+        mediaItems: initialData?.heroDesktop?.mediaItems || [],
+      },
+      heroMobile: {
+        viewType: initialData?.heroMobile?.viewType || 'default',
+        fileType: initialData?.heroMobile?.fileType || 'image',
+        mediaItems: initialData?.heroMobile?.mediaItems || [],
+      },
 
       heroText1: initialData?.heroText1 || '',
       heroText2: initialData?.heroText2 || '',
@@ -102,15 +233,10 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     name: "headerCaptionCarousel",
   });
   
-  const { fields: heroMediaFields, append: appendHeroMedia, remove: removeHeroMedia } = useFieldArray({
-    control: form.control,
-    name: "heroMediaItems",
-  });
-
   const captionType = form.watch('headerCaptionType');
-  const heroViewType = form.watch('heroViewType');
-  const heroFileType = form.watch('heroFileType');
-  const heroMediaItems = form.watch('heroMediaItems') || [];
+  const heroDesktopViewType = form.watch('heroDesktop.viewType');
+  const heroMobileViewType = form.watch('heroMobile.viewType');
+
 
   const onSubmit = async (data: ConfigFormValues) => {
     try {
@@ -118,10 +244,6 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
         ...data,
         brandLogoUrl: data.brandLogoUrl?.[0] || '',
       };
-      // If hero view is default, clear media items
-      if (data.heroViewType === 'default') {
-        finalData.heroMediaItems = [];
-      }
       
       await updateUiConfig(finalData);
       toast({ title: 'Configuration updated successfully' });
@@ -135,27 +257,6 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       });
     }
   };
-
-  const handleAddFromLink = () => {
-    if (!newMediaUrl || !newMediaUrl.startsWith('http')) {
-        toast({ title: "Invalid URL", description: "Please enter a valid media URL.", variant: "destructive" });
-        return;
-    }
-    if (heroViewType === 'static' && heroMediaItems.length >= 1) {
-        toast({ title: "Limit reached", description: "You can only add one media item for the static view.", variant: "destructive" });
-        return;
-    }
-    appendHeroMedia(newMediaUrl);
-    setNewMediaUrl('');
-  };
-
-  const handleAddFromUploader = (urls: string[]) => {
-     if (heroViewType === 'static' && heroMediaItems.length + urls.length > 1) {
-        toast({ title: "Limit reached", description: "You can only add one media item for the static view.", variant: "destructive" });
-        return;
-    }
-    urls.forEach(url => appendHeroMedia(url));
-  }
 
   return (
     <Form {...form}>
@@ -336,112 +437,71 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
         <Card>
             <CardHeader><CardTitle>Hero Section</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-                 <FormField
-                    control={form.control}
-                    name="heroViewType"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Hero View Type</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select view type" />
-                                </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem value="default">Colors by Default</SelectItem>
-                                    <SelectItem value="static">Static Media</SelectItem>
-                                    <SelectItem value="carousel">Carousel</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormDescription>Choose how the hero section is displayed.</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                
-                {heroViewType !== 'default' && (
-                    <div className="space-y-4 p-4 border rounded-md">
-                        <FormField
-                            control={form.control}
-                            name="heroFileType"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>File Type</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select file type" />
-                                        </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="stable">Stable (Image)</SelectItem>
-                                            <SelectItem value="motion">Motion (Video)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Separator />
-
-                        <div className="space-y-4">
-                            <FormLabel>Add Media</FormLabel>
-                            <RadioGroup value={addMethod} onValueChange={(value) => setAddMethod(value as 'upload' | 'link')} className="flex gap-4">
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="upload" id="hero-upload" />
-                                    <Label htmlFor="hero-upload" className="flex items-center gap-2"><Upload className="h-4 w-4"/>Upload</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                    <RadioGroupItem value="link" id="hero-link" />
-                                    <Label htmlFor="hero-link" className="flex items-center gap-2"><LinkIcon className="h-4 w-4" />Link</Label>
-                                </div>
-                            </RadioGroup>
-
-                            {addMethod === 'upload' ? (
-                                <MediaUploader 
-                                    value={[]}
-                                    onChange={handleAddFromUploader}
-                                    fileTypes={[heroFileType === 'motion' ? 'video' : 'image']}
-                                    maxFiles={heroViewType === 'static' ? 1 : 0}
+                 <Tabs defaultValue="desktop" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="desktop">Desktop</TabsTrigger>
+                        <TabsTrigger value="mobile">Mobile</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="desktop">
+                        <Card>
+                            <CardContent className="space-y-4 pt-6">
+                                <FormField
+                                    control={form.control}
+                                    name="heroDesktop.viewType"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>View Type</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger><SelectValue placeholder="Select view type" /></SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="default">Colors by Default</SelectItem>
+                                                    <SelectItem value="static">Static Media</SelectItem>
+                                                    <SelectItem value="carousel">Carousel</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormDescription>Choose how the hero section is displayed on desktop.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            ) : (
-                                <div className="flex items-center gap-2">
-                                    <Input
-                                        type="url"
-                                        placeholder="https://example.com/media.jpg"
-                                        value={newMediaUrl}
-                                        onChange={(e) => setNewMediaUrl(e.target.value)}
-                                    />
-                                    <Button type="button" onClick={handleAddFromLink}>Add Media</Button>
-                                </div>
-                            )}
-                        </div>
+                                {heroDesktopViewType !== 'default' && <HeroMediaManager control={form.control} namePrefix="heroDesktop" />}
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="mobile">
+                        <Card>
+                             <CardContent className="space-y-4 pt-6">
+                                <FormField
+                                    control={form.control}
+                                    name="heroMobile.viewType"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>View Type</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                    <SelectTrigger><SelectValue placeholder="Select view type" /></SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="default">Colors by Default</SelectItem>
+                                                    <SelectItem value="static">Static Media</SelectItem>
+                                                    <SelectItem value="carousel">Carousel</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormDescription>Choose how the hero section is displayed on mobile.</FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                {heroMobileViewType !== 'default' && <HeroMediaManager control={form.control} namePrefix="heroMobile" />}
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                 </Tabs>
 
-                         {heroMediaItems.length > 0 && (
-                            <div className="space-y-2">
-                                <FormLabel>Current Media</FormLabel>
-                                {heroMediaFields.map((field, index) => (
-                                    <div key={field.id} className="flex items-center gap-2 p-2 border rounded-lg bg-muted/50">
-                                        <Image src={heroMediaItems[index]} alt={`Media item ${index}`} width={40} height={40} className="rounded-md object-cover" />
-                                        <p className="flex-grow text-xs text-muted-foreground truncate">{heroMediaItems[index]}</p>
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="text-destructive"
-                                            onClick={() => removeHeroMedia(index)}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                )}
                  <Separator />
-                <h4 className="font-medium">Hero Text Content</h4>
+                <h4 className="font-medium pt-4">Hero Text Content (Shared)</h4>
                  <FormField
                     control={form.control}
                     name="heroText1"
@@ -550,5 +610,3 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     </Form>
   );
 }
-
-    
