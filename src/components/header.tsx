@@ -96,11 +96,10 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full text-primary-foreground">
-      <div className="bg-primary">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <header className="sticky top-0 z-50 w-full text-primary-foreground bg-primary">
+        <div className="container relative mx-auto flex h-16 items-center justify-between px-4">
             <div className="flex items-center gap-2">
-            <SidebarSheet />
+              <SidebarSheet />
             </div>
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 {config?.brandLogoUrl ? (
@@ -114,23 +113,24 @@ export default function Header() {
                 )}
             </div>
             <div className="flex items-center gap-1">
-            <SearchDialog />
-            <Button variant="ghost" size="icon" className="relative hover:bg-primary/80" asChild>
-                <Link href="/cart">
-                <ShoppingBag className="h-6 w-6" />
-                {isClient && count > 0 && (
-                    <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs text-destructive-foreground">
-                    {count}
-                    </span>
-                )}
-                <span className="sr-only">Shopping Cart</span>
-                </Link>
-            </Button>
-            <UserNav />
+              <SearchDialog />
+              <Button variant="ghost" size="icon" className="relative hover:bg-primary/80" asChild>
+                  <Link href="/cart">
+                  <ShoppingBag className="h-6 w-6" />
+                  {isClient && count > 0 && (
+                      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs text-destructive-foreground">
+                      {count}
+                      </span>
+                  )}
+                  <span className="sr-only">Shopping Cart</span>
+                  </Link>
+              </Button>
+              <UserNav />
             </div>
         </div>
-      </div>
-      <HeaderCaption config={config} />
+        <div className="border-t border-primary-foreground/10">
+          <HeaderCaption config={config} />
+        </div>
     </header>
   );
 }
