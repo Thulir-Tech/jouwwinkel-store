@@ -42,7 +42,7 @@ const HeroContent = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig
 
 const DefaultHero = ({ config, children }: { config: Awaited<ReturnType<typeof getUiConfig>>, children: React.ReactNode }) => (
   <div className="relative bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950">
-     <div className="container mx-auto px-4 py-24 sm:py-32 lg:py-40 text-center">
+     <div className="container mx-auto px-4 py-16 sm:py-20 lg:py-24 text-center">
       <div className="max-w-3xl mx-auto">
         {config?.heroText1 && (
           <p className="text-base font-semibold uppercase tracking-wider text-primary">
@@ -143,17 +143,21 @@ export default async function Hero() {
              {hasDesktopMedia && <MediaHero mediaConfig={config!.heroDesktop!} className="hidden md:block w-full h-full" />}
              {hasMobileMedia && <MediaHero mediaConfig={config!.heroMobile!} className="block md:hidden w-full h-full" />}
              
-             {/* Fallback for when only one view has media */}
-             {hasDesktopMedia && !hasMobileMedia && <div className="absolute inset-0 z-0 bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950 md:hidden"/>}
-             {!hasDesktopMedia && hasMobileMedia && <div className="absolute inset-0 z-0 bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950 hidden md:block"/>}
+             {/* Render the default hero with dark text if one of the views is set to default */}
+             <div className="hidden md:block">
+                {!hasDesktopMedia && <DefaultHero config={config}><div/></DefaultHero>}
+             </div>
+             <div className="block md:hidden">
+                {!hasMobileMedia && <DefaultHero config={config}><div/></DefaultHero>}
+            </div>
         </div>
 
-        {/* Render dark text for default viewports, white text for media viewports */}
+        {/* Render the content with white text if media is present */}
         <div className="hidden md:block">
-            {hasDesktopMedia ? <HeroContent config={config} /> : <DefaultHero config={config}><div/></DefaultHero>}
+            {hasDesktopMedia && <HeroContent config={config} />}
         </div>
          <div className="block md:hidden">
-            {hasMobileMedia ? <HeroContent config={config} /> : <DefaultHero config={config}><div/></DefaultHero>}
+            {hasMobileMedia && <HeroContent config={config} />}
         </div>
     </div>
   )
