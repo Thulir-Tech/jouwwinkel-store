@@ -209,12 +209,18 @@ export async function addCheckout(checkoutData: Omit<Checkout, 'id' | 'createdAt
 
     const itemsWithFullData = finalCheckoutData.items.map((item: CartItem) => {
         const product = productsData.find(p => p.id === item.productId);
-        return {
+        const fullItem: CartItem = {
             ...item,
             id: item.variantId ? `${item.productId}-${item.variantId}` : item.productId,
             revenuePerUnit: product?.revenuePerUnit || 0,
             profitPerUnit: product?.profitPerUnit || 0,
         };
+        // Add productIds to combo items for later retrieval
+        if(item.isCombo) {
+            const comboProduct = productsData.find(p => p.id === item.productId) as unknown as Combo;
+            fullItem.productIds = comboProduct?.productIds || [];
+        }
+        return fullItem;
     });
 
     finalCheckoutData.items = itemsWithFullData;

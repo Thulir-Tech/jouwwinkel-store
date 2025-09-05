@@ -58,33 +58,83 @@ function TrackShipmentButton({ order }: { order: Checkout }) {
   );
 }
 
-function OrderItem({ item, orderStatus, onOpenReviewDialog, hasReview, uiConfig }: { item: CartItem, orderStatus: string, onOpenReviewDialog: (productId: string, productTitle: string) => void, hasReview: (productId: string) => boolean, uiConfig: any }) {
+function OrderItem({ item, orderStatus, onOpenReviewDialog, hasReview }: { item: CartItem | Product, orderStatus: string, onOpenReviewDialog: (productId: string, productTitle: string) => void, hasReview: (productId: string) => boolean }) {
+    const isProduct = 'slug' in item; // Check if it's a full Product object
+    const id = isProduct ? item.id : item.id;
+    const image = isProduct ? item.images?.[0] : item.image;
+    const title = item.title;
+    const quantity = isProduct ? 1 : item.quantity;
+    const price = item.price;
+
+    const isReviewable = orderStatus === 'delivered' && !('isCombo' in item && item.isCombo);
+
     return (
-        <div key={item.id} className="flex items-center gap-4">
+        <div key={id} className="flex items-center gap-4">
             <Image
-            src={item.image || 'https://placehold.co/100x100.png'}
-            alt={item.title}
-            width={80}
-            height={80}
-            className="rounded-md object-cover w-20 h-20"
-            data-ai-hint="product image"
+                src={image || 'https://placehold.co/100x100.png'}
+                alt={title}
+                width={80}
+                height={80}
+                className="rounded-md object-cover w-20 h-20"
+                data-ai-hint="product image"
             />
             <div className="flex-grow">
-            <p className="font-semibold">{item.title} {item.isCombo ? '(Combo)' : ''}</p>
-            <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                {orderStatus === 'delivered' && !item.isCombo && (
+                <p className="font-semibold">{title}</p>
+                <p className="text-sm text-muted-foreground">Qty: {quantity}</p>
+                {isReviewable && (
                     <Button 
                         variant="link" 
                         size="sm" 
                         className="p-0 h-auto text-primary"
-                        onClick={() => onOpenReviewDialog(item.productId, item.title)}
-                        disabled={hasReview(item.productId)}
+                        onClick={() => onOpenReviewDialog(id, title)}
+                        disabled={hasReview(id)}
                     >
-                        {hasReview(item.productId) ? 'Review Submitted' : 'Write a review'}
+                        {hasReview(id) ? 'Review Submitted' : 'Write a review'}
                     </Button>
                 )}
             </div>
-            <p className="font-semibold font-sans self-start">₹{formatCurrency(item.price * item.quantity)}</p>
+            <p className="font-semibold font-sans self-start">₹{formatCurrency(price * quantity)}</p>
+        </div>
+    );
+}
+
+function ExpandedComboItems({ item, orderStatus, onOpenReviewDialog, hasReview }: { item: CartItem, orderStatus: string, onOpenReviewDialog: (productId: string, productTitle: string) => void, hasReview: (productId: string) => boolean }) {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        async function fetchComboProducts() {
+            if (item.isCombo && item.productIds) {
+                const fetchedProducts = await getProductsByIds(item.productIds);
+                setProducts(fetchedProducts);
+            }
+            setLoading(false);
+        }
+        fetchComboProducts();
+    }, [item]);
+
+    if (loading) {
+        return (
+            <div className="pl-12 space-y-2">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+            </div>
+        )
+    }
+
+    if (!products.length) return null;
+
+    return (
+        <div className="pl-4 border-l ml-4 space-y-4">
+            {products.map(product => (
+                <OrderItem 
+                    key={product.id}
+                    item={product}
+                    orderStatus={orderStatus}
+                    onOpenReviewDialog={onOpenReviewDialog}
+                    hasReview={hasReview}
+                />
+            ))}
         </div>
     )
 }
@@ -105,7 +155,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
       setOrders(userOrders);
 
       if (userOrders.length > 0) {
-        const productIds = userOrders.flatMap(o => o.items.map(i => i.isCombo ? i.productIds : i.productId)).flat().filter(Boolean) as string[];
+        const productIds = userOrders.flatMap(o => o.items.map(i => i.isCombo ? (i.productIds || []) : i.productId)).flat().filter(Boolean) as string[];
         const uniqueProductIds = [...new Set(productIds)];
         const userReviews = await getReviewsForUserAndProducts(userId, uniqueProductIds);
         setReviews(userReviews);
@@ -168,7 +218,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
               </div>
               <div>
                 <p className="text-sm font-semibold">Total</p>
-                <p className="text-sm text-muted-foreground font-sans">₹{formatCurrency(order.total)}</p>
+                <p className="text-sm text-muted-foreground font-sans">₹{formatCurrency(order.totalAfterDiscount || order.total)}</p>
               </div>
               <div className="col-span-2 md:col-span-1">
                 <p className="text-sm font-semibold">Ship To</p>
@@ -190,16 +240,26 @@ export default function UserOrders({ userId }: UserOrdersProps) {
                       <TrackShipmentButton order={order} />
                   )}
               </div>
-              {order.items.map(item => (
-                <OrderItem 
-                    key={item.id}
-                    item={item}
-                    orderStatus={order.status}
-                    onOpenReviewDialog={handleOpenReviewDialog}
-                    hasReview={hasReview}
-                    uiConfig={uiConfig}
-                />
-              ))}
+              <div className="space-y-4">
+                {order.items.map(item => (
+                    <div key={item.id}>
+                        <OrderItem 
+                            item={item}
+                            orderStatus={order.status}
+                            onOpenReviewDialog={handleOpenReviewDialog}
+                            hasReview={hasReview}
+                        />
+                        {item.isCombo && (
+                            <ExpandedComboItems
+                                item={item}
+                                orderStatus={order.status}
+                                onOpenReviewDialog={handleOpenReviewDialog}
+                                hasReview={hasReview}
+                            />
+                        )}
+                    </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         ))}
