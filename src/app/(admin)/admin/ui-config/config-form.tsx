@@ -73,7 +73,7 @@ interface ConfigFormProps {
   initialData: UiConfig | null;
 }
 
-function HeroMediaManager({ control, namePrefix }: { control: Control<ConfigFormValues>, namePrefix: 'heroDesktop' | 'heroMobile' }) {
+function HeroMediaManager({ control, namePrefix, isMobile }: { control: Control<ConfigFormValues>, namePrefix: 'heroDesktop' | 'heroMobile', isMobile: boolean }) {
     const { toast } = useToast();
     const [addMethod, setAddMethod] = useState<'upload' | 'link'>('upload');
     const [newMediaUrl, setNewMediaUrl] = useState('');
@@ -136,6 +136,9 @@ function HeroMediaManager({ control, namePrefix }: { control: Control<ConfigForm
 
             <div className="space-y-4">
                 <FormLabel>Add Media</FormLabel>
+                <FormDescription>
+                    Recommended Ratio: {isMobile ? 'Portrait 9:16' : 'Landscape 16:9'}
+                </FormDescription>
                 <RadioGroup value={addMethod} onValueChange={(value) => setAddMethod(value as 'upload' | 'link')} className="flex gap-4">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="upload" id={`${namePrefix}-upload`} />
@@ -472,7 +475,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                                         </FormItem>
                                     )}
                                 />
-                                {heroDesktopViewType !== 'default' && <HeroMediaManager control={form.control} namePrefix="heroDesktop" />}
+                                {heroDesktopViewType !== 'default' && <HeroMediaManager control={form.control} namePrefix="heroDesktop" isMobile={false} />}
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -500,7 +503,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                                         </FormItem>
                                     )}
                                 />
-                                {heroMobileViewType !== 'default' && <HeroMediaManager control={form.control} namePrefix="heroMobile" />}
+                                {heroMobileViewType !== 'default' && <HeroMediaManager control={form.control} namePrefix="heroMobile" isMobile={true} />}
                             </CardContent>
                         </Card>
                     </TabsContent>

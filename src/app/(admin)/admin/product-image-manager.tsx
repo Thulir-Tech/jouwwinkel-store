@@ -103,6 +103,9 @@ export function ProductImageManager({ images, onImagesChange }: ProductImageMana
 
       <div className="p-4 border rounded-lg space-y-4">
         <h4 className="font-medium">Add New Image</h4>
+        <p className="text-sm text-muted-foreground">
+            Recommended aspect ratio for product cards is square (1:1).
+        </p>
         <RadioGroup value={addMethod} onValueChange={(value) => setAddMethod(value as 'upload' | 'link')} className="flex gap-4">
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="upload" id="upload" />
