@@ -48,7 +48,7 @@ const DefaultHero = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig
 const MediaBackground = ({ url, fileType }: { url: string; fileType: 'image' | 'video' }) => (
   <>
     {fileType === 'image' ? (
-      <Image src={url} alt="Hero background" fill className="object-cover" priority />
+      <Image src={url} alt="Hero background" fill className="object-contain" priority />
     ) : (
       <video
         src={url}
@@ -56,7 +56,7 @@ const MediaBackground = ({ url, fileType }: { url: string; fileType: 'image' | '
         loop
         muted
         playsInline
-        className="w-full h-full object-cover"
+        className="w-full h-full object-contain"
       />
     )}
     <div className="absolute inset-0 bg-black/30" />
