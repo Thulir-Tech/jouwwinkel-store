@@ -59,76 +59,10 @@ function TrackShipmentButton({ order }: { order: Checkout }) {
 }
 
 function OrderItem({ item, orderStatus, onOpenReviewDialog, hasReview, uiConfig }: { item: CartItem, orderStatus: string, onOpenReviewDialog: (productId: string, productTitle: string) => void, hasReview: (productId: string) => boolean, uiConfig: any }) {
-    const [comboProducts, setComboProducts] = useState<Product[]>([]);
-    
-    useEffect(() => {
-        async function fetchComboProducts() {
-            if (item.isCombo && item.productIds) {
-                const products = await getProductsByIds(item.productIds);
-                setComboProducts(products);
-            }
-        }
-        fetchComboProducts();
-    }, [item]);
 
     const isItemReviewable = (orderStatus: string) => {
         return orderStatus === 'delivered' && !item.isCombo;
     };
-
-    const isComboProductReviewable = (orderStatus: string) => {
-        return orderStatus === 'delivered';
-    }
-    
-    if (item.isCombo) {
-        return (
-            <div className="space-y-4">
-                <div className="flex items-center gap-4 p-2 rounded-md bg-muted/50">
-                    <Image
-                        src={item.image || 'https://placehold.co/100x100.png'}
-                        alt={item.title}
-                        width={60}
-                        height={60}
-                        className="rounded-md object-cover w-16 h-16"
-                        data-ai-hint="product image"
-                    />
-                    <div className="flex-grow">
-                        <p className="font-semibold">{item.title} (Combo)</p>
-                        <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                    </div>
-                     <p className="font-semibold font-sans self-start">₹{formatCurrency(item.price * item.quantity)}</p>
-                </div>
-                <div className="pl-8 space-y-3">
-                    <h4 className="text-sm font-semibold text-muted-foreground">Items in this combo:</h4>
-                    {comboProducts.map(p => (
-                         <div key={p.id} className="flex items-center gap-4">
-                             <Image
-                                src={p.images[0] || 'https://placehold.co/100x100.png'}
-                                alt={p.title}
-                                width={40}
-                                height={40}
-                                className="rounded-md object-cover w-10 h-10"
-                                data-ai-hint="product image"
-                            />
-                            <div className="flex-grow">
-                                <p className="font-medium text-sm">{p.title}</p>
-                                {isComboProductReviewable(orderStatus) && (
-                                     <Button 
-                                        variant="link" 
-                                        size="sm" 
-                                        className="p-0 h-auto text-primary text-xs"
-                                        onClick={() => onOpenReviewDialog(p.id, p.title)}
-                                        disabled={hasReview(p.id)}
-                                      >
-                                        {hasReview(p.id) ? 'Review Submitted' : 'Write a review'}
-                                      </Button>
-                                )}
-                            </div>
-                         </div>
-                    ))}
-                </div>
-            </div>
-        )
-    }
 
     return (
         <div key={item.id} className="flex items-center gap-4">
@@ -141,7 +75,7 @@ function OrderItem({ item, orderStatus, onOpenReviewDialog, hasReview, uiConfig 
             data-ai-hint="product image"
             />
             <div className="flex-grow">
-            <p className="font-semibold">{item.title}</p>
+            <p className="font-semibold">{item.title} {item.isCombo ? '(Combo)' : ''}</p>
             <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                 {isItemReviewable(orderStatus) && (
                 <Button 
