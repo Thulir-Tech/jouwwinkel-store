@@ -455,7 +455,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                         <TabsTrigger value="desktop">Desktop</TabsTrigger>
                         <TabsTrigger value="mobile">Mobile</TabsTrigger>
                     </TabsList>
-                    <TabsContent value="desktop">
+                    <TabsContent value="desktop" className="w-full">
                         <Card>
                             <CardContent className="space-y-4 pt-6">
                                 <FormField
@@ -503,7 +503,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                             </CardContent>
                         </Card>
                     </TabsContent>
-                    <TabsContent value="mobile">
+                    <TabsContent value="mobile" className="w-full">
                         <Card>
                              <CardContent className="space-y-4 pt-6">
                                 <FormField
@@ -663,3 +663,5 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     </Form>
   );
 }
+
+    
