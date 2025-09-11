@@ -142,6 +142,7 @@ export type Review = {
 };
 
 export type HeroMediaConfig = {
+  showHero?: boolean;
   viewType?: 'default' | 'static' | 'carousel';
   fileType?: 'image' | 'video';
   mediaItems?: string[];

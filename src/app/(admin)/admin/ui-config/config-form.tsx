@@ -36,9 +36,11 @@ import { MediaUploader } from '../media-uploader';
 import { useState } from 'react';
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Switch } from '@/components/ui/switch';
 
 
 const heroMediaConfigSchema = z.object({
+    showHero: z.boolean().optional(),
     viewType: z.enum(['default', 'static', 'carousel']).optional(),
     fileType: z.enum(['image', 'video']).optional(),
     mediaItems: z.array(z.string()).optional(),
@@ -219,11 +221,13 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       storeAddress: initialData?.storeAddress || '',
 
       heroDesktop: {
+        showHero: initialData?.heroDesktop?.showHero ?? true,
         viewType: initialData?.heroDesktop?.viewType || 'default',
         fileType: initialData?.heroDesktop?.fileType || 'image',
         mediaItems: initialData?.heroDesktop?.mediaItems || [],
       },
       heroMobile: {
+        showHero: initialData?.heroMobile?.showHero ?? true,
         viewType: initialData?.heroMobile?.viewType || 'default',
         fileType: initialData?.heroMobile?.fileType || 'image',
         mediaItems: initialData?.heroMobile?.mediaItems || [],
@@ -456,6 +460,26 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                             <CardContent className="space-y-4 pt-6">
                                 <FormField
                                     control={form.control}
+                                    name="heroDesktop.showHero"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                                        <div className="space-y-0.5">
+                                            <FormLabel>Show Hero Section</FormLabel>
+                                            <FormDescription>
+                                                Toggle the visibility of the hero section on desktop.
+                                            </FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
                                     name="heroDesktop.viewType"
                                     render={({ field }) => (
                                         <FormItem>
@@ -482,6 +506,26 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                     <TabsContent value="mobile">
                         <Card>
                              <CardContent className="space-y-4 pt-6">
+                                <FormField
+                                    control={form.control}
+                                    name="heroMobile.showHero"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                                        <div className="space-y-0.5">
+                                            <FormLabel>Show Hero Section</FormLabel>
+                                            <FormDescription>
+                                                Toggle the visibility of the hero section on mobile.
+                                            </FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
                                 <FormField
                                     control={form.control}
                                     name="heroMobile.viewType"
