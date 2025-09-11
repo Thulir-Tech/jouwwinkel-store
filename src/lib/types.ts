@@ -164,8 +164,11 @@ export type UiConfig = {
     heroMobile?: HeroMediaConfig;
 
     heroText1?: string;
+    heroText1Color?: string;
     heroText2?: string;
+    heroText2Color?: string;
     heroText3?: string;
+    heroText3Color?: string;
     ourStoryContent?: string;
     brandLogoUrl?: string;
 };

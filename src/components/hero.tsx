@@ -1,44 +1,59 @@
 
+
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { getUiConfig } from '@/lib/firestore';
 import { Carousel, CarouselContent, CarouselItem } from './ui/carousel';
 import Autoplay from "embla-carousel-autoplay";
 import Image from 'next/image';
-import type { HeroMediaConfig } from '@/lib/types';
+import type { HeroMediaConfig, UiConfig } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-const HeroContent = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig>> }) => (
-  <div className="relative z-10">
-    <div className="container mx-auto px-4 py-24 sm:py-32 lg:py-40 text-center">
-      <div className="max-w-3xl mx-auto">
-        {config?.heroText1 && (
-          <p className="text-base font-semibold uppercase tracking-wider text-white">
-            {config.heroText1}
-          </p>
-        )}
-        {config?.heroText2 && (
-          <h1 className="mt-2 text-4xl font-extrabold font-headline tracking-tight text-white sm:text-5xl lg:text-6xl">
-            {config.heroText2}
-          </h1>
-        )}
-        {config?.heroText3 && (
-          <p className="mt-6 text-lg text-gray-200">
-            {config.heroText3}
-          </p>
-        )}
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button asChild size="lg" className="bg-primary/90 text-primary-foreground hover:bg-primary">
-            <Link href="/products">Shop All</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="bg-background/20 border-white text-white backdrop-blur-sm hover:bg-background/30">
-            <Link href="/combos">View Combos</Link>
-          </Button>
+const HeroContent = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig>> }) => {
+    const defaultTextColor = '#FFFFFF';
+    const defaultMutedColor = '#E5E7EB';
+
+    return (
+        <div className="relative z-10">
+            <div className="container mx-auto px-4 py-24 sm:py-32 lg:py-40 text-center">
+            <div className="max-w-3xl mx-auto">
+                {config?.heroText1 && (
+                <p 
+                    className="text-base font-semibold uppercase tracking-wider"
+                    style={{ color: config.heroText1Color || defaultTextColor }}
+                >
+                    {config.heroText1}
+                </p>
+                )}
+                {config?.heroText2 && (
+                <h1 
+                    className="mt-2 text-4xl font-extrabold font-headline tracking-tight sm:text-5xl lg:text-6xl"
+                    style={{ color: config.heroText2Color || defaultTextColor }}
+                >
+                    {config.heroText2}
+                </h1>
+                )}
+                {config?.heroText3 && (
+                <p 
+                    className="mt-6 text-lg"
+                    style={{ color: config.heroText3Color || defaultMutedColor }}
+                >
+                    {config.heroText3}
+                </p>
+                )}
+                <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Button asChild size="lg" className="bg-primary/90 text-primary-foreground hover:bg-primary">
+                    <Link href="/products">Shop All</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="bg-background/20 border-white text-white backdrop-blur-sm hover:bg-background/30">
+                    <Link href="/combos">View Combos</Link>
+                </Button>
+                </div>
+            </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
-);
+    );
+};
 
 const DefaultHero = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig>>}) => (
     <div className="relative bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950">
@@ -55,7 +70,7 @@ const DefaultHero = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig
           </h1>
         )}
         {config?.heroText3 && (
-          <p className="mt-6 text-lg text-gray-300">
+          <p className="mt-6 text-lg text-gray-600 dark:text-gray-300">
             {config.heroText3}
           </p>
         )}
@@ -144,7 +159,7 @@ export default async function Hero() {
       <div className={cn("hidden w-full md:block", { "h-[60vh]": hasDesktopMedia })}>
         {showDesktopHero && (
           hasDesktopMedia ? (
-            <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 z-0 h-[60vh] w-full">
               <MediaHero mediaConfig={config!.heroDesktop!} />
               <HeroContent config={config} />
             </div>
@@ -158,7 +173,7 @@ export default async function Hero() {
       <div className={cn("w-full md:hidden", { "h-[80vh]": hasMobileMedia })}>
         {showMobileHero && (
            hasMobileMedia ? (
-            <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 z-0 h-[80vh] w-full">
               <MediaHero mediaConfig={config!.heroMobile!} />
               <HeroContent config={config} />
             </div>

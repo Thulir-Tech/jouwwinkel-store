@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -63,8 +64,11 @@ const configFormSchema = z.object({
   heroMobile: heroMediaConfigSchema,
 
   heroText1: z.string().optional(),
+  heroText1Color: z.string().optional(),
   heroText2: z.string().optional(),
+  heroText2Color: z.string().optional(),
   heroText3: z.string().optional(),
+  heroText3Color: z.string().optional(),
   ourStoryContent: z.string().optional(),
   brandLogoUrl: z.array(z.string()).optional(),
 });
@@ -234,8 +238,11 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       },
 
       heroText1: initialData?.heroText1 || '',
+      heroText1Color: initialData?.heroText1Color || '#FFFFFF',
       heroText2: initialData?.heroText2 || '',
+      heroText2Color: initialData?.heroText2Color || '#FFFFFF',
       heroText3: initialData?.heroText3 || '',
+      heroText3Color: initialData?.heroText3Color || '#E5E7EB',
       ourStoryContent: initialData?.ourStoryContent || '',
       brandLogoUrl: initialData?.brandLogoUrl ? [initialData.brandLogoUrl] : [],
     },
@@ -555,45 +562,86 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
 
                  <Separator />
                 <h4 className="font-medium pt-4">Hero Text Content (Shared)</h4>
-                 <FormField
-                    control={form.control}
-                    name="heroText1"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Hero Text 1 (Subheading)</FormLabel>
-                        <FormControl>
-                            <Input placeholder="e.g. Make Your Own" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="heroText2"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Hero Text 2 (Main Heading)</FormLabel>
-                        <FormControl>
-                            <Input placeholder="e.g. Elevate your style" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                 <FormField
-                    control={form.control}
-                    name="heroText3"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Hero Text 3 (Description)</FormLabel>
-                        <FormControl>
-                            <Textarea placeholder="e.g. Discover a world of elegance..." {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                 <div className="space-y-4">
+                    <div className="grid grid-cols-[1fr_auto] items-end gap-2">
+                        <FormField
+                            control={form.control}
+                            name="heroText1"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Hero Text 1 (Subheading)</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g. Make Your Own" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="heroText1Color"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormControl>
+                                    <Input type="color" {...field} className="h-10 w-16 p-1" />
+                                </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                     <div className="grid grid-cols-[1fr_auto] items-end gap-2">
+                        <FormField
+                            control={form.control}
+                            name="heroText2"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Hero Text 2 (Main Heading)</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g. Elevate your style" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="heroText2Color"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormControl>
+                                    <Input type="color" {...field} className="h-10 w-16 p-1" />
+                                </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                     <div className="grid grid-cols-[1fr_auto] items-end gap-2">
+                        <FormField
+                            control={form.control}
+                            name="heroText3"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Hero Text 3 (Description)</FormLabel>
+                                <FormControl>
+                                    <Textarea placeholder="e.g. Discover a world of elegance..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="heroText3Color"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormControl>
+                                    <Input type="color" {...field} className="h-10 w-16 p-1" />
+                                </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
 
             </CardContent>
         </Card>
