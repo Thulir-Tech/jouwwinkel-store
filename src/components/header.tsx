@@ -1,8 +1,9 @@
 
+
 'use client';
 
 import Link from 'next/link';
-import { ShoppingBag, User, LogOut, Package } from 'lucide-react';
+import { ShoppingBag, User, LogOut, Package, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/lib/store';
 import { useEffect, useState } from 'react';
@@ -54,6 +55,12 @@ function UserNav() {
                 <Link href="/profile">
                     <User className="mr-2 h-4 w-4" />
                     <span>My Profile</span>
+                </Link>
+            </DropdownMenuItem>
+             <DropdownMenuItem asChild>
+                <Link href="/wishlist">
+                    <Heart className="mr-2 h-4 w-4" />
+                    <span>My Wishlist</span>
                 </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>

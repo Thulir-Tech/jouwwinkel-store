@@ -121,6 +121,7 @@ export interface User extends FirebaseUser {
     mobile?: string;
     shippingAddress?: ShippingAddress;
     createdAt: number;
+    wishlist?: string[];
 }
 
 export type ShippingPartner = {

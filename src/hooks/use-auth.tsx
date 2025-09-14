@@ -1,12 +1,14 @@
 
+
 'use client';
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from 'react';
 import { onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, sendPasswordResetEmail, User as FirebaseUser } from 'firebase/auth';
 import { auth, db } from '@/lib/firebase.client';
 import type { User, UiConfig } from '@/lib/types';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { getUiConfig } from '@/lib/firestore';
+import { getUiConfig, getUser } from '@/lib/firestore';
+import { toggleWishlistProduct } from '@/lib/firestore.admin';
 
 interface AuthContextType {
   user: User | null;
@@ -17,15 +19,16 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<any>;
   signOut: () => Promise<void>;
   sendPasswordReset: (email: string) => Promise<void>;
+  isProductInWishlist: (productId: string) => boolean;
+  handleToggleWishlist: (productId: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Helper function to create/update user profile in Firestore
-const updateUserProfile = async (firebaseUser: FirebaseUser) => {
+const updateUserProfileInFirestore = async (firebaseUser: FirebaseUser) => {
     const userRef = doc(db, 'users', firebaseUser.uid);
     const userDoc = await getDoc(userRef);
-    let mobile = '';
 
     if (!userDoc.exists()) {
         // New user, create profile
@@ -36,12 +39,11 @@ const updateUserProfile = async (firebaseUser: FirebaseUser) => {
             photoURL: firebaseUser.photoURL,
             createdAt: Date.now(),
             isAdmin: false, // Default to not admin
-        });
-    } else {
-        mobile = userDoc.data()?.mobile || '';
+            wishlist: [],
+        }, { merge: true });
     }
     const userData = (await getDoc(userRef)).data();
-    return { ...firebaseUser, ...userData, mobile } as User;
+    return { ...firebaseUser, ...userData } as User;
 }
 
 
@@ -50,10 +52,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [uiConfig, setUiConfig] = useState<UiConfig | null>(null);
 
+  const fetchUser = useCallback(async (uid: string) => {
+    const userProfile = await getUser(uid);
+    if (userProfile) {
+      setUser(userProfile as User);
+    }
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        const userProfile = await updateUserProfile(firebaseUser);
+        const userProfile = await updateUserProfileInFirestore(firebaseUser);
         setUser(userProfile);
       } else {
         setUser(null);
@@ -70,6 +79,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  const isProductInWishlist = (productId: string): boolean => {
+    return user?.wishlist?.includes(productId) ?? false;
+  };
+
+  const handleToggleWishlist = async (productId: string) => {
+    if (!user) {
+      // Or redirect to login
+      console.error("User not logged in");
+      return;
+    }
+    const currentStatus = isProductInWishlist(productId);
+    // Optimistic update
+    setUser(prevUser => {
+        if (!prevUser) return null;
+        const newWishlist = currentStatus 
+            ? prevUser.wishlist?.filter(id => id !== productId)
+            : [...(prevUser.wishlist || []), productId];
+        return { ...prevUser, wishlist: newWishlist };
+    });
+
+    try {
+      await toggleWishlistProduct(user.uid, productId, currentStatus);
+    } catch (error) {
+      // Revert optimistic update on error
+      setUser(prevUser => {
+        if (!prevUser) return null;
+        const revertedWishlist = currentStatus
+            ? [...(prevUser.wishlist || []), productId]
+            : prevUser.wishlist?.filter(id => id !== productId);
+        return { ...prevUser, wishlist: revertedWishlist };
+      });
+    }
+  };
+
   const signInWithEmail = (email: string, password: string) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
@@ -79,7 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (userCredential.user) {
         await updateProfile(userCredential.user, { displayName: name });
         // After creating the user, we create their profile in Firestore
-        await updateUserProfile(userCredential.user);
+        await updateUserProfileInFirestore(userCredential.user);
     }
     return userCredential;
   };
@@ -89,7 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const result = await signInWithPopup(auth, provider);
     if (result.user) {
         // On Google sign-in, we also ensure a user profile exists
-        await updateUserProfile(result.user);
+        await updateUserProfileInFirestore(result.user);
     }
     return result;
   }
@@ -112,6 +155,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInWithGoogle,
     signOut,
     sendPasswordReset,
+    isProductInWishlist,
+    handleToggleWishlist,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

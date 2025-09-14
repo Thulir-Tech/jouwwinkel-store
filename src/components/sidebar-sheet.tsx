@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu } from 'lucide-react';
+import { Menu, Heart } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -52,6 +53,12 @@ export function SidebarSheet() {
           </Button>
           <Button variant="ghost" className="justify-start text-lg" asChild>
             <Link href="/combos" onClick={closeSheet}>Combos</Link>
+          </Button>
+           <Button variant="ghost" className="justify-start text-lg items-center" asChild>
+            <Link href="/wishlist" onClick={closeSheet}>
+                My Wishlist
+                <Heart className="ml-2 h-5 w-5" />
+            </Link>
           </Button>
           <Separator className="my-2" />
           <Accordion type="single" collapsible className="w-full">

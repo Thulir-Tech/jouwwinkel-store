@@ -3,7 +3,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Star, ShoppingCart } from 'lucide-react';
+import { Star, ShoppingCart, Heart, Share2 } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import { useCartStore } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface ProductCardProps {
   product: Product;
@@ -25,7 +26,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { addToCart } = useCartStore();
   const { toast } = useToast();
-  const { uiConfig } = useAuth();
+  const { uiConfig, user, isProductInWishlist, handleToggleWishlist } = useAuth();
+  const router = useRouter();
   
   const showCompareAtPrice = product.compareAtPrice && product.compareAtPrice > product.price;
 
@@ -49,8 +51,40 @@ export default function ProductCard({ product }: ProductCardProps) {
         });
     }
   };
+  
+  const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!user) {
+        router.push('/login');
+        return;
+    }
+    handleToggleWishlist(product.id);
+    toast({
+        title: isProductInWishlist(product.id) ? 'Removed from wishlist' : 'Added to wishlist',
+    });
+  }
+
+  const handleShareClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: product.title,
+                text: `Check out this product: ${product.title}`,
+                url: `${window.location.origin}/products/${product.slug}`,
+            });
+        } catch (error) {
+            console.error('Error sharing:', error);
+        }
+    } else {
+        // Fallback for browsers that don't support the Web Share API
+        navigator.clipboard.writeText(`${window.location.origin}/products/${product.slug}`);
+        toast({ title: 'Link copied to clipboard!'});
+    }
+  }
 
   const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+  const isInWishlist = user ? isProductInWishlist(product.id) : false;
 
   return (
     <>
@@ -61,7 +95,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           onOpenChange={setIsDialogOpen}
         />
       )}
-      <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl", cardColorClass)}>
+      <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl group/card", cardColorClass)}>
         <Link href={`/products/${product.slug}`} className="block h-full">
             <CardHeader className="p-0 relative">
                 <Image
@@ -77,6 +111,26 @@ export default function ProductCard({ product }: ProductCardProps) {
                   Sale
                 </Badge>
               )}
+               <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
+                    <Button
+                        size="icon"
+                        variant="secondary"
+                        className="rounded-full h-8 w-8"
+                        onClick={handleWishlistClick}
+                        aria-label="Add to wishlist"
+                    >
+                        <Heart className={cn("h-4 w-4", isInWishlist && "fill-destructive text-destructive")} />
+                    </Button>
+                    <Button
+                        size="icon"
+                        variant="secondary"
+                        className="rounded-full h-8 w-8"
+                        onClick={handleShareClick}
+                        aria-label="Share product"
+                    >
+                        <Share2 className="h-4 w-4" />
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent className="flex-grow p-4 space-y-2">
               <CardTitle className="text-lg font-semibold leading-tight line-clamp-2 font-headline">

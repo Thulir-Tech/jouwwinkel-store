@@ -1,7 +1,7 @@
 
 
 import { db, storage } from './firebase.client';
-import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction, getDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction, getDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon, Category, ShippingAddress, Review, DeveloperConfig } from './types';
 import { getProductsByIds } from './firestore';
@@ -389,6 +389,20 @@ export async function updateUserProfile(userId: string, data: { displayName?: st
     
     await updateDoc(userRef, updateData);
 }
+
+export async function toggleWishlistProduct(userId: string, productId: string, isWishlisted: boolean): Promise<void> {
+    const userRef = doc(db, 'users', userId);
+    if (isWishlisted) {
+      await updateDoc(userRef, {
+        wishlist: arrayRemove(productId)
+      });
+    } else {
+      await updateDoc(userRef, {
+        wishlist: arrayUnion(productId)
+      });
+    }
+}
+
 
 // File Upload
 export function uploadFile(
