@@ -111,7 +111,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   Sale
                 </Badge>
               )}
-               <div className="absolute top-2 right-2 flex flex-col gap-2 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
+               <div className="absolute top-2 right-2 flex flex-col gap-2 transition-opacity duration-300">
                     <Button
                         size="icon"
                         variant="secondary"

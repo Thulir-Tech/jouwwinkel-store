@@ -3,7 +3,7 @@
 'use client';
 
 import { getProductBySlug, getApprovedReviewsForProduct } from '@/lib/firestore';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/format';
@@ -13,13 +13,15 @@ import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import AddToCartButton from './add-to-cart-button';
 import { FaWhatsapp, FaCheckCircle } from 'react-icons/fa';
-import { ShoppingBag, Truck, MapPin, ChevronLeft, ChevronRight, Star } from 'lucide-react';
+import { ShoppingBag, Truck, MapPin, ChevronLeft, ChevronRight, Star, Heart, Share2 } from 'lucide-react';
 import type { Product, Review } from '@/lib/types';
 import VariantSelector from '@/components/variant-selector';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
 
 function ProductPageSkeleton() {
     return (
@@ -248,12 +250,16 @@ function ReviewsSection({ reviews }: { reviews: Review[] }) {
 export default function ProductPage() {
   const params = useParams();
   const slug = params.slug as string;
+  const router = useRouter();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [isClient, setIsClient] = useState(false);
+  
+  const { toast } = useToast();
+  const { user, isProductInWishlist, handleToggleWishlist } = useAuth();
   
   useEffect(() => {
     setIsClient(true);
@@ -272,6 +278,36 @@ export default function ProductPage() {
     fetchProductData();
   }, [slug]);
 
+  const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!user || !product) {
+        router.push('/login');
+        return;
+    }
+    handleToggleWishlist(product.id);
+    toast({
+        title: isProductInWishlist(product.id) ? 'Removed from wishlist' : 'Added to wishlist',
+    });
+  }
+
+  const handleShareClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!product) return;
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: product.title,
+                text: `Check out this product: ${product.title}`,
+                url: window.location.href,
+            });
+        } catch (error) {
+            console.error('Error sharing:', error);
+        }
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        toast({ title: 'Link copied to clipboard!'});
+    }
+  }
 
   if (loading || !product) {
       return (
@@ -283,6 +319,7 @@ export default function ProductPage() {
 
   const isSelectionComplete = product.hasVariants ? product.variants.every(v => selectedVariants[v.variantName]) : true;
   const showCompareAtPrice = product.compareAtPrice && product.compareAtPrice > product.price;
+  const isInWishlist = user ? isProductInWishlist(product.id) : false;
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -323,11 +360,31 @@ export default function ProductPage() {
             />
 
             <div className="mt-auto space-y-4 pt-6">
-                <AddToCartButton 
-                    product={product} 
-                    selectedVariants={selectedVariants}
-                    isSelectionComplete={isSelectionComplete}
-                />
+                <div className="flex gap-2">
+                    <AddToCartButton 
+                        product={product} 
+                        selectedVariants={selectedVariants}
+                        isSelectionComplete={isSelectionComplete}
+                    />
+                    <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-12 w-12"
+                        onClick={handleWishlistClick}
+                        aria-label="Add to wishlist"
+                    >
+                        <Heart className={cn("h-5 w-5", isInWishlist && "fill-destructive text-destructive")} />
+                    </Button>
+                    <Button
+                        size="icon"
+                        variant="outline"
+                        className="h-12 w-12"
+                        onClick={handleShareClick}
+                        aria-label="Share product"
+                    >
+                        <Share2 className="h-5 w-5" />
+                    </Button>
+                </div>
             </div>
         </div>
       </div>
