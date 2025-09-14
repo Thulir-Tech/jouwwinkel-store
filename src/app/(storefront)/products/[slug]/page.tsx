@@ -290,19 +290,19 @@ export default function ProductPage() {
     });
   }
 
-  const handleShareClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!product) return;
     if (navigator.share) {
-        try {
-            await navigator.share({
-                title: product.title,
-                text: `Check out this product: ${product.title}`,
-                url: window.location.href,
-            });
-        } catch (error) {
-            console.error('Error sharing:', error);
-        }
+        navigator.share({
+            title: product.title,
+            text: `Check out this product: ${product.title}`,
+            url: window.location.href,
+        }).catch((error) => {
+            if (error.name !== 'AbortError') {
+                console.error('Error sharing:', error)
+            }
+        });
     } else {
         navigator.clipboard.writeText(window.location.href);
         toast({ title: 'Link copied to clipboard!'});

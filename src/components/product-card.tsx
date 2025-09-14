@@ -64,21 +64,21 @@ export default function ProductCard({ product }: ProductCardProps) {
     });
   }
 
-  const handleShareClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    const productUrl = `${window.location.origin}/products/${product.slug}`;
     if (navigator.share) {
-        try {
-            await navigator.share({
-                title: product.title,
-                text: `Check out this product: ${product.title}`,
-                url: `${window.location.origin}/products/${product.slug}`,
-            });
-        } catch (error) {
-            console.error('Error sharing:', error);
-        }
+        navigator.share({
+            title: product.title,
+            text: `Check out this product: ${product.title}`,
+            url: productUrl,
+        }).catch((error) => {
+            if (error.name !== 'AbortError') {
+                console.error('Error sharing:', error);
+            }
+        });
     } else {
-        // Fallback for browsers that don't support the Web Share API
-        navigator.clipboard.writeText(`${window.location.origin}/products/${product.slug}`);
+        navigator.clipboard.writeText(productUrl);
         toast({ title: 'Link copied to clipboard!'});
     }
   }
