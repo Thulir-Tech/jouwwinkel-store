@@ -59,7 +59,8 @@ const configFormSchema = z.object({
   instagramLink: z.string().url().or(z.literal('')).optional(),
   whatsappLink: z.string().url().or(z.literal('')).optional(),
   storeAddress: z.string().optional(),
-  googleMapsLink: z.string().url().or(z.literal('')).optional(),
+  googleMapsEmbed: z.string().optional(),
+  showLocation: z.boolean().optional(),
   productShareText: z.string().optional(),
   
   heroDesktop: heroMediaConfigSchema,
@@ -226,7 +227,8 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       instagramLink: initialData?.instagramLink || '',
       whatsappLink: initialData?.whatsappLink || '',
       storeAddress: initialData?.storeAddress || '',
-      googleMapsLink: initialData?.googleMapsLink || '',
+      googleMapsEmbed: initialData?.googleMapsEmbed || '',
+      showLocation: initialData?.showLocation ?? true,
       productShareText: initialData?.productShareText || '',
 
       heroDesktop: {
@@ -266,7 +268,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
 
   const onSubmit = async (data: ConfigFormValues) => {
     try {
-      const finalData: Partial<UiConfig> = {
+      const finalData: { [key: string]: any } = {
         ...data,
         brandLogoUrl: data.brandLogoUrl?.[0] || '',
         ourStoryImageUrl: data.ourStoryImageUrl?.[0] || '',
@@ -656,6 +658,26 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
          <div className="space-y-4">
             <h3 className="text-lg font-medium">Contact & Social</h3>
             <FormField
+              control={form.control}
+              name="showLocation"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Show Location Section</FormLabel>
+                    <FormDescription>
+                      Toggle the visibility of the location section on the Contact Us page.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
             control={form.control}
             name="instagramLink"
             render={({ field }) => (
@@ -697,14 +719,14 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
             />
             <FormField
             control={form.control}
-            name="googleMapsLink"
+            name="googleMapsEmbed"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Google Maps Link</FormLabel>
+                <FormLabel>Google Maps Embed Code</FormLabel>
                 <FormControl>
-                    <Input placeholder="https://maps.app.goo.gl/..." {...field} />
+                    <Textarea placeholder='<iframe src="..."></iframe>' {...field} />
                 </FormControl>
-                <FormDescription>The direct link to your store on Google Maps.</FormDescription>
+                <FormDescription>Paste the full iframe embed code from Google Maps here.</FormDescription>
                 <FormMessage />
                 </FormItem>
             )}

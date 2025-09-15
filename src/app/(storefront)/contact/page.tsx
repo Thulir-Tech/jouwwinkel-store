@@ -116,29 +116,29 @@ export default function ContactPage() {
                     </div>
 
                     <div className="space-y-6">
-                         <Card className={cn(cardColorClass)}>
-                            <CardHeader>
-                                <CardTitle>Our Location</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {uiConfig?.storeAddress && (
-                                    <div className="flex items-start gap-4">
-                                        <MapPin className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                                        <p className="text-muted-foreground whitespace-pre-line">
-                                            {uiConfig.storeAddress}
-                                        </p>
-                                    </div>
-                                )}
-                                {uiConfig?.googleMapsLink && (
-                                     <Button asChild variant="outline" className="w-full">
-                                        <a href={uiConfig.googleMapsLink} target="_blank" rel="noopener noreferrer">
-                                            <MapPin className="mr-2 h-4 w-4" />
-                                            Find us on Google Maps
-                                        </a>
-                                    </Button>
-                                )}
-                            </CardContent>
-                        </Card>
+                        {uiConfig?.showLocation && (
+                            <Card className={cn(cardColorClass)}>
+                                <CardHeader>
+                                    <CardTitle>Our Location</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {uiConfig.storeAddress && (
+                                        <div className="flex items-start gap-4">
+                                            <MapPin className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                                            <p className="text-muted-foreground whitespace-pre-line">
+                                                {uiConfig.storeAddress}
+                                            </p>
+                                        </div>
+                                    )}
+                                    {uiConfig.googleMapsEmbed && (
+                                        <div 
+                                            className="w-full aspect-video overflow-hidden rounded-lg border"
+                                            dangerouslySetInnerHTML={{ __html: uiConfig.googleMapsEmbed }}
+                                        />
+                                    )}
+                                </CardContent>
+                            </Card>
+                        )}
                     </div>
                 </div>
             </div>
