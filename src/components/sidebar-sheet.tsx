@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, Heart } from 'lucide-react';
+import { Menu, Heart, Package } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -54,12 +54,6 @@ export function SidebarSheet() {
           <Button variant="ghost" className="justify-start text-lg" asChild>
             <Link href="/combos" onClick={closeSheet}>Combos</Link>
           </Button>
-           <Button variant="ghost" className="justify-start text-lg items-center" asChild>
-            <Link href="/wishlist" onClick={closeSheet}>
-                My Wishlist
-                <Heart className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
           <Separator className="my-2" />
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="categories" className="border-b-0">
@@ -77,6 +71,18 @@ export function SidebarSheet() {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+            <Button variant="ghost" className="justify-start text-lg items-center" asChild>
+                <Link href="/wishlist" onClick={closeSheet}>
+                    My Wishlist
+                    <Heart className="ml-2 h-5 w-5" />
+                </Link>
+            </Button>
+             <Button variant="ghost" className="justify-start text-lg items-center" asChild>
+                <Link href="/orders" onClick={closeSheet}>
+                    My Orders
+                    <Package className="ml-2 h-5 w-5" />
+                </Link>
+            </Button>
           <Separator className="my-2" />
           <Button variant="ghost" className="justify-start text-lg">Contact</Button>
         </div>
