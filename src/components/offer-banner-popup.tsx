@@ -39,16 +39,6 @@ export default function OfferBannerPopup({ config }: OfferBannerPopupProps) {
       <DialogContent className="p-0 border-0 max-w-md bg-transparent shadow-none">
         <DialogTitle className="sr-only">Special Offer</DialogTitle>
         <div className="relative">
-            <Button 
-                variant="ghost" 
-                size="icon" 
-                className="absolute top-2 right-2 rounded-full bg-black/50 text-white hover:bg-black/70 z-20"
-                onClick={() => setOpen(false)}
-                aria-label="Close offer banner"
-                >
-                <X className="h-4 w-4" />
-            </Button>
-
             {isCarousel ? (
                 <Carousel opts={{ loop: true }} plugins={[Autoplay({ delay: 3000 })]} className="overflow-hidden rounded-lg">
                 <CarouselContent>
