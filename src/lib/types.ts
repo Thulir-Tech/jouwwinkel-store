@@ -164,6 +164,7 @@ export type UiConfig = {
     footerCaption?: string;
     instagramLink?: string;
     whatsappLink?: string;
+    storePhoneNumber?: string;
     storeAddress?: string;
     googleMapsEmbed?: string;
     showLocation?: boolean;

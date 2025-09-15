@@ -58,6 +58,7 @@ const configFormSchema = z.object({
   footerCaption: z.string().optional(),
   instagramLink: z.string().url().or(z.literal('')).optional(),
   whatsappLink: z.string().url().or(z.literal('')).optional(),
+  storePhoneNumber: z.string().optional(),
   storeAddress: z.string().optional(),
   googleMapsEmbed: z.string().optional(),
   showLocation: z.boolean().optional(),
@@ -226,6 +227,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       footerCaption: initialData?.footerCaption || '',
       instagramLink: initialData?.instagramLink || '',
       whatsappLink: initialData?.whatsappLink || '',
+      storePhoneNumber: initialData?.storePhoneNumber || '',
       storeAddress: initialData?.storeAddress || '',
       googleMapsEmbed: initialData?.googleMapsEmbed || '',
       showLocation: initialData?.showLocation ?? true,
@@ -699,6 +701,20 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                 <FormControl>
                     <Input placeholder="https://wa.me/your-number" {...field} />
                 </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+             <FormField
+            control={form.control}
+            name="storePhoneNumber"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Store Phone Number</FormLabel>
+                <FormControl>
+                    <Input placeholder="e.g. +91 98765 43210" {...field} />
+                </FormControl>
+                <FormDescription>The primary contact number for your store.</FormDescription>
                 <FormMessage />
                 </FormItem>
             )}

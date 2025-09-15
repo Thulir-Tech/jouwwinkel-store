@@ -13,7 +13,7 @@ import type { Product } from '@/lib/types';
 import { ContactForm } from './contact-form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { MapPin } from 'lucide-react';
+import { MapPin, Phone } from 'lucide-react';
 import Link from 'next/link';
 
 const InstagramIcon = () => (
@@ -86,6 +86,14 @@ export default function ContactPage() {
                                 <CardTitle>Get in Touch Directly</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
+                                 {uiConfig?.storePhoneNumber && (
+                                    <Button asChild className="w-full" size="lg">
+                                        <a href={`tel:${uiConfig.storePhoneNumber}`}>
+                                            <Phone className="mr-2 h-6 w-6" />
+                                            Call Us Now
+                                        </a>
+                                    </Button>
+                                )}
                                 {uiConfig?.whatsappLink && (
                                     <Button asChild className="w-full" size="lg">
                                         <a href={uiConfig.whatsappLink} target="_blank" rel="noopener noreferrer">
@@ -130,11 +138,15 @@ export default function ContactPage() {
                                             </p>
                                         </div>
                                     )}
-                                    {uiConfig.googleMapsEmbed && (
+                                    {uiConfig.googleMapsEmbed ? (
                                         <div 
                                             className="w-full aspect-video overflow-hidden rounded-lg border"
                                             dangerouslySetInnerHTML={{ __html: uiConfig.googleMapsEmbed }}
                                         />
+                                    ) : uiConfig.googleMapsLink && (
+                                        <Button asChild className="w-full">
+                                            <a href={uiConfig.googleMapsLink} target="_blank" rel="noopener noreferrer">Find us on Google Maps</a>
+                                        </Button>
                                     )}
                                 </CardContent>
                             </Card>
