@@ -12,12 +12,12 @@ import { Trash2, GripVertical, Link as LinkIcon, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
-interface ProductImageManagerProps {
+interface ImageManagerProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
 }
 
-export function ProductImageManager({ images, onImagesChange }: ProductImageManagerProps) {
+export function ImageManager({ images, onImagesChange }: ImageManagerProps) {
   const [addMethod, setAddMethod] = useState<'upload' | 'link'>('upload');
   const [newImageUrl, setNewImageUrl] = useState('');
   const { toast } = useToast();
@@ -58,7 +58,7 @@ export function ProductImageManager({ images, onImagesChange }: ProductImageMana
       <div>
         <Label>Current Images</Label>
         <p className="text-sm text-muted-foreground mb-4">
-          Drag and drop the images to change their order on the product page. The first image is the main one.
+          Drag and drop the images to change their order. The first image is the main one.
         </p>
         {images.length > 0 ? (
           <div className="space-y-2">
@@ -75,11 +75,10 @@ export function ProductImageManager({ images, onImagesChange }: ProductImageMana
                 <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
                 <Image
                   src={url}
-                  alt={`Product image ${index + 1}`}
+                  alt={`Image ${index + 1}`}
                   width={64}
                   height={64}
                   className="rounded-md object-cover w-16 h-16"
-                  data-ai-hint="product image"
                 />
                 <p className="flex-grow text-xs text-muted-foreground truncate">{url}</p>
                 <Button

@@ -23,7 +23,7 @@ import { useRouter } from 'next/navigation';
 import { addCombo, updateCombo } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { MediaUploader } from '../media-uploader';
+import { ImageManager } from '../image-manager';
 import { Trash2 } from 'lucide-react';
 
 const comboFormSchema = z.object({
@@ -155,12 +155,10 @@ export function ComboForm({ combo, products }: ComboFormProps) {
                         name="images"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Combo Media</FormLabel>
                                 <FormControl>
-                                    <MediaUploader 
-                                        value={field.value || []} 
-                                        onChange={field.onChange}
-                                        fileTypes={['image']}
+                                    <ImageManager
+                                        images={field.value || []}
+                                        onImagesChange={field.onChange}
                                     />
                                 </FormControl>
                                 <FormMessage />

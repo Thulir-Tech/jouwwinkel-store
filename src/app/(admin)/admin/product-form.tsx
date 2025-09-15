@@ -31,7 +31,7 @@ import { addProduct, updateProduct } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { MultiSelect } from '@/components/ui/multi-select';
-import { ProductImageManager } from './product-image-manager';
+import { ImageManager } from './image-manager';
 import { Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -198,7 +198,7 @@ export function ProductForm({ product, categories, selectableProducts, allVarian
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <ProductImageManager
+                                    <ImageManager
                                         images={field.value || []}
                                         onImagesChange={field.onChange}
                                     />
