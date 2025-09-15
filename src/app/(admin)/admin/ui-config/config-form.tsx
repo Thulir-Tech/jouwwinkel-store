@@ -276,6 +276,14 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
         ourStoryImageUrl: data.ourStoryImageUrl?.[0] || '',
       };
       
+      // Firestore does not accept 'undefined' values.
+      if (data.storeLatitude === undefined || isNaN(data.storeLatitude)) {
+        delete (finalData as any).storeLatitude;
+      }
+      if (data.storeLongitude === undefined || isNaN(data.storeLongitude)) {
+        delete (finalData as any).storeLongitude;
+      }
+
       await updateUiConfig(finalData);
       toast({ title: 'Configuration updated successfully' });
       router.refresh();
