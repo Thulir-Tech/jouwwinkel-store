@@ -34,7 +34,7 @@ export default function AddToCartButton({ product, selectedVariants, isSelection
     addToCart({
       productId: product.id,
       title: product.title,
-      price: product.price,
+      price: product.price, // Price here should already be the discounted price
       quantity: 1,
       image: product.images[0],
       variantId,

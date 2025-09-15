@@ -60,13 +60,18 @@ export default function AddToCartDialog({ product: initialProduct, open, onOpenC
         setLoading(true);
         const fullProduct = await getProduct(product.id);
         if (fullProduct) {
-          setProduct(fullProduct);
+          // The passed `initialProduct` might have a discounted price, preserve it
+          const finalProduct = { ...fullProduct, price: initialProduct.price, compareAtPrice: initialProduct.compareAtPrice };
+          setProduct(finalProduct);
         }
         setLoading(false);
+      } else {
+        // Ensure the dialog uses the potentially discounted price from the card
+        setProduct(initialProduct);
       }
     }
     fetchProductDetails();
-  }, [open, product.id, product.variants]);
+  }, [open, product.id, initialProduct]);
 
   const allVariantsSelected = product.hasVariants ? 
     product.variants.length === Object.keys(selectedVariants).length : true;
