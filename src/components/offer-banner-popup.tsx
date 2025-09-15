@@ -37,6 +37,7 @@ export default function OfferBannerPopup({ config }: OfferBannerPopupProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-md">
         <DialogTitle className="sr-only">Special Offer</DialogTitle>
+        <div className="pt-6">
             {isCarousel ? (
                 <Carousel opts={{ loop: true }} plugins={[Autoplay({ delay: 3000 })]} className="overflow-hidden rounded-lg">
                 <CarouselContent>
@@ -76,6 +77,7 @@ export default function OfferBannerPopup({ config }: OfferBannerPopupProps) {
                     </div>
                 </div>
             )}
+        </div>
       </DialogContent>
     </Dialog>
   );
