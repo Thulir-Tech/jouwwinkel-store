@@ -1,5 +1,6 @@
 
 import { getUiConfig } from '@/lib/firestore';
+import Image from 'next/image';
 
 export default async function OurStoryPage() {
   const uiConfig = await getUiConfig();
@@ -10,6 +11,17 @@ export default async function OurStoryPage() {
         <h1 className="text-4xl font-bold text-center mb-8 font-headline">
           Our Story
         </h1>
+        {uiConfig?.ourStoryImageUrl && (
+          <div className="mb-12">
+            <Image 
+              src={uiConfig.ourStoryImageUrl}
+              alt="Our Story"
+              width={1200}
+              height={600}
+              className="w-full h-auto object-cover rounded-lg aspect-[2/1]"
+            />
+          </div>
+        )}
         <div className="prose dark:prose-invert lg:prose-lg mx-auto">
             {uiConfig?.ourStoryContent ? (
                 <p>

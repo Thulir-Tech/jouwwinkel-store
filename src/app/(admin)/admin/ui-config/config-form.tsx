@@ -70,6 +70,7 @@ const configFormSchema = z.object({
   heroText3: z.string().optional(),
   heroText3Color: z.string().optional(),
   ourStoryContent: z.string().optional(),
+  ourStoryImageUrl: z.array(z.string()).optional(),
   brandLogoUrl: z.array(z.string()).optional(),
 });
 
@@ -244,6 +245,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       heroText3: initialData?.heroText3 || '',
       heroText3Color: initialData?.heroText3Color || '#E5E7EB',
       ourStoryContent: initialData?.ourStoryContent || '',
+      ourStoryImageUrl: initialData?.ourStoryImageUrl ? [initialData.ourStoryImageUrl] : [],
       brandLogoUrl: initialData?.brandLogoUrl ? [initialData.brandLogoUrl] : [],
     },
   });
@@ -263,6 +265,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       const finalData: Partial<UiConfig> = {
         ...data,
         brandLogoUrl: data.brandLogoUrl?.[0] || '',
+        ourStoryImageUrl: data.ourStoryImageUrl?.[0] || '',
       };
       
       await updateUiConfig(finalData);
@@ -692,6 +695,25 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
          <Separator />
         <div className="space-y-4">
             <h3 className="text-lg font-medium">Content Pages</h3>
+            <FormField
+                control={form.control}
+                name="ourStoryImageUrl"
+                render={({ field }) => (
+                    <FormItem>
+                            <FormLabel>Our Story Image</FormLabel>
+                            <FormDescription>Upload a banner image for the Our Story page.</FormDescription>
+                        <FormControl>
+                            <MediaUploader 
+                                value={field.value || []} 
+                                onChange={field.onChange}
+                                fileTypes={['image']}
+                                maxFiles={1}
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
             <FormField
             control={form.control}
             name="ourStoryContent"

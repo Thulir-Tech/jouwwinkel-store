@@ -171,6 +171,7 @@ export type UiConfig = {
     heroText3?: string;
     heroText3Color?: string;
     ourStoryContent?: string;
+    ourStoryImageUrl?: string;
     brandLogoUrl?: string;
 };
 
