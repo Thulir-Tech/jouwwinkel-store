@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
@@ -36,6 +36,7 @@ export default function OfferBannerPopup({ config }: OfferBannerPopupProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="p-0 border-0 max-w-lg">
+        <DialogTitle className="sr-only">Special Offer</DialogTitle>
         <div className="relative">
           {isCarousel ? (
             <Carousel opts={{ loop: true }} plugins={[Autoplay({ delay: 3000 })]}>
