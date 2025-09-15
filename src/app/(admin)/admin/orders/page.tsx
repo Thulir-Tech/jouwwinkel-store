@@ -174,7 +174,8 @@ export default function OrdersPage() {
                 <TableHead>Order ID</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>Order Status</TableHead>
+                <TableHead>Payment</TableHead>
                 <TableHead>Shipping</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead>
@@ -196,6 +197,14 @@ export default function OrdersPage() {
                         <Badge variant={checkout.status === 'delivered' ? 'default' : 'secondary'}>
                             {checkout.status}
                         </Badge>
+                    </TableCell>
+                    <TableCell>
+                        <div className="flex flex-col">
+                            <Badge variant={checkout.paymentStatus === 'completed' ? 'default' : 'secondary'} className="capitalize w-fit">
+                                {checkout.paymentMethod}: {checkout.paymentStatus}
+                            </Badge>
+                            {checkout.utrNumber && <span className="text-xs text-muted-foreground font-mono mt-1">{checkout.utrNumber}</span>}
+                        </div>
                     </TableCell>
                     <TableCell>
                         {checkout.consignmentNumber && (

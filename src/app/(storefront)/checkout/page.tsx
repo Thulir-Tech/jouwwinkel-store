@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/use-auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -38,6 +39,8 @@ import { Input } from '@/components/ui/input';
 import { getUser, getProduct, getProductsByIds } from '@/lib/firestore';
 import { cn } from '@/lib/utils';
 import type { ShippingAddress } from '@/lib/types';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 
 
 const checkoutFormSchema = z.object({
@@ -54,6 +57,15 @@ const checkoutFormSchema = z.object({
     paymentMethod: z.enum(['cod', 'upi'], {
         required_error: 'Please select a payment method.',
     }),
+    utrNumber: z.string().optional(),
+}).refine(data => {
+    if (data.paymentMethod === 'upi') {
+        return !!data.utrNumber && data.utrNumber.length > 5;
+    }
+    return true;
+}, {
+    message: 'Please enter a valid UTR number.',
+    path: ['utrNumber'],
 });
 
 type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
@@ -100,8 +112,11 @@ export default function CheckoutPage() {
                 zip: '',
                 country: 'India',
             },
+            utrNumber: '',
         },
     });
+
+    const paymentMethod = useWatch({ control: form.control, name: 'paymentMethod' });
 
     useEffect(() => {
         if (!loading && user) {
@@ -128,7 +143,12 @@ export default function CheckoutPage() {
                 items,
                 total,
                 userId: user?.uid,
+                paymentStatus: data.paymentMethod === 'upi' ? 'pending' : 'completed',
             };
+
+            if (data.paymentMethod === 'cod') {
+                delete checkoutData.utrNumber;
+            }
 
             // Only add coupon fields if a coupon is applied
             if (couponCode) {
@@ -281,6 +301,35 @@ export default function CheckoutPage() {
                                                 </FormItem>
                                             )}
                                         />
+                                        {paymentMethod === 'upi' && uiConfig?.paymentMethods?.upiId && (
+                                            <div className="mt-4 space-y-4">
+                                                <Alert>
+                                                    <Info className="h-4 w-4" />
+                                                    <AlertTitle>Instructions for UPI Payment</AlertTitle>
+                                                    <AlertDescription>
+                                                        Please pay <span className="font-semibold font-sans">₹{formatCurrency(totalAfterDiscount)}</span> to the UPI ID below. After payment, enter the UTR number to complete your order.
+                                                    </AlertDescription>
+                                                </Alert>
+                                                <div className="text-center p-3 bg-muted rounded-md">
+                                                    <p className="text-sm text-muted-foreground">Pay to UPI ID:</p>
+                                                    <p className="font-semibold text-lg">{uiConfig.paymentMethods.upiId}</p>
+                                                </div>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="utrNumber"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>UTR Number</FormLabel>
+                                                            <FormControl>
+                                                                <Input placeholder="Enter your transaction reference number" {...field} />
+                                                            </FormControl>
+                                                            <FormDescription>You can find this number in your payment app's history.</FormDescription>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
                              )}

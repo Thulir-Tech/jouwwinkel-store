@@ -102,6 +102,8 @@ export type Checkout = {
     mobile: string;
     shippingAddress: ShippingAddress;
     paymentMethod: 'cod' | 'upi';
+    paymentStatus: 'pending' | 'completed' | 'failed';
+    utrNumber?: string;
     items: CartItem[];
     total: number;
     userId?: string;
@@ -195,6 +197,7 @@ export type UiConfig = {
     paymentMethods?: {
         cod?: boolean;
         upi?: boolean;
+        upiId?: string;
     };
 };
 

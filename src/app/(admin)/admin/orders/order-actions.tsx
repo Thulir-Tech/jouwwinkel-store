@@ -3,7 +3,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MoreHorizontal, Truck, Eye, Save, CheckCircle, Home, Phone, Printer } from 'lucide-react';
+import { MoreHorizontal, Truck, Eye, Save, CheckCircle, Home, Phone, Printer, BadgeCheck, BadgeX } from 'lucide-react';
 import { MdDone } from 'react-icons/md';
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuGroup,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import {
@@ -211,12 +212,12 @@ export function OrderActions({ order, setCheckouts }: OrderActionsProps) {
     }
   }, [isShipDialogOpen]);
 
-  const handleStatusUpdate = async (status: 'delivered') => {
+  const handleStatusUpdate = async (status: 'delivered' | 'pending', paymentStatus?: 'completed' | 'failed') => {
     try {
-      await updateOrderStatus(order.id, status);
+      await updateOrderStatus(order.id, status, { paymentStatus });
       const updatedCheckouts = await getCheckouts();
       setCheckouts(updatedCheckouts);
-      toast({ title: `Order marked as ${status}` });
+      toast({ title: `Order status updated` });
     } catch (error: any) {
       console.error(error);
       toast({ title: 'Error updating status', description: error.message, variant: 'destructive' });
@@ -254,6 +255,7 @@ export function OrderActions({ order, setCheckouts }: OrderActionsProps) {
   const canBePacked = order.status === 'pending';
   const canBeShipped = order.status === 'packed';
   const canBeDelivered = order.status === 'shipped';
+  const isUpiPending = order.paymentMethod === 'upi' && order.paymentStatus === 'pending';
 
   return (
     <>
@@ -325,7 +327,21 @@ export function OrderActions({ order, setCheckouts }: OrderActionsProps) {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setIsPackingDialogOpen(true)} disabled={!canBePacked}>
+          {isUpiPending && (
+            <DropdownMenuGroup>
+                <DropdownMenuLabel>UPI Payment</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => handleStatusUpdate('pending', 'completed')}>
+                    <BadgeCheck className="mr-2 h-4 w-4" />
+                    Mark as Payment Completed
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleStatusUpdate('pending', 'failed')}>
+                    <BadgeX className="mr-2 h-4 w-4" />
+                    Mark as Payment Failed
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+            </DropdownMenuGroup>
+          )}
+          <DropdownMenuItem onClick={() => setIsPackingDialogOpen(true)} disabled={!canBePacked || isUpiPending}>
              <CheckCircle className="mr-2 h-4 w-4" />
              Pack & Update Stock
           </DropdownMenuItem>

@@ -12,6 +12,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
@@ -19,11 +20,13 @@ import { useRouter } from 'next/navigation';
 import type { UiConfig } from '@/lib/types';
 import { updateUiConfig } from '@/lib/firestore.admin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 const settingsFormSchema = z.object({
   paymentMethods: z.object({
     cod: z.boolean().optional(),
     upi: z.boolean().optional(),
+    upiId: z.string().optional(),
   }).optional(),
 });
 
@@ -43,9 +46,12 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
       paymentMethods: {
         cod: initialData?.paymentMethods?.cod ?? true,
         upi: initialData?.paymentMethods?.upi ?? true,
+        upiId: initialData?.paymentMethods?.upiId || '',
       },
     },
   });
+
+  const upiEnabled = form.watch('paymentMethods.upi');
 
   const onSubmit = async (data: SettingsFormValues) => {
     try {
@@ -108,6 +114,24 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
                   </FormItem>
                 )}
               />
+              {upiEnabled && (
+                 <FormField
+                    control={form.control}
+                    name="paymentMethods.upiId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Your UPI ID</FormLabel>
+                        <FormControl>
+                          <Input placeholder="your-upi-id@okhdfcbank" {...field} />
+                        </FormControl>
+                        <FormDescription>
+                          This UPI ID will be shown to customers at checkout.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+              )}
           </CardContent>
         </Card>
         
