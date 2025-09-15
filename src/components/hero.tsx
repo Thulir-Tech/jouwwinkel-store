@@ -1,15 +1,17 @@
 
+'use client';
 
 import Link from 'next/link';
 import { Button } from './ui/button';
-import { getUiConfig } from '@/lib/firestore';
 import { Carousel, CarouselContent, CarouselItem } from './ui/carousel';
 import Autoplay from "embla-carousel-autoplay";
 import Image from 'next/image';
 import type { HeroMediaConfig, UiConfig } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { getUiConfig } from '@/lib/firestore';
+import { useEffect, useState } from 'react';
 
-const HeroContent = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig>> }) => {
+const HeroContent = ({ config }: { config: UiConfig | null }) => {
     const defaultTextColor = '#FFFFFF';
     const defaultMutedColor = '#E5E7EB';
 
@@ -55,7 +57,7 @@ const HeroContent = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig
     );
 };
 
-const DefaultHero = ({ config }: { config: Awaited<ReturnType<typeof getUiConfig>>}) => (
+const DefaultHero = ({ config }: { config: UiConfig | null}) => (
     <div className="relative bg-gradient-to-r from-stone-100 to-rose-50 dark:from-stone-900 dark:to-rose-950">
      <div className="container mx-auto px-4 py-16 sm:py-20 text-center">
       <div className="max-w-3xl mx-auto">
@@ -141,8 +143,23 @@ const MediaHero = ({ mediaConfig }: { mediaConfig: HeroMediaConfig }) => {
     return null;
 }
 
-export default async function Hero() {
-  const config = await getUiConfig();
+export default function Hero() {
+  const [config, setConfig] = useState<UiConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchConfig() {
+      const uiConfig = await getUiConfig();
+      setConfig(uiConfig);
+      setLoading(false);
+    }
+    fetchConfig();
+  }, []);
+
+  if (loading) {
+    // You can return a skeleton loader here if you want
+    return <div className="h-[60vh] bg-muted"></div>;
+  }
 
   const showDesktopHero = config?.heroDesktop?.showHero ?? true;
   const showMobileHero = config?.heroMobile?.showHero ?? true;
