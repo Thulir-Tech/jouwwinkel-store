@@ -167,6 +167,7 @@ export type UiConfig = {
     storePhoneNumber?: string;
     storeAddress?: string;
     googleMapsEmbed?: string;
+    googleMapsLink?: string;
     showLocation?: boolean;
     productShareText?: string;
 
@@ -203,6 +204,14 @@ export type Coupon = {
   firstOrderOnly?: boolean;
   prepaidOnly?: boolean;
 };
+
+export type Inquiry = {
+    id: string;
+    name: string;
+    mobile: string;
+    product?: string;
+    createdAt: number;
+}
 
 export type DeveloperConfig = {
   customerName?: string;

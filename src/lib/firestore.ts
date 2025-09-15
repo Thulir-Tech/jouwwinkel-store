@@ -2,7 +2,7 @@
 
 import { db } from './firebase.client';
 import { collection, getDocs, query, limit as firestoreLimit, orderBy, where, getDoc, doc } from 'firebase/firestore';
-import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant, Combo, Coupon, User, Review, DeveloperConfig } from './types';
+import type { Product, Category, Checkout, ShippingPartner, UiConfig, Variant, Combo, Coupon, User, Review, DeveloperConfig, Inquiry } from './types';
 
 // A helper function to safely get data from a snapshot
 function getData<T>(snapshot: any): T[] {
@@ -328,4 +328,12 @@ export async function getReviewsForUserAndProducts(userId: string, productIds: s
     const allUserReviews = getData<Review>(snapshot);
     // Filter for the specific products in the orders
     return allUserReviews.filter(review => productIds.includes(review.productId));
+}
+
+// Inquiries
+export async function getInquiries(): Promise<Inquiry[]> {
+  const inquiriesRef = collection(db, 'inquiries');
+  const q = query(inquiriesRef, orderBy('createdAt', 'desc'));
+  const snapshot = await getDocs(q);
+  return getData<Inquiry>(snapshot);
 }

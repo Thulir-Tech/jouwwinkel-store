@@ -15,7 +15,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Package, Shapes, Home, ShoppingCart, Users, Settings, Truck, Palette, ClipboardList, Gift, Ticket, Star, Code, Megaphone } from 'lucide-react';
+import { Package, Shapes, Home, ShoppingCart, Users, Settings, Truck, Palette, ClipboardList, Gift, Ticket, Star, Code, Megaphone, Phone } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { AuthGuard } from './auth-guard';
 import { useAuth } from '@/hooks/use-auth';
@@ -104,6 +104,19 @@ export function AdminLayoutClient({
                         <Link href="/admin/customers" onClick={handleLinkClick}>
                         <Users />
                         <span>Customers</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                 <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/inquiries"
+                        isActive={isActive('/admin/inquiries')}
+                        tooltip="Inquiries"
+                        asChild
+                    >
+                        <Link href="/admin/inquiries" onClick={handleLinkClick}>
+                        <Phone />
+                        <span>Inquiries</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

@@ -3,7 +3,7 @@
 import { db, storage } from './firebase.client';
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, setDoc, query, orderBy, writeBatch, runTransaction, getDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon, Category, ShippingAddress, Review, DeveloperConfig } from './types';
+import type { CartItem, Checkout, Product, ShippingPartner, UiConfig, User, Variant, Combo, Coupon, Category, ShippingAddress, Review, DeveloperConfig, Inquiry } from './types';
 import { getProductsByIds } from './firestore';
 
 function slugify(text: string) {
@@ -362,7 +362,16 @@ export async function deleteCoupon(id: string) {
 // UI Configuration
 export async function updateUiConfig(config: Partial<UiConfig>) {
     const configRef = doc(db, 'uiConfig', 'main');
-    await setDoc(configRef, config, { merge: true });
+    const updateData: { [key: string]: any } = { ...config };
+    
+    // Remove undefined fields to prevent Firestore errors
+    Object.keys(updateData).forEach(key => {
+        if (updateData[key] === undefined) {
+            delete updateData[key];
+        }
+    });
+
+    await setDoc(configRef, updateData, { merge: true });
 }
 
 // Developer Configuration
@@ -456,4 +465,16 @@ export async function updateReview(id: string, data: Partial<Review>) {
 
 export async function deleteReview(id: string) {
     await deleteDoc(doc(db, 'reviews', id));
+}
+
+// Inquiries
+export async function addInquiry(inquiry: Omit<Inquiry, 'id' | 'createdAt'>) {
+  await addDoc(collection(db, 'inquiries'), {
+    ...inquiry,
+    createdAt: Date.now(),
+  });
+}
+
+export async function deleteInquiry(id: string) {
+  await deleteDoc(doc(db, 'inquiries', id));
 }

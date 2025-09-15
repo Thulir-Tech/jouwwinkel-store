@@ -23,6 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
   } from '@/components/ui/select';
+import { addInquiry } from '@/lib/firestore.admin';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -52,13 +53,21 @@ export function ContactForm({ products }: ContactFormProps) {
   });
 
   const onSubmit = async (data: FormValues) => {
-    // Here you would typically send the data to a backend or a service like Formspree
-    console.log('Contact Form Submitted:', data);
-    toast({
-        title: 'Message Sent!',
-        description: "Thank you for reaching out. We'll get back to you soon.",
-    });
-    form.reset();
+    try {
+        await addInquiry(data);
+        toast({
+            title: 'Message Sent!',
+            description: "Thank you for reaching out. We'll get back to you soon.",
+        });
+        form.reset();
+    } catch (error) {
+        console.error('Failed to submit inquiry', error);
+        toast({
+            title: 'Submission Failed',
+            description: "There was an error sending your message. Please try again.",
+            variant: 'destructive',
+        })
+    }
   };
 
   return (
