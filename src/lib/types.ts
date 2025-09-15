@@ -192,6 +192,10 @@ export type UiConfig = {
       enabled?: boolean;
       percentage?: number;
     };
+    paymentMethods?: {
+        cod?: boolean;
+        upi?: boolean;
+    };
 };
 
 export type Coupon = {

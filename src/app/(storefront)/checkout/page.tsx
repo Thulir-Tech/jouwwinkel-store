@@ -160,6 +160,11 @@ export default function CheckoutPage() {
 
     const cardColorClass = uiConfig?.cardColor === 'theme' ? 'bg-card' : 'bg-white';
 
+    const enabledPaymentMethods = [
+        { id: 'cod', name: 'Cash on Delivery', enabled: uiConfig?.paymentMethods?.cod ?? true },
+        { id: 'upi', name: 'UPI', enabled: uiConfig?.paymentMethods?.upi ?? true },
+    ].filter(method => method.enabled);
+
     if (loading || count === 0) {
         return (
             <div className="container mx-auto px-4 py-12">
@@ -250,32 +255,35 @@ export default function CheckoutPage() {
                             </Card>
 
                              {/* Payment Method */}
-                            <Card className={cardColorClass}>
-                                <CardContent className="pt-6">
-                                    <h2 className="text-xl font-semibold mb-4 font-headline">Payment Method</h2>
-                                    <FormField
-                                        control={form.control}
-                                        name="paymentMethod"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Payment Option</FormLabel>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select a payment method" />
-                                                    </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <SelectItem value="cod">Cash on Delivery</SelectItem>
-                                                        <SelectItem value="upi">UPI</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </CardContent>
-                            </Card>
+                             {enabledPaymentMethods.length > 0 && (
+                                <Card className={cardColorClass}>
+                                    <CardContent className="pt-6">
+                                        <h2 className="text-xl font-semibold mb-4 font-headline">Payment Method</h2>
+                                        <FormField
+                                            control={form.control}
+                                            name="paymentMethod"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Payment Option</FormLabel>
+                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select a payment method" />
+                                                        </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            {enabledPaymentMethods.map(method => (
+                                                                <SelectItem key={method.id} value={method.id}>{method.name}</SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </CardContent>
+                                </Card>
+                             )}
                         </div>
                         <div className="lg:col-span-1">
                             <Card className={cn("sticky top-24", cardColorClass)}>
@@ -316,7 +324,9 @@ export default function CheckoutPage() {
                                         <span>₹{formatCurrency(totalAfterDiscount)}</span>
                                     </div>
                                 </div>
-                                <Button type="submit" className="w-full mt-6" size="lg">Place Order</Button>
+                                <Button type="submit" className="w-full mt-6" size="lg" disabled={enabledPaymentMethods.length === 0}>
+                                    {enabledPaymentMethods.length === 0 ? "No payment methods available" : "Place Order"}
+                                </Button>
                                </CardContent>
                             </Card>
                         </div>
