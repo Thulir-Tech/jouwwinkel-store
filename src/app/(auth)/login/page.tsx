@@ -83,7 +83,7 @@ export default function CustomerLoginPage() {
     }
   }
 
-  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-background';
+  const cardColorClass = uiConfig?.cardColor === 'theme' ? 'bg-card' : 'bg-white';
 
   return (
     <div className="flex min-h-[calc(100vh-128px)] items-center justify-center bg-background px-4">

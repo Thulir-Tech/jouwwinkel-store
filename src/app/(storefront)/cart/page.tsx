@@ -54,7 +54,7 @@ export default function CartPage() {
     toast({ title: "Coupon removed." });
   }
 
-  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+  const cardColorClass = uiConfig?.cardColor === 'theme' ? 'bg-card' : 'bg-white';
 
   if (count === 0) {
     return (

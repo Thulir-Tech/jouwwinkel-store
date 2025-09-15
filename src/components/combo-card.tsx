@@ -44,7 +44,7 @@ export default function ComboCard({ combo }: ComboCardProps) {
     });
   };
 
-  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+  const cardColorClass = uiConfig?.cardColor === 'theme' ? 'bg-card' : 'bg-white';
 
   return (
     <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl", cardColorClass)}>

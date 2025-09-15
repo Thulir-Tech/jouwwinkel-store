@@ -87,7 +87,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
   }
 
-  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+  const cardColorClass = uiConfig?.cardColor === 'theme' ? 'bg-card' : 'bg-white';
   const isInWishlist = user ? isProductInWishlist(product.id) : false;
 
   return (

@@ -96,7 +96,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     }
   };
   
-  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+  const cardColorClass = uiConfig?.cardColor === 'theme' ? 'bg-card' : 'bg-white';
 
 
   return (

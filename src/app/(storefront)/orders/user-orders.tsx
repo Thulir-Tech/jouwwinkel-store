@@ -204,7 +204,7 @@ export default function UserOrders({ userId }: UserOrdersProps) {
     setReviewDialogOpen(true);
   };
   
-  const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+  const cardColorClass = uiConfig?.cardColor === 'theme' ? 'bg-card' : 'bg-white';
 
   if (loading) {
     return (

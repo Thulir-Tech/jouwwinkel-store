@@ -158,7 +158,7 @@ export default function CheckoutPage() {
         }
     };
 
-    const cardColorClass = uiConfig?.cardColor === 'white' ? 'bg-white' : 'bg-card';
+    const cardColorClass = uiConfig?.cardColor === 'theme' ? 'bg-card' : 'bg-white';
 
     if (loading || count === 0) {
         return (
