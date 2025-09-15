@@ -67,6 +67,18 @@ export default function ContactPage() {
         )
     }
 
+    const getMapQuery = () => {
+        if (uiConfig?.storeLatitude && uiConfig?.storeLongitude) {
+            return `${uiConfig.storeLatitude},${uiConfig.storeLongitude}`;
+        }
+        if (uiConfig?.storeAddress) {
+            return encodeURIComponent(uiConfig.storeAddress);
+        }
+        return '';
+    }
+
+    const mapQuery = getMapQuery();
+
     return (
         <div className="container mx-auto px-4 py-12">
             <div className="max-w-4xl mx-auto">
@@ -113,26 +125,28 @@ export default function ContactPage() {
                         </Card>
                     </div>
 
-                    {uiConfig?.storeAddress && (
+                    {mapQuery && (
                         <div className="space-y-6">
                             <Card className={cn(cardColorClass, "h-full")}>
                                 <CardHeader>
                                     <CardTitle>Our Location</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className="flex items-start gap-4">
-                                        <MapPin className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                                        <p className="text-muted-foreground whitespace-pre-line">
-                                            {uiConfig.storeAddress}
-                                        </p>
-                                    </div>
+                                    {uiConfig.storeAddress && (
+                                        <div className="flex items-start gap-4">
+                                            <MapPin className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                                            <p className="text-muted-foreground whitespace-pre-line">
+                                                {uiConfig.storeAddress}
+                                            </p>
+                                        </div>
+                                    )}
                                     <div className="aspect-video w-full">
                                         <iframe
                                             className="w-full h-full border-0 rounded-md"
                                             loading="lazy"
                                             allowFullScreen
                                             referrerPolicy="no-referrer-when-downgrade"
-                                            src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}&q=${encodeURIComponent(uiConfig.storeAddress)}`}
+                                            src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}&q=${mapQuery}`}
                                         >
                                         </iframe>
                                     </div>

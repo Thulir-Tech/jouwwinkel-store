@@ -59,6 +59,8 @@ const configFormSchema = z.object({
   instagramLink: z.string().url().or(z.literal('')).optional(),
   whatsappLink: z.string().url().or(z.literal('')).optional(),
   storeAddress: z.string().optional(),
+  storeLatitude: z.coerce.number().optional(),
+  storeLongitude: z.coerce.number().optional(),
   productShareText: z.string().optional(),
   
   heroDesktop: heroMediaConfigSchema,
@@ -225,6 +227,8 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       instagramLink: initialData?.instagramLink || '',
       whatsappLink: initialData?.whatsappLink || '',
       storeAddress: initialData?.storeAddress || '',
+      storeLatitude: initialData?.storeLatitude,
+      storeLongitude: initialData?.storeLongitude,
       productShareText: initialData?.productShareText || '',
 
       heroDesktop: {
@@ -693,6 +697,34 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                 </FormItem>
             )}
             />
+            <div className="grid grid-cols-2 gap-4">
+                <FormField
+                control={form.control}
+                name="storeLatitude"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Store Latitude</FormLabel>
+                    <FormControl>
+                        <Input type="number" placeholder="e.g. 12.9716" {...field} value={field.value ?? ''} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="storeLongitude"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Store Longitude</FormLabel>
+                    <FormControl>
+                        <Input type="number" placeholder="e.g. 77.5946" {...field} value={field.value ?? ''} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
              <FormField
                 control={form.control}
                 name="productShareText"
