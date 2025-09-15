@@ -19,6 +19,12 @@ import { useRouter } from 'next/navigation';
 import type { UiConfig } from '@/lib/types';
 import { updateUiConfig } from '@/lib/firestore.admin';
 import { MediaUploader } from '../media-uploader';
+import { useState } from 'react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Link as LinkIcon, Upload, Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import Image from 'next/image';
 
 const bannerFormSchema = z.object({
   enabled: z.boolean().optional(),
@@ -34,6 +40,8 @@ interface BannerFormProps {
 export function BannerForm({ initialData }: BannerFormProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const [addMethod, setAddMethod] = useState<'upload' | 'link'>('upload');
+  const [newImageUrl, setNewImageUrl] = useState('');
 
   const form = useForm<BannerFormValues>({
     resolver: zodResolver(bannerFormSchema),
@@ -57,6 +65,28 @@ export function BannerForm({ initialData }: BannerFormProps) {
       });
     }
   };
+
+  const handleAddFromUploader = (urls: string[]) => {
+    const currentImages = form.getValues('images') || [];
+    form.setValue('images', [...currentImages, ...urls]);
+  };
+
+  const handleAddFromLink = () => {
+    if (!newImageUrl || !newImageUrl.startsWith('http')) {
+        toast({ title: "Invalid URL", description: "Please enter a valid image URL.", variant: "destructive" });
+        return;
+    }
+    const currentImages = form.getValues('images') || [];
+    form.setValue('images', [...currentImages, newImageUrl]);
+    setNewImageUrl('');
+  };
+
+  const handleDelete = (urlToDelete: string) => {
+    const currentImages = form.getValues('images') || [];
+    form.setValue('images', currentImages.filter(url => url !== urlToDelete));
+  };
+  
+  const images = form.watch('images') || [];
 
   return (
     <Form {...form}>
@@ -82,25 +112,73 @@ export function BannerForm({ initialData }: BannerFormProps) {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="images"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base">Banner Images</FormLabel>
-              <FormDescription>
+        <div className="space-y-6">
+            <FormLabel className="text-base">Banner Images</FormLabel>
+             <FormDescription>
                 Upload one or more images. If multiple are uploaded, they will display in a carousel.
               </FormDescription>
-              <FormControl>
-                <MediaUploader 
-                  value={field.value || []} 
-                  onChange={field.onChange}
-                  fileTypes={['image']}
+
+            {images.length > 0 && (
+                <div className="space-y-2">
+                    {images.map((url, index) => (
+                    <div
+                        key={url + index}
+                        className="flex items-center gap-2 p-2 border rounded-lg bg-background"
+                    >
+                        <Image
+                            src={url}
+                            alt={`Banner image ${index + 1}`}
+                            width={64}
+                            height={64}
+                            className="rounded-md object-cover w-16 h-16"
+                        />
+                        <p className="flex-grow text-xs text-muted-foreground truncate">{url}</p>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleDelete(url)}
+                            type="button"
+                        >
+                        <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+                    ))}
+                </div>
+            )}
+
+            <div className="p-4 border rounded-lg space-y-4">
+                <h4 className="font-medium">Add New Image</h4>
+                <RadioGroup value={addMethod} onValueChange={(value) => setAddMethod(value as 'upload' | 'link')} className="flex gap-4">
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="upload" id="upload" />
+                        <Label htmlFor="upload" className="flex items-center gap-2"><Upload className="h-4 w-4"/>Upload File</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="link" id="link" />
+                        <Label htmlFor="link" className="flex items-center gap-2"><LinkIcon className="h-4 w-4" />Image URL</Label>
+                    </div>
+                </RadioGroup>
+
+                {addMethod === 'upload' ? (
+                <MediaUploader
+                    value={[]}
+                    onChange={handleAddFromUploader}
+                    fileTypes={['image']}
                 />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+                ) : (
+                <div className="flex items-center gap-2">
+                    <Input
+                    type="url"
+                    placeholder="https://example.com/image.jpg"
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    />
+                    <Button type="button" onClick={handleAddFromLink}>Add Image</Button>
+                </div>
+                )}
+            </div>
+        </div>
         
         <Button type="submit">Save Changes</Button>
       </form>
