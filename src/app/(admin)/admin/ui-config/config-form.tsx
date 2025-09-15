@@ -188,7 +188,7 @@ function HeroMediaManager({ control, namePrefix, isMobile }: { control: Control<
                                     <Video className="h-6 w-6 text-white" />
                                 </div>
                             ) : (
-                                <Image src={mediaItems[index]} alt={`Media item ${index}`} width={40} height={40} className="rounded-md object-cover" />
+                                mediaItems[index] && <Image src={mediaItems[index]} alt={`Media item ${index}`} width={40} height={40} className="rounded-md object-cover" />
                             )}
                             <p className="flex-grow text-xs text-muted-foreground truncate">{mediaItems[index]}</p>
                             <Button
