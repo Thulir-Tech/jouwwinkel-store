@@ -71,6 +71,7 @@ export function SidebarSheet() {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+          <Separator className="my-2" />
             <Button variant="ghost" className="justify-start text-lg items-center" asChild>
                 <Link href="/wishlist" onClick={closeSheet}>
                     My Wishlist
