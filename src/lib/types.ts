@@ -1,5 +1,4 @@
 
-
 import type { User as FirebaseUser } from "firebase/auth";
 
 export type ProductVariant = {
@@ -149,6 +148,11 @@ export type HeroMediaConfig = {
   mediaItems?: string[];
 }
 
+export type OfferBannerItem = {
+  imageUrl: string;
+  link: string;
+};
+
 export type UiConfig = {
     browserTitle?: string;
     cardColor?: 'white' | 'theme';
@@ -176,7 +180,7 @@ export type UiConfig = {
 
     offerBanner?: {
       enabled?: boolean;
-      images?: string[];
+      banners?: OfferBannerItem[];
     }
 };
 
