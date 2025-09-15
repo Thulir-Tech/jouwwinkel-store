@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, Heart, Package } from 'lucide-react';
+import { Menu, Heart, Package, Phone } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -85,7 +85,9 @@ export function SidebarSheet() {
                 </Link>
             </Button>
           <Separator className="my-2" />
-          <Button variant="ghost" className="justify-start text-lg">Contact</Button>
+           <Button variant="ghost" className="justify-start text-lg" asChild>
+            <Link href="/contact" onClick={closeSheet}>Contact</Link>
+          </Button>
         </div>
       </SheetContent>
     </Sheet>
