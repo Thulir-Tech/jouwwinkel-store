@@ -8,7 +8,6 @@ import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
 import type { UiConfig } from '@/lib/types';
 import { Button } from './ui/button';
-import { X } from 'lucide-react';
 import Link from 'next/link';
 
 interface OfferBannerPopupProps {
@@ -36,23 +35,22 @@ export default function OfferBannerPopup({ config }: OfferBannerPopupProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="p-0 border-0 max-w-md bg-transparent shadow-none">
+      <DialogContent className="max-w-md">
         <DialogTitle className="sr-only">Special Offer</DialogTitle>
-        <div className="relative">
             {isCarousel ? (
                 <Carousel opts={{ loop: true }} plugins={[Autoplay({ delay: 3000 })]} className="overflow-hidden rounded-lg">
                 <CarouselContent>
                     {config.banners.map((banner, index) => (
                     <CarouselItem key={index}>
-                        <div className="flex flex-col items-center bg-card rounded-lg overflow-hidden">
+                        <div className="flex flex-col items-center">
                             <Image
                                 src={banner.imageUrl}
                                 alt={`Offer Banner ${index + 1}`}
                                 width={500}
                                 height={500}
-                                className="w-full h-auto aspect-square object-cover"
+                                className="w-full h-auto aspect-square object-cover rounded-md"
                             />
-                            <div className="p-4 w-full">
+                            <div className="pt-4 w-full">
                                 <Button asChild className="w-full">
                                     <Link href={banner.link} onClick={() => setOpen(false)}>Shop Now</Link>
                                 </Button>
@@ -63,22 +61,21 @@ export default function OfferBannerPopup({ config }: OfferBannerPopupProps) {
                 </CarouselContent>
                 </Carousel>
             ) : (
-                <div className="flex flex-col items-center bg-card rounded-lg overflow-hidden">
+                <div className="flex flex-col items-center">
                     <Image
                         src={config.banners[0].imageUrl}
                         alt="Offer Banner"
                         width={500}
                         height={500}
-                        className="w-full h-auto aspect-square object-cover"
+                        className="w-full h-auto aspect-square object-cover rounded-md"
                     />
-                    <div className="p-4 w-full">
+                    <div className="pt-4 w-full">
                         <Button asChild className="w-full">
                             <Link href={config.banners[0].link} onClick={() => setOpen(false)}>Shop Now</Link>
                         </Button>
                     </div>
                 </div>
             )}
-        </div>
       </DialogContent>
     </Dialog>
   );
