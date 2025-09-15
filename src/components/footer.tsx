@@ -35,7 +35,7 @@ export default async function Footer() {
           <div>
             <h4 className="font-semibold mb-4">About</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="text-muted-foreground hover:text-primary">Our Story</Link></li>
+              <li><Link href="/our-story" className="text-muted-foreground hover:text-primary">Our Story</Link></li>
               <li><Link href="#" className="text-muted-foreground hover:text-primary">Contact Us</Link></li>
             </ul>
           </div>
