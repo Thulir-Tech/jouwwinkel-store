@@ -58,6 +58,7 @@ const configFormSchema = z.object({
   footerCaption: z.string().optional(),
   instagramLink: z.string().url().or(z.literal('')).optional(),
   whatsappLink: z.string().url().or(z.literal('')).optional(),
+  showLocation: z.boolean().optional(),
   storeAddress: z.string().optional(),
   storeLatitude: z.coerce.number().optional(),
   storeLongitude: z.coerce.number().optional(),
@@ -226,6 +227,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       footerCaption: initialData?.footerCaption || '',
       instagramLink: initialData?.instagramLink || '',
       whatsappLink: initialData?.whatsappLink || '',
+      showLocation: initialData?.showLocation ?? true,
       storeAddress: initialData?.storeAddress || '',
       storeLatitude: initialData?.storeLatitude,
       storeLongitude: initialData?.storeLongitude,
@@ -682,6 +684,26 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                 <FormMessage />
                 </FormItem>
             )}
+            />
+            <FormField
+              control={form.control}
+              name="showLocation"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
+                  <div className="space-y-0.5">
+                    <FormLabel>Show Location Section</FormLabel>
+                    <FormDescription>
+                      Enable to show the map and address on the Contact Us page.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
             <FormField
             control={form.control}

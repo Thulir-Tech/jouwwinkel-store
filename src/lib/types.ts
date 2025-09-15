@@ -1,4 +1,5 @@
 
+
 import type { User as FirebaseUser } from "firebase/auth";
 
 export type ProductVariant = {
@@ -163,6 +164,7 @@ export type UiConfig = {
     footerCaption?: string;
     instagramLink?: string;
     whatsappLink?: string;
+    showLocation?: boolean;
     storeAddress?: string;
     storeLatitude?: number;
     storeLongitude?: number;

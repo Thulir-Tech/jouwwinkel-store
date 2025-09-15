@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,6 +14,7 @@ import { ContactForm } from './contact-form';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { MapPin } from 'lucide-react';
+import Link from 'next/link';
 
 const InstagramIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -78,6 +80,8 @@ export default function ContactPage() {
     }
 
     const mapQuery = getMapQuery();
+    const showLocation = uiConfig?.showLocation ?? true;
+
 
     return (
         <div className="container mx-auto px-4 py-12">
@@ -125,9 +129,9 @@ export default function ContactPage() {
                         </Card>
                     </div>
 
-                    {mapQuery && (
-                        <div className="space-y-6">
-                            <Card className={cn(cardColorClass, "h-full")}>
+                    <div className="space-y-6">
+                        {showLocation && mapQuery ? (
+                             <Card className={cn(cardColorClass, "h-full")}>
                                 <CardHeader>
                                     <CardTitle>Our Location</CardTitle>
                                 </CardHeader>
@@ -152,8 +156,22 @@ export default function ContactPage() {
                                     </div>
                                 </CardContent>
                             </Card>
-                        </div>
-                    )}
+                        ) : mapQuery ? (
+                             <Card className={cn(cardColorClass)}>
+                                <CardHeader>
+                                    <CardTitle>Our Location</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <Button asChild variant="outline" className="w-full">
+                                        <a href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`} target="_blank" rel="noopener noreferrer">
+                                            <MapPin className="mr-2 h-4 w-4" />
+                                            Locate us on Google Maps
+                                        </a>
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        ) : null}
+                    </div>
                 </div>
             </div>
         </div>
