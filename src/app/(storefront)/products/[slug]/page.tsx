@@ -314,6 +314,18 @@ export default function ProductPage() {
     }
   }
 
+  const getPrice = () => {
+    if (!product) return { price: 0, compareAtPrice: undefined };
+    const offer = uiConfig?.siteWideOffer;
+    if (offer?.enabled && offer.percentage && offer.percentage > 0) {
+      const discountedPrice = product.price * (1 - offer.percentage / 100);
+      return { price: discountedPrice, compareAtPrice: product.price };
+    }
+    return { price: product.price, compareAtPrice: product.compareAtPrice };
+  };
+
+  const { price, compareAtPrice } = getPrice();
+
   if (loading || !product) {
       return (
         <div className="container mx-auto px-4 py-8">
@@ -323,7 +335,7 @@ export default function ProductPage() {
   }
 
   const isSelectionComplete = product.hasVariants ? product.variants.every(v => selectedVariants[v.variantName]) : true;
-  const showCompareAtPrice = product.compareAtPrice && product.compareAtPrice > product.price;
+  const showCompareAtPrice = compareAtPrice && compareAtPrice > price;
   const isInWishlist = user ? isProductInWishlist(product.id) : false;
 
   return (
@@ -334,13 +346,13 @@ export default function ProductPage() {
             <h1 className="text-2xl lg:text-3xl font-bold font-headline mb-2">{product.title}</h1>
             
             <div className="flex items-center gap-4 mb-4">
-                <p className="text-2xl font-bold text-primary font-sans">₹{formatCurrency(product.price)}</p>
+                <p className="text-2xl font-bold text-primary font-sans">₹{formatCurrency(price)}</p>
                 {showCompareAtPrice && (
                 <p className="text-lg text-muted-foreground line-through font-sans">
-                    ₹{formatCurrency(product.compareAtPrice!)}
+                    ₹{formatCurrency(compareAtPrice!)}
                 </p>
                 )}
-                {product.onSale && <Badge variant="destructive">Sale</Badge>}
+                {(product.onSale || (compareAtPrice && compareAtPrice > price)) && <Badge variant="destructive">Sale</Badge>}
             </div>
             
             <p className="text-muted-foreground text-sm mb-6">{product.description}</p>
@@ -367,7 +379,7 @@ export default function ProductPage() {
             <div className="mt-auto space-y-4 pt-6">
                 <div className="flex gap-2">
                     <AddToCartButton 
-                        product={product} 
+                        product={{...product, price: price}}
                         selectedVariants={selectedVariants}
                         isSelectionComplete={isSelectionComplete}
                     />

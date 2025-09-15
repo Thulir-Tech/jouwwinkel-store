@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -202,14 +201,14 @@ export function AdminLayoutClient({
                 <SidebarSeparator />
                 <SidebarMenuItem>
                     <SidebarMenuButton
-                        href="/admin/offer-banner"
-                        isActive={isActive('/admin/offer-banner')}
-                        tooltip="Offer Banner"
+                        href="/admin/offers-banners"
+                        isActive={isActive('/admin/offers-banners')}
+                        tooltip="Offers & Banners"
                         asChild
                     >
-                        <Link href="/admin/offer-banner" onClick={handleLinkClick}>
+                        <Link href="/admin/offers-banners" onClick={handleLinkClick}>
                             <Megaphone />
-                            <span>Offer Banner</span>
+                            <span>Offers & Banners</span>
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

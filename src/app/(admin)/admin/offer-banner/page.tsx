@@ -1,4 +1,3 @@
-
 import {
     Card,
     CardContent,
@@ -7,23 +6,23 @@ import {
     CardTitle,
   } from '@/components/ui/card';
 import { getUiConfig } from '@/lib/firestore';
-import { BannerForm } from './banner-form';
+import { OffersForm } from './offers-form';
 
-export default async function OfferBannerPage() {
+export default async function OffersAndBannersPage() {
     const config = await getUiConfig();
 
     return (
         <div>
-            <h1 className="text-2xl font-bold mb-4">Offer Banner</h1>
+            <h1 className="text-2xl font-bold mb-4">Offers & Banners</h1>
             <Card>
                 <CardHeader>
-                    <CardTitle>Homepage Popup Banner</CardTitle>
+                    <CardTitle>Manage Offers & Banners</CardTitle>
                     <CardDescription>
-                        Manage the promotional banner that appears when users first visit your homepage.
+                        Configure site-wide offers and manage promotional pop-up banners.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <BannerForm initialData={config?.offerBanner || null} />
+                    <OffersForm initialData={config} />
                 </CardContent>
             </Card>
         </div>

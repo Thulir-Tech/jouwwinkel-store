@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import Image from 'next/image';
@@ -29,7 +27,17 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { uiConfig, user, isProductInWishlist, handleToggleWishlist } = useAuth();
   const router = useRouter();
   
-  const showCompareAtPrice = product.compareAtPrice && product.compareAtPrice > product.price;
+  const getPrice = () => {
+    const offer = uiConfig?.siteWideOffer;
+    if (offer?.enabled && offer.percentage && offer.percentage > 0) {
+      const discountedPrice = product.price * (1 - offer.percentage / 100);
+      return { price: discountedPrice, compareAtPrice: product.price };
+    }
+    return { price: product.price, compareAtPrice: product.compareAtPrice };
+  };
+
+  const { price, compareAtPrice } = getPrice();
+  const showCompareAtPrice = compareAtPrice && compareAtPrice > price;
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // prevent link navigation when clicking button
@@ -39,7 +47,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         addToCart({
             productId: product.id,
             title: product.title,
-            price: product.price,
+            price: price,
             quantity: 1,
             image: product.images[0],
             revenuePerUnit: product.revenuePerUnit,
@@ -94,7 +102,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     <>
       {product.hasVariants && (
         <AddToCartDialog
-          product={product}
+          product={{...product, price: price}}
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
         />
@@ -110,7 +118,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   className="aspect-square w-full object-cover"
                   data-ai-hint="product photo"
                 />
-              {product.onSale && (
+              {(product.onSale || (compareAtPrice && compareAtPrice > price)) && (
                 <Badge className="absolute top-2 left-2" variant="destructive">
                   Sale
                 </Badge>
@@ -151,10 +159,10 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </div>
               )}
               <div className="flex items-baseline gap-2 font-sans">
-                <p className="text-xl font-bold text-primary">₹{formatCurrency(product.price)}</p>
+                <p className="text-xl font-bold text-primary">₹{formatCurrency(price)}</p>
                 {showCompareAtPrice && (
                   <p className="text-sm text-muted-foreground line-through">
-                    ₹{formatCurrency(product.compareAtPrice!)}
+                    ₹{formatCurrency(compareAtPrice!)}
                   </p>
                 )}
               </div>

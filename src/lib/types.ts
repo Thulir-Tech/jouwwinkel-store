@@ -187,7 +187,11 @@ export type UiConfig = {
     offerBanner?: {
       enabled?: boolean;
       banners?: OfferBannerItem[];
-    }
+    };
+    siteWideOffer?: {
+      enabled?: boolean;
+      percentage?: number;
+    };
 };
 
 export type Coupon = {
