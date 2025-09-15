@@ -307,20 +307,18 @@ export async function packOrderAndUpdateStock(orderId: string, itemsToUpdate: Ca
 
 export async function updateOrderStatus(
     orderId: string, 
-    status: 'shipped' | 'delivered' | 'pending', 
+    status: 'shipped' | 'delivered' | 'pending' | 'failed', 
     details?: { consignmentNumber?: string; shippingPartnerId?: string, shippingPartnerName?: string; paymentStatus?: 'completed' | 'failed' }
 ) {
     const orderRef = doc(db, 'checkouts', orderId);
     
     const updateData: { [key: string]: any } = { status };
 
-    if (status === 'shipped' && details) {
+    if (details) {
         if (details.consignmentNumber) updateData.consignmentNumber = details.consignmentNumber;
         if (details.shippingPartnerId) updateData.shippingPartnerId = details.shippingPartnerId;
         if (details.shippingPartnerName) updateData.shippingPartnerName = details.shippingPartnerName;
-    }
-    if(details?.paymentStatus) {
-        updateData.paymentStatus = details.paymentStatus;
+        if (details.paymentStatus) updateData.paymentStatus = details.paymentStatus;
     }
     
     await updateDoc(orderRef, updateData);

@@ -212,7 +212,7 @@ export function OrderActions({ order, setCheckouts }: OrderActionsProps) {
     }
   }, [isShipDialogOpen]);
 
-  const handleStatusUpdate = async (status: 'delivered' | 'pending', paymentStatus?: 'completed' | 'failed') => {
+  const handleStatusUpdate = async (status: 'delivered' | 'pending' | 'failed', paymentStatus?: 'completed' | 'failed') => {
     try {
       await updateOrderStatus(order.id, status, { paymentStatus });
       const updatedCheckouts = await getCheckouts();
@@ -252,7 +252,7 @@ export function OrderActions({ order, setCheckouts }: OrderActionsProps) {
     }
   };
   
-  const canBePacked = order.status === 'pending';
+  const canBePacked = order.status === 'pending' && (order.paymentMethod === 'cod' || (order.paymentMethod === 'upi' && order.paymentStatus === 'completed'));
   const canBeShipped = order.status === 'packed';
   const canBeDelivered = order.status === 'shipped';
   const isUpiPending = order.paymentMethod === 'upi' && order.paymentStatus === 'pending';
@@ -334,14 +334,14 @@ export function OrderActions({ order, setCheckouts }: OrderActionsProps) {
                     <BadgeCheck className="mr-2 h-4 w-4" />
                     Mark as Payment Completed
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleStatusUpdate('pending', 'failed')}>
+                <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleStatusUpdate('failed', 'failed')}>
                     <BadgeX className="mr-2 h-4 w-4" />
                     Mark as Payment Failed
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
             </DropdownMenuGroup>
           )}
-          <DropdownMenuItem onClick={() => setIsPackingDialogOpen(true)} disabled={!canBePacked || isUpiPending}>
+          <DropdownMenuItem onClick={() => setIsPackingDialogOpen(true)} disabled={!canBePacked}>
              <CheckCircle className="mr-2 h-4 w-4" />
              Pack & Update Stock
           </DropdownMenuItem>

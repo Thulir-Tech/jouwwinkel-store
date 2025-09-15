@@ -141,7 +141,7 @@ export default function CheckoutPage() {
             const checkoutData: any = {
                 ...data,
                 items,
-                total: totalAfterDiscount, // Use the discounted total for the order total
+                total: totalAfterDiscount,
                 userId: user?.uid,
                 paymentStatus: data.paymentMethod === 'upi' ? 'pending' : 'completed',
             };
@@ -150,7 +150,6 @@ export default function CheckoutPage() {
                 delete checkoutData.utrNumber;
             }
 
-            // Add coupon details if a coupon is applied
             if (couponCode) {
                 checkoutData.couponCode = couponCode;
                 checkoutData.discountAmount = discountAmount;

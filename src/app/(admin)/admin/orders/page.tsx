@@ -194,13 +194,13 @@ export default function OrdersPage() {
                     </TableCell>
                     <TableCell>{new Date(checkout.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>
-                        <Badge variant={checkout.status === 'delivered' ? 'default' : 'secondary'}>
+                        <Badge variant={checkout.status === 'delivered' ? 'default' : (checkout.status === 'failed' ? 'destructive' : 'secondary')}>
                             {checkout.status}
                         </Badge>
                     </TableCell>
                     <TableCell>
                         <div className="flex flex-col">
-                            <Badge variant={checkout.paymentStatus === 'completed' ? 'default' : 'secondary'} className="capitalize w-fit">
+                            <Badge variant={checkout.paymentStatus === 'completed' ? 'default' : (checkout.paymentStatus === 'failed' ? 'destructive' : 'secondary')} className="capitalize w-fit">
                                 {checkout.paymentMethod}: {checkout.paymentStatus}
                             </Badge>
                             {checkout.utrNumber && <span className="text-xs text-muted-foreground font-mono mt-1">{checkout.utrNumber}</span>}
@@ -235,3 +235,4 @@ export default function OrdersPage() {
     );
 }
   
+
