@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { addCheckout } from '@/lib/firestore.admin';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -40,7 +40,7 @@ import { getUser, getProduct, getProductsByIds } from '@/lib/firestore';
 import { cn } from '@/lib/utils';
 import type { ShippingAddress } from '@/lib/types';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Info } from 'lucide-react';
+import { Info, Copy } from 'lucide-react';
 
 
 const checkoutFormSchema = z.object({
@@ -141,7 +141,7 @@ export default function CheckoutPage() {
             const checkoutData: any = {
                 ...data,
                 items,
-                total,
+                total: totalAfterDiscount, // Use the discounted total for the order total
                 userId: user?.uid,
                 paymentStatus: data.paymentMethod === 'upi' ? 'pending' : 'completed',
             };
@@ -150,7 +150,7 @@ export default function CheckoutPage() {
                 delete checkoutData.utrNumber;
             }
 
-            // Only add coupon fields if a coupon is applied
+            // Add coupon details if a coupon is applied
             if (couponCode) {
                 checkoutData.couponCode = couponCode;
                 checkoutData.discountAmount = discountAmount;
@@ -177,6 +177,13 @@ export default function CheckoutPage() {
             });
         }
     };
+    
+    const handleCopyUpiId = () => {
+        if (uiConfig?.paymentMethods?.upiId) {
+            navigator.clipboard.writeText(uiConfig.paymentMethods.upiId);
+            toast({ title: 'UPI ID copied to clipboard' });
+        }
+    }
 
     const cardColorClass = uiConfig?.cardColor === 'theme' ? 'bg-card' : 'bg-white';
 
@@ -310,16 +317,21 @@ export default function CheckoutPage() {
                                                         Please pay <span className="font-semibold font-sans">₹{formatCurrency(totalAfterDiscount)}</span> to the UPI ID below. After payment, enter the UTR number to complete your order.
                                                     </AlertDescription>
                                                 </Alert>
-                                                <div className="text-center p-3 bg-muted rounded-md">
-                                                    <p className="text-sm text-muted-foreground">Pay to UPI ID:</p>
-                                                    <p className="font-semibold text-lg">{uiConfig.paymentMethods.upiId}</p>
+                                                <div className="text-center p-3 bg-muted rounded-md flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm text-muted-foreground">Pay to UPI ID:</p>
+                                                        <p className="font-semibold text-lg">{uiConfig.paymentMethods.upiId}</p>
+                                                    </div>
+                                                    <Button type="button" variant="ghost" size="icon" onClick={handleCopyUpiId}>
+                                                        <Copy className="h-4 w-4" />
+                                                    </Button>
                                                 </div>
                                                 <FormField
                                                     control={form.control}
                                                     name="utrNumber"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel>UTR Number</FormLabel>
+                                                            <FormLabel>UTR / Transaction Reference Number</FormLabel>
                                                             <FormControl>
                                                                 <Input placeholder="Enter your transaction reference number" {...field} />
                                                             </FormControl>
@@ -373,8 +385,8 @@ export default function CheckoutPage() {
                                         <span>₹{formatCurrency(totalAfterDiscount)}</span>
                                     </div>
                                 </div>
-                                <Button type="submit" className="w-full mt-6" size="lg" disabled={enabledPaymentMethods.length === 0}>
-                                    {enabledPaymentMethods.length === 0 ? "No payment methods available" : "Place Order"}
+                                <Button type="submit" className="w-full mt-6" size="lg" disabled={form.formState.isSubmitting || enabledPaymentMethods.length === 0}>
+                                    {form.formState.isSubmitting ? 'Placing Order...' : (enabledPaymentMethods.length === 0 ? "No payment methods available" : "Place Order")}
                                 </Button>
                                </CardContent>
                             </Card>
@@ -385,3 +397,5 @@ export default function CheckoutPage() {
         </div>
     )
 }
+
+    

@@ -475,3 +475,5 @@ export async function addInquiry(inquiry: Omit<Inquiry, 'id' | 'createdAt'>) {
 export async function deleteInquiry(id: string) {
   await deleteDoc(doc(db, 'inquiries', id));
 }
+
+    
