@@ -15,7 +15,7 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Package, Shapes, Home, ShoppingCart, Users, Settings, Truck, Palette, ClipboardList, Gift, Ticket, Star, Code } from 'lucide-react';
+import { Package, Shapes, Home, ShoppingCart, Users, Settings, Truck, Palette, ClipboardList, Gift, Ticket, Star, Code, Megaphone } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { AuthGuard } from './auth-guard';
 import { useAuth } from '@/hooks/use-auth';
@@ -187,6 +187,19 @@ export function AdminLayoutClient({
                     </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarSeparator />
+                <SidebarMenuItem>
+                    <SidebarMenuButton
+                        href="/admin/offer-banner"
+                        isActive={isActive('/admin/offer-banner')}
+                        tooltip="Offer Banner"
+                        asChild
+                    >
+                        <Link href="/admin/offer-banner" onClick={handleLinkClick}>
+                            <Megaphone />
+                            <span>Offer Banner</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                     <SidebarMenuButton
                         href="/admin/ui-config"

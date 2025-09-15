@@ -173,6 +173,11 @@ export type UiConfig = {
     ourStoryContent?: string;
     ourStoryImageUrl?: string;
     brandLogoUrl?: string;
+
+    offerBanner?: {
+      enabled?: boolean;
+      images?: string[];
+    }
 };
 
 export type Coupon = {
