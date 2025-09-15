@@ -164,6 +164,7 @@ export type UiConfig = {
     instagramLink?: string;
     whatsappLink?: string;
     storeAddress?: string;
+    productShareText?: string;
 
     heroDesktop?: HeroMediaConfig;
     heroMobile?: HeroMediaConfig;

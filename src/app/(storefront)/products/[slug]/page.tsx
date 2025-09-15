@@ -259,7 +259,7 @@ export default function ProductPage() {
   const [isClient, setIsClient] = useState(false);
   
   const { toast } = useToast();
-  const { user, isProductInWishlist, handleToggleWishlist } = useAuth();
+  const { user, uiConfig, isProductInWishlist, handleToggleWishlist } = useAuth();
   
   useEffect(() => {
     setIsClient(true);
@@ -293,10 +293,15 @@ export default function ProductPage() {
   const handleShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (!product) return;
+    
+    const shareText = uiConfig?.productShareText
+      ? uiConfig.productShareText.replace('{productName}', product.title)
+      : `Check out this product: ${product.title}`;
+
     if (navigator.share) {
         navigator.share({
             title: product.title,
-            text: `Check out this product: ${product.title}`,
+            text: shareText,
             url: window.location.href,
         }).catch((error) => {
             if (error.name !== 'AbortError') {
@@ -304,7 +309,7 @@ export default function ProductPage() {
             }
         });
     } else {
-        navigator.clipboard.writeText(window.location.href);
+        navigator.clipboard.writeText(`${shareText}\n${window.location.href}`);
         toast({ title: 'Link copied to clipboard!'});
     }
   }

@@ -59,6 +59,7 @@ const configFormSchema = z.object({
   instagramLink: z.string().url().or(z.literal('')).optional(),
   whatsappLink: z.string().url().or(z.literal('')).optional(),
   storeAddress: z.string().optional(),
+  productShareText: z.string().optional(),
   
   heroDesktop: heroMediaConfigSchema,
   heroMobile: heroMediaConfigSchema,
@@ -224,6 +225,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       instagramLink: initialData?.instagramLink || '',
       whatsappLink: initialData?.whatsappLink || '',
       storeAddress: initialData?.storeAddress || '',
+      productShareText: initialData?.productShareText || '',
 
       heroDesktop: {
         showHero: initialData?.heroDesktop?.showHero ?? true,
@@ -691,6 +693,22 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                 </FormItem>
             )}
             />
+             <FormField
+                control={form.control}
+                name="productShareText"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Product Share Text</FormLabel>
+                    <FormControl>
+                        <Textarea placeholder="Check out this product: {productName}" {...field} />
+                    </FormControl>
+                    <FormDescription>
+                        This text will be used when sharing a product. Use {'{productName}'} as a placeholder for the product title.
+                    </FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
         </div>
          <Separator />
         <div className="space-y-4">
@@ -733,5 +751,3 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     </Form>
   );
 }
-
-    

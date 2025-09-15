@@ -67,10 +67,14 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const productUrl = `${window.location.origin}/products/${product.slug}`;
+    const shareText = uiConfig?.productShareText
+      ? uiConfig.productShareText.replace('{productName}', product.title)
+      : `Check out this product: ${product.title}`;
+
     if (navigator.share) {
         navigator.share({
             title: product.title,
-            text: `Check out this product: ${product.title}`,
+            text: shareText,
             url: productUrl,
         }).catch((error) => {
             if (error.name !== 'AbortError') {
@@ -78,7 +82,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             }
         });
     } else {
-        navigator.clipboard.writeText(productUrl);
+        navigator.clipboard.writeText(`${shareText}\n${productUrl}`);
         toast({ title: 'Link copied to clipboard!'});
     }
   }
