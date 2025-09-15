@@ -69,20 +69,6 @@ export default function ContactPage() {
         )
     }
 
-    const getMapQuery = () => {
-        if (uiConfig?.storeLatitude && uiConfig?.storeLongitude) {
-            return `${uiConfig.storeLatitude},${uiConfig.storeLongitude}`;
-        }
-        if (uiConfig?.storeAddress) {
-            return encodeURIComponent(uiConfig.storeAddress);
-        }
-        return '';
-    }
-
-    const mapQuery = getMapQuery();
-    const showLocation = uiConfig?.showLocation ?? true;
-
-
     return (
         <div className="container mx-auto px-4 py-12">
             <div className="max-w-4xl mx-auto">
@@ -130,47 +116,29 @@ export default function ContactPage() {
                     </div>
 
                     <div className="space-y-6">
-                        {showLocation && mapQuery ? (
-                             <Card className={cn(cardColorClass, "h-full")}>
-                                <CardHeader>
-                                    <CardTitle>Our Location</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {uiConfig.storeAddress && (
-                                        <div className="flex items-start gap-4">
-                                            <MapPin className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-                                            <p className="text-muted-foreground whitespace-pre-line">
-                                                {uiConfig.storeAddress}
-                                            </p>
-                                        </div>
-                                    )}
-                                    <div className="aspect-video w-full">
-                                        <iframe
-                                            className="w-full h-full border-0 rounded-md"
-                                            loading="lazy"
-                                            allowFullScreen
-                                            referrerPolicy="no-referrer-when-downgrade"
-                                            src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}&q=${mapQuery}`}
-                                        >
-                                        </iframe>
+                         <Card className={cn(cardColorClass)}>
+                            <CardHeader>
+                                <CardTitle>Our Location</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {uiConfig?.storeAddress && (
+                                    <div className="flex items-start gap-4">
+                                        <MapPin className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                                        <p className="text-muted-foreground whitespace-pre-line">
+                                            {uiConfig.storeAddress}
+                                        </p>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        ) : mapQuery ? (
-                             <Card className={cn(cardColorClass)}>
-                                <CardHeader>
-                                    <CardTitle>Our Location</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <Button asChild variant="outline" className="w-full">
-                                        <a href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`} target="_blank" rel="noopener noreferrer">
+                                )}
+                                {uiConfig?.googleMapsLink && (
+                                     <Button asChild variant="outline" className="w-full">
+                                        <a href={uiConfig.googleMapsLink} target="_blank" rel="noopener noreferrer">
                                             <MapPin className="mr-2 h-4 w-4" />
-                                            Locate us on Google Maps
+                                            Find us on Google Maps
                                         </a>
                                     </Button>
-                                </CardContent>
-                            </Card>
-                        ) : null}
+                                )}
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>

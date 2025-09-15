@@ -164,10 +164,8 @@ export type UiConfig = {
     footerCaption?: string;
     instagramLink?: string;
     whatsappLink?: string;
-    showLocation?: boolean;
     storeAddress?: string;
-    storeLatitude?: number;
-    storeLongitude?: number;
+    googleMapsLink?: string;
     productShareText?: string;
 
     heroDesktop?: HeroMediaConfig;

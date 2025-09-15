@@ -58,10 +58,8 @@ const configFormSchema = z.object({
   footerCaption: z.string().optional(),
   instagramLink: z.string().url().or(z.literal('')).optional(),
   whatsappLink: z.string().url().or(z.literal('')).optional(),
-  showLocation: z.boolean().optional(),
   storeAddress: z.string().optional(),
-  storeLatitude: z.coerce.number().optional(),
-  storeLongitude: z.coerce.number().optional(),
+  googleMapsLink: z.string().url().or(z.literal('')).optional(),
   productShareText: z.string().optional(),
   
   heroDesktop: heroMediaConfigSchema,
@@ -227,10 +225,8 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       footerCaption: initialData?.footerCaption || '',
       instagramLink: initialData?.instagramLink || '',
       whatsappLink: initialData?.whatsappLink || '',
-      showLocation: initialData?.showLocation ?? true,
       storeAddress: initialData?.storeAddress || '',
-      storeLatitude: initialData?.storeLatitude,
-      storeLongitude: initialData?.storeLongitude,
+      googleMapsLink: initialData?.googleMapsLink || '',
       productShareText: initialData?.productShareText || '',
 
       heroDesktop: {
@@ -276,14 +272,6 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
         ourStoryImageUrl: data.ourStoryImageUrl?.[0] || '',
       };
       
-      // Firestore does not accept 'undefined' values.
-      if (data.storeLatitude === undefined || isNaN(data.storeLatitude)) {
-        delete (finalData as any).storeLatitude;
-      }
-      if (data.storeLongitude === undefined || isNaN(data.storeLongitude)) {
-        delete (finalData as any).storeLongitude;
-      }
-
       await updateUiConfig(finalData);
       toast({ title: 'Configuration updated successfully' });
       router.refresh();
@@ -694,26 +682,6 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
             )}
             />
             <FormField
-              control={form.control}
-              name="showLocation"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
-                  <div className="space-y-0.5">
-                    <FormLabel>Show Location Section</FormLabel>
-                    <FormDescription>
-                      Enable to show the map and address on the Contact Us page.
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
             control={form.control}
             name="storeAddress"
             render={({ field }) => (
@@ -727,34 +695,20 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                 </FormItem>
             )}
             />
-            <div className="grid grid-cols-2 gap-4">
-                <FormField
-                control={form.control}
-                name="storeLatitude"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Store Latitude</FormLabel>
-                    <FormControl>
-                        <Input type="number" placeholder="e.g. 12.9716" {...field} value={field.value ?? ''} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <FormField
-                control={form.control}
-                name="storeLongitude"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Store Longitude</FormLabel>
-                    <FormControl>
-                        <Input type="number" placeholder="e.g. 77.5946" {...field} value={field.value ?? ''} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-            </div>
+            <FormField
+            control={form.control}
+            name="googleMapsLink"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Google Maps Link</FormLabel>
+                <FormControl>
+                    <Input placeholder="https://maps.app.goo.gl/..." {...field} />
+                </FormControl>
+                <FormDescription>The direct link to your store on Google Maps.</FormDescription>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
              <FormField
                 control={form.control}
                 name="productShareText"
