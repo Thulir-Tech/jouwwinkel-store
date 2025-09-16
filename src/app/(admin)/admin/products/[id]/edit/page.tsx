@@ -1,6 +1,6 @@
 
 import { getCategories, getProduct, getProducts, getVariants } from '@/lib/firestore';
-import { ProductForm } from '../../product-form';
+import { ProductForm } from '@/app/(admin)/admin/product-form';
 import { notFound } from 'next/navigation';
 
 export default async function EditProductPage({ params }: { params: { id: string } }) {
