@@ -22,15 +22,19 @@ Open [http://localhost:9002](http://localhost:9002) with your browser to see the
 
 ## Environment Variables
 
-This project uses Firebase for its backend. You need to set up a Firebase project and add the configuration to a `.env.local` file in the root of the project.
+This project uses Firebase for its backend and Google for GenAI features. You need to set up a Firebase project, enable the Gemini API, and add the configuration to a `.env.local` file in the root of the project. You can copy the structure from `.env.example`.
 
 ```
+# Firebase App Configuration
 NEXT_PUBLIC_FIREBASE_API_KEY=
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
+
+# Google Gemini API Key
+GEMINI_API_KEY=
 ```
 
 ## Firestore Setup
@@ -96,5 +100,5 @@ To deploy this application to Vercel, follow these steps:
 1.  Push your code to a Git repository (e.g., GitHub, GitLab).
 2.  Import your project into Vercel from the Git repository.
 3.  In the Vercel Project Settings, navigate to the "Environment Variables" section.
-4.  Add the `NEXT_PUBLIC_FIREBASE_*` environment variables with the values from your Firebase project.
+4.  Add the `NEXT_PUBLIC_FIREBASE_*` and `GEMINI_API_KEY` environment variables with the values from your local `.env.local` file.
 5.  Trigger a new deployment. Vercel will automatically build and deploy your application.
