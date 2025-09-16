@@ -184,9 +184,10 @@ export type UiConfig = {
     heroText3Color?: string;
     ourStoryContent?: string;
     ourStoryImageUrl?: string;
-    brandLogoUrl?: string;
+    brandLogoUrl?: string[];
     brandLogoLink?: string;
     brandLogoAltText?: string;
+    faviconUrl?: string[];
 
     offerBanner?: {
       enabled?: boolean;

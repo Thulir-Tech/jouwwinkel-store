@@ -79,6 +79,7 @@ const configFormSchema = z.object({
   brandLogoUrl: z.array(z.string()).optional(),
   brandLogoLink: z.string().url().or(z.literal('')).optional(),
   brandLogoAltText: z.string().optional(),
+  faviconUrl: z.array(z.string()).optional(),
 });
 
 type ConfigFormValues = z.infer<typeof configFormSchema>;
@@ -257,9 +258,10 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       heroText3Color: initialData?.heroText3Color || '#E5E7EB',
       ourStoryContent: initialData?.ourStoryContent || '',
       ourStoryImageUrl: initialData?.ourStoryImageUrl ? [initialData.ourStoryImageUrl] : [],
-      brandLogoUrl: initialData?.brandLogoUrl ? [initialData.brandLogoUrl] : [],
+      brandLogoUrl: initialData?.brandLogoUrl || [],
       brandLogoLink: initialData?.brandLogoLink || '',
       brandLogoAltText: initialData?.brandLogoAltText || '',
+      faviconUrl: initialData?.faviconUrl || [],
     },
   });
 
@@ -277,7 +279,6 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
     try {
       const finalData: { [key: string]: any } = {
         ...data,
-        brandLogoUrl: data.brandLogoUrl?.[0] || '',
         ourStoryImageUrl: data.ourStoryImageUrl?.[0] || '',
       };
       
@@ -316,6 +317,24 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                 />
                  <FormField
                     control={form.control}
+                    name="faviconUrl"
+                    render={({ field }) => (
+                        <FormItem>
+                             <FormLabel>Favicon</FormLabel>
+                             <FormDescription>Upload your site icon (.ico, .png, .svg). Recommended size: 32x32 pixels.</FormDescription>
+                            <FormControl>
+                                <ImageManager
+                                    images={field.value || []}
+                                    onImagesChange={field.onChange}
+                                    singleImage={true}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
                     name="cardColor"
                     render={({ field }) => (
                         <FormItem>
@@ -346,7 +365,8 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                             <FormControl>
                                 <ImageManager
                                     images={field.value || []}
-                                    onImagesChange={(urls) => field.onChange(urls.slice(-1))}
+                                    onImagesChange={(urls) => field.onChange(urls)}
+                                    singleImage={true}
                                 />
                             </FormControl>
                             <FormMessage />
@@ -806,11 +826,10 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                             <FormLabel>Our Story Image</FormLabel>
                             <FormDescription>Upload a banner image for the Our Story page.</FormDescription>
                         <FormControl>
-                            <MediaUploader 
-                                value={field.value || []} 
-                                onChange={field.onChange}
-                                fileTypes={['image']}
-                                maxFiles={1}
+                            <ImageManager
+                                images={field.value || []}
+                                onImagesChange={field.onChange}
+                                singleImage={true}
                             />
                         </FormControl>
                         <FormMessage />
