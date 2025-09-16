@@ -38,6 +38,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
+import { ImageManager } from '../image-manager';
 
 
 const heroMediaConfigSchema = z.object({
@@ -341,13 +342,11 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                     render={({ field }) => (
                         <FormItem>
                              <FormLabel>Brand Logo</FormLabel>
-                             <FormDescription>Upload your store logo. Recommended size: 200x100 pixels.</FormDescription>
+                             <FormDescription>Upload your store logo or provide a URL. Recommended size: 200x100 pixels.</FormDescription>
                             <FormControl>
-                                <MediaUploader 
-                                    value={field.value || []} 
-                                    onChange={field.onChange}
-                                    fileTypes={['image']}
-                                    maxFiles={1}
+                                <ImageManager
+                                    images={field.value || []}
+                                    onImagesChange={(urls) => field.onChange(urls.slice(-1))}
                                 />
                             </FormControl>
                             <FormMessage />

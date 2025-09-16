@@ -15,9 +15,10 @@ import { useToast } from '@/hooks/use-toast';
 interface ImageManagerProps {
   images: string[];
   onImagesChange: (images: string[]) => void;
+  singleImage?: boolean;
 }
 
-export function ImageManager({ images, onImagesChange }: ImageManagerProps) {
+export function ImageManager({ images, onImagesChange, singleImage = false }: ImageManagerProps) {
   const [addMethod, setAddMethod] = useState<'upload' | 'link'>('upload');
   const [newImageUrl, setNewImageUrl] = useState('');
   const { toast } = useToast();
@@ -27,7 +28,11 @@ export function ImageManager({ images, onImagesChange }: ImageManagerProps) {
   const dragOverItem = useRef<number | null>(null);
 
   const handleAddFromUploader = (urls: string[]) => {
-    onImagesChange([...images, ...urls]);
+    if (singleImage) {
+      onImagesChange(urls);
+    } else {
+      onImagesChange([...images, ...urls]);
+    }
   }
 
   const handleAddFromLink = () => {
@@ -35,7 +40,11 @@ export function ImageManager({ images, onImagesChange }: ImageManagerProps) {
         toast({ title: "Invalid URL", description: "Please enter a valid image URL.", variant: "destructive" });
         return;
     }
-    onImagesChange([...images, newImageUrl]);
+    if (singleImage) {
+      onImagesChange([newImageUrl]);
+    } else {
+      onImagesChange([...images, newImageUrl]);
+    }
     setNewImageUrl('');
   };
 
@@ -44,7 +53,7 @@ export function ImageManager({ images, onImagesChange }: ImageManagerProps) {
   };
   
   const handleDragSort = () => {
-    if (dragItem.current === null || dragOverItem.current === null) return;
+    if (singleImage || dragItem.current === null || dragOverItem.current === null) return;
     const newImages = [...images];
     const draggedItemContent = newImages.splice(dragItem.current, 1)[0];
     newImages.splice(dragOverItem.current, 0, draggedItemContent);
@@ -57,22 +66,24 @@ export function ImageManager({ images, onImagesChange }: ImageManagerProps) {
     <div className="space-y-6">
       <div>
         <Label>Current Images</Label>
-        <p className="text-sm text-muted-foreground mb-4">
-          Drag and drop the images to change their order. The first image is the main one.
-        </p>
+        {!singleImage && (
+          <p className="text-sm text-muted-foreground mb-4">
+            Drag and drop the images to change their order. The first image is the main one.
+          </p>
+        )}
         {images.length > 0 ? (
           <div className="space-y-2">
             {images.map((url, index) => (
               <div
                 key={url + index}
                 className="flex items-center gap-2 p-2 border rounded-lg bg-background"
-                draggable
+                draggable={!singleImage}
                 onDragStart={() => dragItem.current = index}
                 onDragEnter={() => dragOverItem.current = index}
                 onDragEnd={handleDragSort}
                 onDragOver={(e) => e.preventDefault()}
               >
-                <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
+                {!singleImage && <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />}
                 <Image
                   src={url}
                   alt={`Image ${index + 1}`}
@@ -121,6 +132,7 @@ export function ImageManager({ images, onImagesChange }: ImageManagerProps) {
             value={[]}
             onChange={handleAddFromUploader}
             fileTypes={['image']}
+            maxFiles={singleImage ? 1 : 0}
           />
         ) : (
           <div className="flex items-center gap-2">
