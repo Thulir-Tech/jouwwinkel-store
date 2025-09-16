@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Heart, Share2 } from 'lucide-react';
 import type { Combo } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { useCartStore } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface ComboCardProps {
   combo: Combo;
@@ -21,7 +22,8 @@ interface ComboCardProps {
 export default function ComboCard({ combo }: ComboCardProps) {
   const { addToCart } = useCartStore();
   const { toast } = useToast();
-  const { uiConfig } = useAuth();
+  const { uiConfig, user, isProductInWishlist, handleToggleWishlist } = useAuth();
+  const router = useRouter();
   
   const showCompareAtPrice = combo.compareAtPrice && combo.compareAtPrice > combo.price;
 
@@ -44,10 +46,46 @@ export default function ComboCard({ combo }: ComboCardProps) {
     });
   };
 
+  const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!user) {
+        router.push('/login');
+        return;
+    }
+    handleToggleWishlist(combo.id);
+    toast({
+        title: isProductInWishlist(combo.id) ? 'Removed from wishlist' : 'Added to wishlist',
+    });
+  }
+
+  const handleShareClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const comboUrl = `${window.location.origin}/combos/${combo.slug}`;
+    const shareText = uiConfig?.productShareText
+      ? uiConfig.productShareText.replace('{productName}', combo.title)
+      : `Check out this combo: ${combo.title}`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: combo.title,
+            text: shareText,
+            url: comboUrl,
+        }).catch((error) => {
+            if (error.name !== 'AbortError') {
+                console.error('Error sharing:', error);
+            }
+        });
+    } else {
+        navigator.clipboard.writeText(`${shareText}\n${comboUrl}`);
+        toast({ title: 'Link copied to clipboard!'});
+    }
+  }
+
   const cardColorClass = uiConfig?.cardColor === 'theme' ? 'bg-card' : 'bg-white';
+  const isInWishlist = user ? isProductInWishlist(combo.id) : false;
 
   return (
-    <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl", cardColorClass)}>
+    <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl group/card", cardColorClass)}>
       <Link href={`/combos/${combo.slug}`} className="block h-full">
           <CardHeader className="p-0 relative">
               <Image
@@ -63,6 +101,26 @@ export default function ComboCard({ combo }: ComboCardProps) {
                 Sale
               </Badge>
             )}
+             <div className="absolute top-2 right-2 flex flex-col gap-2 transition-opacity duration-300">
+                <Button
+                    size="icon"
+                    variant="secondary"
+                    className="rounded-full h-8 w-8"
+                    onClick={handleWishlistClick}
+                    aria-label="Add to wishlist"
+                >
+                    <Heart className={cn("h-4 w-4", isInWishlist && "fill-destructive text-destructive")} />
+                </Button>
+                <Button
+                    size="icon"
+                    variant="secondary"
+                    className="rounded-full h-8 w-8"
+                    onClick={handleShareClick}
+                    aria-label="Share product"
+                >
+                    <Share2 className="h-4 w-4" />
+                </Button>
+            </div>
           </CardHeader>
           <CardContent className="flex-grow p-4 space-y-2">
             <CardTitle className="text-lg font-semibold leading-tight line-clamp-2 font-headline">
