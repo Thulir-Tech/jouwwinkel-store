@@ -113,9 +113,9 @@ export default function Header() {
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 <Link href={logoLink}>
                     {config?.brandLogoUrl ? (
-                        <Image src={config.brandLogoUrl} alt="Brand Logo" width={120} height={60} className="object-contain h-10 md:h-12" />
+                        <Image src={config.brandLogoUrl} alt="Brand Logo" width={120} height={60} className="object-contain h-8 md:h-12" />
                     ) : (
-                        <span className="text-2xl font-bold font-headline tracking-tight">
+                        <span className="text-xl md:text-2xl font-bold font-headline tracking-tight">
                             Jouwwinkel
                         </span>
                     )}
