@@ -186,6 +186,7 @@ export type UiConfig = {
     ourStoryImageUrl?: string;
     brandLogoUrl?: string;
     brandLogoLink?: string;
+    brandLogoAltText?: string;
 
     offerBanner?: {
       enabled?: boolean;

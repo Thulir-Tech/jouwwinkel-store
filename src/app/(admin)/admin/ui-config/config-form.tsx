@@ -77,6 +77,7 @@ const configFormSchema = z.object({
   ourStoryImageUrl: z.array(z.string()).optional(),
   brandLogoUrl: z.array(z.string()).optional(),
   brandLogoLink: z.string().url().or(z.literal('')).optional(),
+  brandLogoAltText: z.string().optional(),
 });
 
 type ConfigFormValues = z.infer<typeof configFormSchema>;
@@ -257,6 +258,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       ourStoryImageUrl: initialData?.ourStoryImageUrl ? [initialData.ourStoryImageUrl] : [],
       brandLogoUrl: initialData?.brandLogoUrl ? [initialData.brandLogoUrl] : [],
       brandLogoLink: initialData?.brandLogoLink || '',
+      brandLogoAltText: initialData?.brandLogoAltText || '',
     },
   });
 
@@ -362,6 +364,20 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                             <Input placeholder="e.g. /" {...field} />
                         </FormControl>
                         <FormDescription>The URL the brand logo links to. Defaults to the homepage.</FormDescription>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="brandLogoAltText"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Brand Logo Alt Text</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g. Jouwwinkel Store Logo" {...field} />
+                        </FormControl>
+                        <FormDescription>Alternative text for the logo image for accessibility.</FormDescription>
                         <FormMessage />
                         </FormItem>
                     )}
