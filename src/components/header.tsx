@@ -102,6 +102,8 @@ export default function Header() {
     fetchConfig();
   }, []);
 
+  const logoLink = config?.brandLogoLink || '/';
+
   return (
     <header className="sticky top-0 z-50 w-full text-primary-foreground bg-primary">
         <div className="container relative mx-auto flex h-16 items-center justify-between px-4">
@@ -109,15 +111,15 @@ export default function Header() {
               <SidebarSheet />
             </div>
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                {config?.brandLogoUrl ? (
-                    <Link href="/">
-                        <Image src={config.brandLogoUrl} alt="Brand Logo" width={120} height={60} className="object-contain h-12" />
-                    </Link>
-                ) : (
-                    <Link href="/" className="text-2xl font-bold font-headline tracking-tight">
-                        Jouwwinkel
-                    </Link>
-                )}
+                <Link href={logoLink}>
+                    {config?.brandLogoUrl ? (
+                        <Image src={config.brandLogoUrl} alt="Brand Logo" width={120} height={60} className="object-contain h-10 md:h-12" />
+                    ) : (
+                        <span className="text-2xl font-bold font-headline tracking-tight">
+                            Jouwwinkel
+                        </span>
+                    )}
+                </Link>
             </div>
             <div className="flex items-center gap-1">
               <SearchDialog />

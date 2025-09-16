@@ -76,6 +76,7 @@ const configFormSchema = z.object({
   ourStoryContent: z.string().optional(),
   ourStoryImageUrl: z.array(z.string()).optional(),
   brandLogoUrl: z.array(z.string()).optional(),
+  brandLogoLink: z.string().url().or(z.literal('')).optional(),
 });
 
 type ConfigFormValues = z.infer<typeof configFormSchema>;
@@ -255,6 +256,7 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
       ourStoryContent: initialData?.ourStoryContent || '',
       ourStoryImageUrl: initialData?.ourStoryImageUrl ? [initialData.ourStoryImageUrl] : [],
       brandLogoUrl: initialData?.brandLogoUrl ? [initialData.brandLogoUrl] : [],
+      brandLogoLink: initialData?.brandLogoLink || '',
     },
   });
 
@@ -347,6 +349,20 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
                                 />
                             </FormControl>
                             <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="brandLogoLink"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Brand Logo Link</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g. /" {...field} />
+                        </FormControl>
+                        <FormDescription>The URL the brand logo links to. Defaults to the homepage.</FormDescription>
+                        <FormMessage />
                         </FormItem>
                     )}
                 />
