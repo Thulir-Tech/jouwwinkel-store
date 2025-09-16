@@ -1,15 +1,14 @@
 
-'use client';
+'use server';
 
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { Carousel, CarouselContent, CarouselItem } from './ui/carousel';
-import Autoplay from "embla-carousel-autoplay";
 import Image from 'next/image';
 import type { HeroMediaConfig, UiConfig } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { getUiConfig } from '@/lib/firestore';
-import { useEffect, useState } from 'react';
+import MediaCarousel from './hero-media-carousel';
 
 const HeroContent = ({ config }: { config: UiConfig | null }) => {
     const defaultTextColor = '#FFFFFF';
@@ -114,21 +113,7 @@ const MediaHero = ({ mediaConfig }: { mediaConfig: HeroMediaConfig }) => {
 
     if (mediaConfig.viewType === 'carousel') {
         return (
-             <div className="relative w-full h-full bg-black">
-                <Carousel
-                    opts={{ loop: true }}
-                    plugins={[Autoplay({ delay: 5000 })]}
-                    className="h-full"
-                >
-                    <CarouselContent className="h-full">
-                        {mediaConfig.mediaItems.map((url, index) => (
-                            <CarouselItem key={index} className="h-full">
-                               <MediaBackground url={url} fileType={mediaConfig.fileType || 'image'} />
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                </Carousel>
-            </div>
+            <MediaCarousel mediaConfig={mediaConfig} />
         )
     }
 
@@ -143,23 +128,8 @@ const MediaHero = ({ mediaConfig }: { mediaConfig: HeroMediaConfig }) => {
     return null;
 }
 
-export default function Hero() {
-  const [config, setConfig] = useState<UiConfig | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchConfig() {
-      const uiConfig = await getUiConfig();
-      setConfig(uiConfig);
-      setLoading(false);
-    }
-    fetchConfig();
-  }, []);
-
-  if (loading) {
-    // You can return a skeleton loader here if you want
-    return <div className="h-[60vh] bg-muted"></div>;
-  }
+export default async function Hero() {
+  const config = await getUiConfig();
 
   const showDesktopHero = config?.heroDesktop?.showHero ?? true;
   const showMobileHero = config?.heroMobile?.showHero ?? true;
