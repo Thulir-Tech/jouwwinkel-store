@@ -316,14 +316,13 @@ export default function CheckoutPage() {
                                                         Please pay <span className="font-semibold font-sans">₹{formatCurrency(totalAfterDiscount)}</span> to the UPI ID below. After payment, enter the UTR number to complete your order.
                                                     </AlertDescription>
                                                 </Alert>
-                                                <div className="text-center p-3 bg-muted rounded-md flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm text-muted-foreground">Pay to UPI ID:</p>
-                                                        <p className="font-semibold text-lg">{uiConfig.paymentMethods.upiId}</p>
-                                                    </div>
-                                                    <Button type="button" variant="ghost" size="icon" onClick={handleCopyUpiId}>
-                                                        <Copy className="h-4 w-4" />
-                                                    </Button>
+                                                <div 
+                                                    className="relative cursor-pointer rounded-lg border bg-muted p-4 text-center transition-colors hover:bg-muted/80"
+                                                    onClick={handleCopyUpiId}
+                                                >
+                                                    <p className="text-sm text-muted-foreground">Click to copy UPI ID</p>
+                                                    <p className="text-xl font-bold font-mono tracking-wider">{uiConfig.paymentMethods.upiId}</p>
+                                                    <Copy className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                                 </div>
                                                 <FormField
                                                     control={form.control}
@@ -396,5 +395,3 @@ export default function CheckoutPage() {
         </div>
     )
 }
-
-    
