@@ -113,10 +113,10 @@ export default function Header() {
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 <Link href={logoLink}>
                     {config?.brandLogoUrl && config.brandLogoUrl.length > 0 ? (
-                        <Image src={config.brandLogoUrl[0]} alt={config.brandLogoAltText || 'Brand Logo'} width={120} height={60} className="object-contain h-8 md:h-10" />
+                        <Image src={config.brandLogoUrl[0]} alt={config.brandLogoAltText || 'Jouwwinkel'} width={120} height={60} className="object-contain h-8 md:h-10" />
                     ) : (
                         <span className="text-xl md:text-2xl font-bold font-headline tracking-tight">
-                            Jouwwinkel
+                            {config?.brandLogoAltText || 'Jouwwinkel'}
                         </span>
                     )}
                 </Link>
