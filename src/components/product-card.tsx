@@ -190,11 +190,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         </Link>
         <CardFooter className="p-4 pt-0">
           <div className="flex w-full gap-2">
-            <Button className="w-full" onClick={handleAddToCart}>
+            <Button className="flex-1" onClick={handleAddToCart}>
               <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
             </Button>
             {showBuyNow && (
-              <Button variant="secondary" className="w-full" onClick={handleBuyNow}>
+              <Button variant="secondary" onClick={handleBuyNow}>
                 <Zap className="mr-2 h-4 w-4" /> Buy Now
               </Button>
             )}
