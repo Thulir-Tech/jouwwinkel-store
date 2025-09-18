@@ -172,6 +172,7 @@ export type UiConfig = {
     googleMapsLink?: string;
     showLocation?: boolean;
     productShareText?: string;
+    showBuyNowButton?: boolean;
 
     heroDesktop?: HeroMediaConfig;
     heroMobile?: HeroMediaConfig;

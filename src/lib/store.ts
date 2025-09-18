@@ -45,7 +45,7 @@ export const useCartStore = create<CartState>()(
             item.id === id ? { ...item, quantity: item.quantity + newItem.quantity } : item
           );
         } else {
-          updatedItems = [...get().items, { ...newItem, id }];
+          updatedItems = [...get().items, { ...newItem, id, quantity: newItem.quantity || 1 }];
         }
         set(state => ({ items: updatedItems, ...calculateState(updatedItems, state.couponCode, state.discountAmount) }));
       },

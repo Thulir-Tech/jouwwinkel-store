@@ -21,6 +21,7 @@ import type { UiConfig } from '@/lib/types';
 import { updateUiConfig } from '@/lib/firestore.admin';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 
 const settingsFormSchema = z.object({
   paymentMethods: z.object({
@@ -28,6 +29,7 @@ const settingsFormSchema = z.object({
     upi: z.boolean().optional(),
     upiId: z.string().optional(),
   }).optional(),
+  showBuyNowButton: z.boolean().optional(),
 });
 
 type SettingsFormValues = z.infer<typeof settingsFormSchema>;
@@ -48,6 +50,7 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
         upi: initialData?.paymentMethods?.upi ?? true,
         upiId: initialData?.paymentMethods?.upiId || '',
       },
+      showBuyNowButton: initialData?.showBuyNowButton ?? false,
     },
   });
 
@@ -55,9 +58,7 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
 
   const onSubmit = async (data: SettingsFormValues) => {
     try {
-      await updateUiConfig({ 
-        paymentMethods: data.paymentMethods,
-       });
+      await updateUiConfig(data);
       toast({ title: 'Settings updated successfully' });
       router.refresh();
     } catch (error) {
@@ -132,6 +133,34 @@ export function SettingsForm({ initialData }: SettingsFormProps) {
                     )}
                   />
               )}
+          </CardContent>
+        </Card>
+
+        <Separator />
+
+        <Card>
+          <CardHeader><CardTitle>Storefront Features</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+              <FormField
+                control={form.control}
+                name="showBuyNowButton"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Show "Buy Now" Button</FormLabel>
+                       <FormDescription>
+                        Display a "Buy Now" button on product pages for faster checkout.
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
           </CardContent>
         </Card>
         

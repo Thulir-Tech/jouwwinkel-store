@@ -13,7 +13,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import AddToCartButton from './add-to-cart-button';
 import { FaWhatsapp, FaCheckCircle } from 'react-icons/fa';
-import { ShoppingBag, Truck, MapPin, ChevronLeft, ChevronRight, Star, Heart, Share2 } from 'lucide-react';
+import { ShoppingBag, Truck, MapPin, ChevronLeft, ChevronRight, Star, Heart, Share2, Zap } from 'lucide-react';
 import type { Product, Review } from '@/lib/types';
 import VariantSelector from '@/components/variant-selector';
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
@@ -22,6 +22,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
+import { useCartStore } from '@/lib/store';
 
 function ProductPageSkeleton() {
     return (
@@ -260,6 +261,7 @@ export default function ProductPage() {
   
   const { toast } = useToast();
   const { user, uiConfig, isProductInWishlist, handleToggleWishlist } = useAuth();
+  const { addToCart } = useCartStore();
   
   useEffect(() => {
     setIsClient(true);
@@ -337,6 +339,34 @@ export default function ProductPage() {
   const isSelectionComplete = product.hasVariants ? product.variants.every(v => selectedVariants[v.variantName]) : true;
   const showCompareAtPrice = compareAtPrice && compareAtPrice > price;
   const isInWishlist = user ? isProductInWishlist(product.id) : false;
+  const showBuyNow = uiConfig?.showBuyNowButton ?? false;
+
+  const handleBuyNow = () => {
+    if (!isSelectionComplete && product.hasVariants) {
+      toast({
+        title: 'Please make a selection',
+        description: 'You need to choose an option for each variant.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    const variantId = product.hasVariants ? Object.values(selectedVariants).map(s => s.toLowerCase()).join('-') : undefined;
+    const variantLabel = product.hasVariants ? Object.values(selectedVariants).join(' / ') : undefined;
+
+    addToCart({
+      productId: product.id,
+      title: product.title,
+      price: price,
+      quantity: 1,
+      image: product.images[0],
+      variantId,
+      variantLabel,
+      revenuePerUnit: product.revenuePerUnit,
+      profitPerUnit: product.profitPerUnit,
+    });
+    router.push('/checkout');
+  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -346,9 +376,9 @@ export default function ProductPage() {
             <h1 className="text-2xl lg:text-3xl font-bold font-headline mb-2">{product.title}</h1>
             
             <div className="flex items-center gap-4 mb-4">
-                <p className="text-2xl font-bold text-primary font-sans">₹{formatCurrency(price)}</p>
+                <p className="text-3xl font-bold text-primary font-sans">₹{formatCurrency(price)}</p>
                 {showCompareAtPrice && (
-                <p className="text-lg text-muted-foreground line-through font-sans">
+                <p className="text-xl text-muted-foreground line-through font-sans">
                     ₹{formatCurrency(compareAtPrice!)}
                 </p>
                 )}
@@ -383,23 +413,38 @@ export default function ProductPage() {
                         selectedVariants={selectedVariants}
                         isSelectionComplete={isSelectionComplete}
                     />
-                    <Button
-                        size="icon"
-                        variant="outline"
-                        className="h-12 w-12"
+                    {showBuyNow && (
+                        <Button
+                            size="lg"
+                            variant="secondary"
+                            className="flex-1"
+                            onClick={handleBuyNow}
+                            disabled={!isSelectionComplete && product.hasVariants}
+                        >
+                            <Zap className="mr-2 h-5 w-5" /> Buy Now
+                        </Button>
+                    )}
+                </div>
+                <div className="flex justify-center gap-2">
+                     <Button
+                        size="sm"
+                        variant="ghost"
                         onClick={handleWishlistClick}
                         aria-label="Add to wishlist"
+                        className="text-muted-foreground"
                     >
-                        <Heart className={cn("h-5 w-5", isInWishlist && "fill-destructive text-destructive")} />
+                        <Heart className={cn("mr-2 h-4 w-4", isInWishlist && "fill-destructive text-destructive")} />
+                        {isInWishlist ? 'Wishlisted' : 'Wishlist'}
                     </Button>
                     <Button
-                        size="icon"
-                        variant="outline"
-                        className="h-12 w-12"
+                        size="sm"
+                        variant="ghost"
                         onClick={handleShareClick}
                         aria-label="Share product"
+                        className="text-muted-foreground"
                     >
-                        <Share2 className="h-5 w-5" />
+                        <Share2 className="mr-2 h-4 w-4" />
+                        Share
                     </Button>
                 </div>
             </div>
