@@ -46,7 +46,7 @@ function SafeIframe({ embedCode }: { embedCode: string }) {
     }, [embedCode]);
 
     if (!src) {
-        return <p className="text-red-500 text-sm">Invalid map embed code.</p>;
+        return null;
     }
 
     return (
