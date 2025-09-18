@@ -22,11 +22,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const uiConfig = await getUiConfig();
   return (
     <html lang="en" className="light">
       <head>
@@ -35,7 +36,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <Providers>
+        <Providers uiConfig={uiConfig}>
           {children}
           <Toaster />
         </Providers>

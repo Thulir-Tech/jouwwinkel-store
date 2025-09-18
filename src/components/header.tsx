@@ -19,8 +19,6 @@ import {
     DropdownMenuTrigger,
   } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { getUiConfig } from '@/lib/firestore';
-import type { UiConfig } from '@/lib/types';
 import Image from 'next/image';
 import HeaderCaption from './header-caption';
 
@@ -90,21 +88,16 @@ function UserNav() {
 
 export default function Header() {
   const [isClient, setIsClient] = useState(false);
-  const [config, setConfig] = useState<UiConfig | null>(null);
+  const { uiConfig } = useAuth();
   const { count } = useCartStore();
 
   useEffect(() => {
     setIsClient(true);
-    async function fetchConfig() {
-      const uiConfig = await getUiConfig();
-      setConfig(uiConfig);
-    }
-    fetchConfig();
   }, []);
 
-  const logoLink = config?.brandLogoLink || '/';
-  const hasLogoImage = config?.brandLogoUrl && config.brandLogoUrl.length > 0;
-  const brandName = config?.brandLogoAltText || 'Jouwwinkel';
+  const logoLink = uiConfig?.brandLogoLink || '/';
+  const hasLogoImage = uiConfig?.brandLogoUrl && uiConfig.brandLogoUrl.length > 0;
+  const brandName = uiConfig?.brandLogoAltText || 'Jouwwinkel';
 
 
   return (
@@ -116,7 +109,7 @@ export default function Header() {
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 <Link href={logoLink}>
                     {hasLogoImage ? (
-                        <Image src={config.brandLogoUrl![0]} alt={brandName} width={120} height={60} className="object-contain h-8 md:h-10" />
+                        <Image src={uiConfig.brandLogoUrl![0]} alt={brandName} width={120} height={60} className="object-contain h-8 md:h-10" />
                     ) : (
                         <span className="text-xl md:text-2xl font-bold font-headline tracking-tight">
                             {brandName}
@@ -141,7 +134,7 @@ export default function Header() {
             </div>
         </div>
         <div className="border-t border-primary-foreground/10">
-          <HeaderCaption config={config} />
+          <HeaderCaption config={uiConfig} />
         </div>
     </header>
   );

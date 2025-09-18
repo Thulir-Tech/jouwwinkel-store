@@ -7,7 +7,7 @@ import { onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassw
 import { auth, db } from '@/lib/firebase.client';
 import type { User, UiConfig } from '@/lib/types';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { getUiConfig, getUser } from '@/lib/firestore';
+import { getUser } from '@/lib/firestore';
 import { toggleWishlistProduct } from '@/lib/firestore.admin';
 
 interface AuthContextType {
@@ -47,10 +47,9 @@ const updateUserProfileInFirestore = async (firebaseUser: FirebaseUser) => {
 }
 
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children, uiConfig }: { children: ReactNode, uiConfig: UiConfig | null }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [uiConfig, setUiConfig] = useState<UiConfig | null>(null);
 
   const fetchUser = useCallback(async (uid: string) => {
     const userProfile = await getUser(uid);
@@ -69,12 +68,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       setLoading(false);
     });
-
-    async function fetchConfig() {
-        const config = await getUiConfig();
-        setUiConfig(config);
-    }
-    fetchConfig();
 
     return () => unsubscribe();
   }, []);
