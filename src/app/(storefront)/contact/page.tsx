@@ -2,10 +2,9 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/hooks/use-auth';
 import { FaWhatsapp } from 'react-icons/fa';
 import { getActiveProducts } from '@/lib/firestore';
@@ -38,6 +37,27 @@ function ContactPageSkeleton() {
             </div>
         </div>
     )
+}
+
+function SafeIframe({ embedCode }: { embedCode: string }) {
+    const src = useMemo(() => {
+        const match = embedCode.match(/src="([^"]+)"/);
+        return match ? match[1] : null;
+    }, [embedCode]);
+
+    if (!src) {
+        return <p className="text-red-500 text-sm">Invalid map embed code.</p>;
+    }
+
+    return (
+        <iframe
+            src={src}
+            className="w-full aspect-video overflow-hidden rounded-lg border"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Google Map"
+        ></iframe>
+    );
 }
 
 export default function ContactPage() {
@@ -138,15 +158,8 @@ export default function ContactPage() {
                                             </p>
                                         </div>
                                     )}
-                                    {uiConfig.googleMapsEmbed ? (
-                                        <div 
-                                            className="w-full aspect-video overflow-hidden rounded-lg border"
-                                            dangerouslySetInnerHTML={{ __html: uiConfig.googleMapsEmbed }}
-                                        />
-                                    ) : uiConfig.googleMapsLink && (
-                                        <Button asChild className="w-full">
-                                            <a href={uiConfig.googleMapsLink} target="_blank" rel="noopener noreferrer">Find us on Google Maps</a>
-                                        </Button>
+                                    {uiConfig.googleMapsEmbed && (
+                                        <SafeIframe embedCode={uiConfig.googleMapsEmbed} />
                                     )}
                                 </CardContent>
                             </Card>

@@ -789,11 +789,11 @@ export function ConfigForm({ initialData }: ConfigFormProps) {
             name="googleMapsEmbed"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Google Maps Embed Code</FormLabel>
+                <FormLabel>Google Maps Embed HTML</FormLabel>
                 <FormControl>
-                    <Textarea placeholder='<iframe src="..."></iframe>' {...field} />
+                    <Textarea placeholder='<iframe src="https://www.google.com/maps/embed?pb=..."></iframe>' {...field} />
                 </FormControl>
-                <FormDescription>Paste the full iframe embed code from Google Maps here.</FormDescription>
+                <FormDescription>Go to Google Maps, find your location, click "Share", then "Embed a map", and copy the full HTML code here.</FormDescription>
                 <FormMessage />
                 </FormItem>
             )}
