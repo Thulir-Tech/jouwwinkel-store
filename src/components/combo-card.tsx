@@ -102,7 +102,7 @@ export default function ComboCard({ combo }: ComboCardProps) {
   const isInWishlist = user ? isProductInWishlist(combo.id) : false;
 
   return (
-    <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl group/card", cardColorClass)}>
+    <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl group/card min-w-[150px]", cardColorClass)}>
       <Link href={`/combos/${combo.slug}`} className="block h-full">
           <CardHeader className="p-0 relative">
               <Image
@@ -155,11 +155,11 @@ export default function ComboCard({ combo }: ComboCardProps) {
       </Link>
       <CardFooter className="p-4 pt-0">
         <div className="flex w-full gap-2">
-            <Button className="w-full" onClick={handleAddToCart}>
+            <Button className="flex-1" onClick={handleAddToCart}>
                 <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
             </Button>
             {showBuyNow && (
-                <Button variant="secondary" className="w-full" onClick={handleBuyNow}>
+                <Button variant="secondary" className="flex-shrink-0" onClick={handleBuyNow}>
                     <Zap className="mr-2 h-4 w-4" /> Buy Now
                 </Button>
             )}

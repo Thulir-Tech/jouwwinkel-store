@@ -127,7 +127,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           onOpenChange={setIsDialogOpen}
         />
       )}
-      <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl group/card", cardColorClass)}>
+      <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl group/card min-w-[150px]", cardColorClass)}>
         <Link href={`/products/${product.slug}`} className="block h-full">
             <CardHeader className="p-0 relative">
                 <Image
@@ -194,7 +194,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
             </Button>
             {showBuyNow && (
-              <Button variant="secondary" onClick={handleBuyNow}>
+              <Button variant="secondary" className="flex-shrink-0" onClick={handleBuyNow}>
                 <Zap className="mr-2 h-4 w-4" /> Buy Now
               </Button>
             )}
