@@ -2,6 +2,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { getActiveProducts, getCategories } from '@/lib/firestore';
 import type { Product, Category } from '@/lib/types';
 import ProductCard from '@/components/product-card';
@@ -26,6 +27,9 @@ function ProductGridSkeleton() {
 }
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
+  const categoryQuery = searchParams.get('category');
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +46,14 @@ export default function ProductsPage() {
         ]);
         setProducts(productsData);
         setCategories(categoriesData);
+        
+        if (categoryQuery) {
+            const categoryFromUrl = categoriesData.find(c => c.slug === categoryQuery);
+            if (categoryFromUrl) {
+                setSelectedCategory(categoryFromUrl.id);
+            }
+        }
+
       } catch (error) {
         console.error("Failed to fetch data:", error);
       } finally {
@@ -49,7 +61,7 @@ export default function ProductsPage() {
       }
     }
     fetchData();
-  }, []);
+  }, [categoryQuery]);
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products;
