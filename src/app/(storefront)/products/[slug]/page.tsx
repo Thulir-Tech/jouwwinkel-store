@@ -417,7 +417,6 @@ export default function ProductPage() {
                         <Button
                             size="lg"
                             variant="secondary"
-                            className="flex-1"
                             onClick={handleBuyNow}
                             disabled={!isSelectionComplete && product.hasVariants}
                         >
