@@ -103,6 +103,9 @@ export default function Header() {
   }, []);
 
   const logoLink = config?.brandLogoLink || '/';
+  const hasLogoImage = config?.brandLogoUrl && config.brandLogoUrl.length > 0;
+  const brandName = config?.brandLogoAltText || 'Jouwwinkel';
+
 
   return (
     <header className="sticky top-0 z-50 w-full text-primary-foreground bg-primary">
@@ -112,11 +115,11 @@ export default function Header() {
             </div>
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 <Link href={logoLink}>
-                    {config?.brandLogoUrl && config.brandLogoUrl.length > 0 ? (
-                        <Image src={config.brandLogoUrl[0]} alt={config.brandLogoAltText || 'Jouwwinkel'} width={120} height={60} className="object-contain h-8 md:h-10" />
+                    {hasLogoImage ? (
+                        <Image src={config.brandLogoUrl![0]} alt={brandName} width={120} height={60} className="object-contain h-8 md:h-10" />
                     ) : (
                         <span className="text-xl md:text-2xl font-bold font-headline tracking-tight">
-                            {config?.brandLogoAltText || 'Jouwwinkel'}
+                            {brandName}
                         </span>
                     )}
                 </Link>
