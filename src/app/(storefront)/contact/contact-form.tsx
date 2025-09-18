@@ -80,7 +80,7 @@ export function ContactForm({ products }: ContactFormProps) {
             <FormItem>
               <FormLabel>Your Name</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: John Doe" {...field} />
+                <Input placeholder="(e.g.): John Doe" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -93,7 +93,7 @@ export function ContactForm({ products }: ContactFormProps) {
             <FormItem>
               <FormLabel>Mobile Number</FormLabel>
               <FormControl>
-                <Input type="tel" placeholder="Ex: 95550 95550" {...field} />
+                <Input type="tel" placeholder="(e.g.): 95550 95550" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
