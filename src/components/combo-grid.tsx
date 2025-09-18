@@ -11,7 +11,7 @@ export default function ComboGrid({ combos }: ComboGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 justify-center gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 justify-center gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
       {combos.map(combo => (
         <ComboCard key={combo.id} combo={combo} />
       ))}
