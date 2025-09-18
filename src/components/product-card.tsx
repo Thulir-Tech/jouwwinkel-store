@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -159,7 +160,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </div>
               )}
               <div className="flex items-baseline gap-2 font-sans">
-                <p className="text-xl font-bold text-primary">₹{formatCurrency(price)}</p>
+                <p className="text-2xl font-bold text-primary">₹{formatCurrency(price)}</p>
                 {showCompareAtPrice && (
                   <p className="text-sm text-muted-foreground line-through">
                     ₹{formatCurrency(compareAtPrice!)}
