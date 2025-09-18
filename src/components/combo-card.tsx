@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import { ShoppingCart, Heart, Share2 } from 'lucide-react';
+import { ShoppingCart, Heart, Share2, Zap } from 'lucide-react';
 import type { Combo } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,7 @@ export default function ComboCard({ combo }: ComboCardProps) {
   const router = useRouter();
   
   const showCompareAtPrice = combo.compareAtPrice && combo.compareAtPrice > combo.price;
+  const showBuyNow = uiConfig?.showBuyNowButton ?? false;
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -44,6 +45,22 @@ export default function ComboCard({ combo }: ComboCardProps) {
       title: "Added to cart",
       description: `${combo.title} has been added to your cart.`,
     });
+  };
+
+  const handleBuyNow = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    addToCart({
+      productId: combo.id,
+      title: combo.title,
+      price: combo.price,
+      quantity: 1,
+      image: combo.images[0],
+      isCombo: true,
+      productIds: combo.productIds,
+      revenuePerUnit: combo.revenuePerUnit,
+      profitPerUnit: combo.profitPerUnit,
+    });
+    router.push('/checkout');
   };
 
   const handleWishlistClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -137,9 +154,16 @@ export default function ComboCard({ combo }: ComboCardProps) {
           </CardContent>
       </Link>
       <CardFooter className="p-4 pt-0">
-        <Button className="w-full" onClick={handleAddToCart}>
-          <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
-        </Button>
+        <div className="flex w-full gap-2">
+            <Button className="w-full" onClick={handleAddToCart}>
+                <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
+            </Button>
+            {showBuyNow && (
+                <Button variant="secondary" className="w-full" onClick={handleBuyNow}>
+                    <Zap className="mr-2 h-4 w-4" /> Buy Now
+                </Button>
+            )}
+        </div>
       </CardFooter>
     </Card>
   );

@@ -19,9 +19,11 @@ import { Separator } from '@/components/ui/separator';
 import VariantSelector from './variant-selector';
 import { useCartStore } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Zap } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { getProduct } from '@/lib/firestore';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 
 interface AddToCartDialogProps {
   product: Product;
@@ -52,6 +54,8 @@ export default function AddToCartDialog({ product: initialProduct, open, onOpenC
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const { addToCart } = useCartStore();
   const { toast } = useToast();
+  const { uiConfig } = useAuth();
+  const router = useRouter();
 
   // Fetch full product details if only partial data is passed
   useEffect(() => {
@@ -75,6 +79,8 @@ export default function AddToCartDialog({ product: initialProduct, open, onOpenC
 
   const allVariantsSelected = product.hasVariants ? 
     product.variants.length === Object.keys(selectedVariants).length : true;
+    
+  const showBuyNow = uiConfig?.showBuyNowButton ?? false;
 
   const handleAddToCart = () => {
     if (!allVariantsSelected) {
@@ -105,6 +111,32 @@ export default function AddToCartDialog({ product: initialProduct, open, onOpenC
     });
     onOpenChange(false);
   };
+  
+  const handleBuyNow = () => {
+    if (!allVariantsSelected) {
+      toast({
+        title: 'Please select all options',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const variantId = product.hasVariants ? Object.values(selectedVariants).map(s => s.toLowerCase()).join('-') : undefined;
+    const variantLabel = product.hasVariants ? Object.values(selectedVariants).join(' / ') : undefined;
+
+    addToCart({
+      productId: product.id,
+      title: product.title,
+      price: product.price,
+      quantity: 1,
+      image: product.images[0],
+      variantId,
+      variantLabel,
+      revenuePerUnit: product.revenuePerUnit,
+      profitPerUnit: product.profitPerUnit,
+    });
+    onOpenChange(false);
+    router.push('/checkout');
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -137,11 +169,16 @@ export default function AddToCartDialog({ product: initialProduct, open, onOpenC
                 />
             </div>
         )}
-        <DialogFooter>
+        <DialogFooter className={showBuyNow ? "sm:justify-between gap-2" : ""}>
           <Button className="w-full" size="lg" onClick={handleAddToCart} disabled={!allVariantsSelected || loading}>
             <ShoppingCart className="mr-2 h-5 w-5" />
             Add to Cart
           </Button>
+          {showBuyNow && (
+             <Button variant="secondary" className="w-full" size="lg" onClick={handleBuyNow} disabled={!allVariantsSelected || loading}>
+              <Zap className="mr-2 h-4 w-4" /> Buy Now
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

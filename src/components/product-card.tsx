@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Star, ShoppingCart, Heart, Share2 } from 'lucide-react';
+import { Star, ShoppingCart, Heart, Share2, Zap } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { formatCurrency } from '@/lib/format';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const { price, compareAtPrice } = getPrice();
   const showCompareAtPrice = compareAtPrice && compareAtPrice > price;
+  const showBuyNow = uiConfig?.showBuyNowButton ?? false;
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // prevent link navigation when clicking button
@@ -58,6 +59,24 @@ export default function ProductCard({ product }: ProductCardProps) {
             title: "Added to cart",
             description: `${product.title} has been added to your cart.`,
         });
+    }
+  };
+
+  const handleBuyNow = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (product.hasVariants) {
+      setIsDialogOpen(true);
+    } else {
+      addToCart({
+        productId: product.id,
+        title: product.title,
+        price: price,
+        quantity: 1,
+        image: product.images[0],
+        revenuePerUnit: product.revenuePerUnit,
+        profitPerUnit: product.profitPerUnit,
+      });
+      router.push('/checkout');
     }
   };
   
@@ -170,9 +189,16 @@ export default function ProductCard({ product }: ProductCardProps) {
             </CardContent>
         </Link>
         <CardFooter className="p-4 pt-0">
-          <Button className="w-full" onClick={handleAddToCart}>
-            <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
-          </Button>
+          <div className="flex w-full gap-2">
+            <Button className="w-full" onClick={handleAddToCart}>
+              <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
+            </Button>
+            {showBuyNow && (
+              <Button variant="secondary" className="w-full" onClick={handleBuyNow}>
+                <Zap className="mr-2 h-4 w-4" /> Buy Now
+              </Button>
+            )}
+          </div>
         </CardFooter>
       </Card>
     </>
