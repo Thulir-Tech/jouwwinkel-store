@@ -102,64 +102,66 @@ export default function ComboCard({ combo }: ComboCardProps) {
   const isInWishlist = user ? isProductInWishlist(combo.id) : false;
 
   return (
-    <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl group/card min-w-[150px]", cardColorClass)}>
-      <Link href={`/combos/${combo.slug}`} className="block h-full">
-          <CardHeader className="p-0 relative">
-              <Image
-                src={combo.images[0] || 'https://placehold.co/400x400.png'}
-                alt={combo.title}
-                width={400}
-                height={400}
-                className="aspect-square w-full object-cover"
-                data-ai-hint="combo photo"
-              />
-            {combo.onSale && (
-              <Badge className="absolute top-2 left-2" variant="destructive">
-                Sale
-              </Badge>
-            )}
-             <div className="absolute top-2 right-2 flex flex-col gap-2 transition-opacity duration-300">
-                <Button
-                    size="icon"
-                    variant="secondary"
-                    className="rounded-full h-8 w-8"
-                    onClick={handleWishlistClick}
-                    aria-label="Add to wishlist"
-                >
-                    <Heart className={cn("h-4 w-4", isInWishlist && "fill-destructive text-destructive")} />
-                </Button>
-                <Button
-                    size="icon"
-                    variant="secondary"
-                    className="rounded-full h-8 w-8"
-                    onClick={handleShareClick}
-                    aria-label="Share product"
-                >
-                    <Share2 className="h-4 w-4" />
-                </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="flex-grow p-4 space-y-2">
-            <CardTitle className="text-lg font-semibold leading-tight line-clamp-2 font-headline">
-              {combo.title}
-            </CardTitle>
-            <div className="flex items-baseline gap-2 font-sans">
-              <p className="text-2xl font-bold text-primary">₹{formatCurrency(combo.price)}</p>
-              {showCompareAtPrice && (
-                <p className="text-sm text-muted-foreground line-through">
-                  ₹{formatCurrency(combo.compareAtPrice!)}
-                </p>
+    <Card className={cn("flex h-full flex-col overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl group/card", cardColorClass)}>
+      <div className="flex-grow">
+        <Link href={`/combos/${combo.slug}`} className="block h-full">
+            <CardHeader className="p-0 relative">
+                <Image
+                  src={combo.images[0] || 'https://placehold.co/400x400.png'}
+                  alt={combo.title}
+                  width={400}
+                  height={400}
+                  className="aspect-square w-full object-cover"
+                  data-ai-hint="combo photo"
+                />
+              {combo.onSale && (
+                <Badge className="absolute top-2 left-2" variant="destructive">
+                  Sale
+                </Badge>
               )}
-            </div>
-          </CardContent>
-      </Link>
+              <div className="absolute top-2 right-2 flex flex-col gap-2 transition-opacity duration-300">
+                  <Button
+                      size="icon"
+                      variant="secondary"
+                      className="rounded-full h-8 w-8"
+                      onClick={handleWishlistClick}
+                      aria-label="Add to wishlist"
+                  >
+                      <Heart className={cn("h-4 w-4", isInWishlist && "fill-destructive text-destructive")} />
+                  </Button>
+                  <Button
+                      size="icon"
+                      variant="secondary"
+                      className="rounded-full h-8 w-8"
+                      onClick={handleShareClick}
+                      aria-label="Share product"
+                  >
+                      <Share2 className="h-4 w-4" />
+                  </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="p-4 space-y-2">
+              <CardTitle className="text-base font-semibold leading-tight line-clamp-2 font-headline">
+                {combo.title}
+              </CardTitle>
+              <div className="flex items-baseline gap-2 font-sans">
+                <p className="text-lg font-bold text-primary">₹{formatCurrency(combo.price)}</p>
+                {showCompareAtPrice && (
+                  <p className="text-sm text-muted-foreground line-through">
+                    ₹{formatCurrency(combo.compareAtPrice!)}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+        </Link>
+      </div>
       <CardFooter className="p-4 pt-0">
-        <div className="flex w-full gap-2">
+        <div className="flex w-full flex-wrap gap-2">
             <Button className="flex-1" onClick={handleAddToCart}>
                 <ShoppingCart className="mr-2 h-4 w-4" /> Add to Cart
             </Button>
             {showBuyNow && (
-                <Button variant="secondary" className="flex-shrink-0" onClick={handleBuyNow}>
+                <Button variant="secondary" className="flex-1" onClick={handleBuyNow}>
                     <Zap className="mr-2 h-4 w-4" /> Buy Now
                 </Button>
             )}
